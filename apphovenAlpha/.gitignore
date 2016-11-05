@@ -1,0 +1,15 @@
+.vscode/
+npm-debug.log
+
+app/**/*.js
+!app/shared/everlive.all.min.js
+hooks/
+lib/
+node_modules/
+
+platforms/
+!platforms/android/google-services.json
+!platforms/android/build.gradle
+
+tmp/
+typings/
