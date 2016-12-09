@@ -14,3 +14,7 @@ https://blog.apphoven.com
 - Login-Components are based on Nativescript samples
   (But: are or will be heavily modified)
   https://github.com/jlooper/sample-Groceries/tree/angular-firebase/app
+  
+- Metronome
+  (Working Component, without styling; using nativescript-sound)
+  https://github.com/NathanWalker/nativescript-sound 
