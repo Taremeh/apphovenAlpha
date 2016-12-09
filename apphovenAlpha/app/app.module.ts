@@ -1,14 +1,21 @@
+// Imports
 import { NgModule } from "@angular/core";
 import { NativeScriptFormsModule } from "nativescript-angular/forms";
 import { NativeScriptHttpModule } from "nativescript-angular/http";
 import { NativeScriptModule } from "nativescript-angular/platform";
 import { NativeScriptRouterModule } from "nativescript-angular/router";
 
+// Declarations
 import { AppComponent } from "./app.component";
-import { authProviders } from "./app.routing";
+import { TempoTermPipe } from "./pages/metronome/tempo-term.pipe";
 import { routes, navigatableComponents } from "./app.routing";
-import { setStatusBarColors, BackendService, LoginService } from "./shared";
 
+// Providers
+import { authProviders } from "./app.routing";
+import { setStatusBarColors, BackendService, LoginService } from "./shared";
+import { PerformanceTestService } from "./pages/metronome/performance-test.service";
+
+// Modules
 import { LoginModule } from "./pages/login/login.module";
 import { HomeModule } from "./pages/home/home.module";
 import { SettingsModule } from "./pages/settings/settings.module";
@@ -21,7 +28,8 @@ import { ProfileModule } from "./pages/profile/profile.module";
   providers: [
     BackendService,
     LoginService,
-    authProviders
+    authProviders,
+    PerformanceTestService
   ],
   imports: [
     NativeScriptModule,
@@ -36,7 +44,8 @@ import { ProfileModule } from "./pages/profile/profile.module";
   ],
   declarations: [
     AppComponent,
-    ...navigatableComponents
+    ...navigatableComponents,
+    TempoTermPipe
   ],
   bootstrap: [AppComponent]
 })

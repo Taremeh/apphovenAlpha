@@ -31,4 +31,8 @@ export class HomeComponent implements OnInit, OnDestroy {
     onTapProfile() {
         this._router.navigate(["/profile"]);
     }
+    
+    onTapMetr() {
+        this._router.navigate(["/metronome"]);
+    }
 }
