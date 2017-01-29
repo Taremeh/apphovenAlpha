@@ -2,7 +2,10 @@
 </ActionBar>
 
 <StackLayout>
-    <Button (tap)="onTap()" text="Settings"></Button>
-    <Button (tap)="onTapProfile()" text="Profile"></Button>
-    <Button (tap)="onTapMetr()" text="Metronome"></Button>
+    <Button (tap)="navigateTo('/settings')" text="Settings"></Button>
+    <Button (tap)="navigateTo('/profile')" text="Profile"></Button>
+    <Button (tap)="navigateTo('/metronome')" text="Metronome"></Button>
+    <Button (tap)="navigateTo('/composers')" text="Composers"></Button>
+    <Button (tap)="navigateTo('/search')" text="Search"></Button>
+    <Button (tap)="navigateTo('/addpiece')" text="add piece"></Button>
 </StackLayout>

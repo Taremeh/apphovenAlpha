@@ -23,16 +23,7 @@ export class HomeComponent implements OnInit, OnDestroy {
         console.log("Home - ngOnDestroy()");
     }
 
-
-    onTap() {
-        this._router.navigate(["/settings"]);
-    }
-
-    onTapProfile() {
-        this._router.navigate(["/profile"]);
-    }
-    
-    onTapMetr() {
-        this._router.navigate(["/metronome"]);
+    navigateTo(page: string){
+        this._router.navigate([page]);
     }
 }

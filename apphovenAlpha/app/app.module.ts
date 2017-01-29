@@ -14,6 +14,7 @@ import { routes, navigatableComponents } from "./app.routing";
 import { authProviders } from "./app.routing";
 import { setStatusBarColors, BackendService, LoginService } from "./shared";
 import { PerformanceTestService } from "./pages/metronome/performance-test.service";
+import { HttpService } from "./shared";
 
 // Modules
 import { LoginModule } from "./pages/login/login.module";
@@ -29,7 +30,8 @@ import { ProfileModule } from "./pages/profile/profile.module";
     BackendService,
     LoginService,
     authProviders,
-    PerformanceTestService
+    PerformanceTestService,
+    HttpService,
   ],
   imports: [
     NativeScriptModule,

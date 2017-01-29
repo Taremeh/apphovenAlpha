@@ -1,5 +1,5 @@
-import {Injectable} from "@angular/core";
-import {User} from "./user.model";
+import { Injectable } from "@angular/core";
+import { User } from "./user.model";
 import { BackendService } from "./backend.service";
 import firebase = require("nativescript-plugin-firebase");
 
