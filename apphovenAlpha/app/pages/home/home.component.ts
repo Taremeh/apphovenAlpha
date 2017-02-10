@@ -1,6 +1,9 @@
 import { Component, OnInit, OnDestroy } from "@angular/core";
 import { Page } from "ui/page";
 import { Router } from "@angular/router";
+import { AndroidApplication, AndroidActivityBackPressedEventData } from "application";
+import * as application from "application";
+
 
 @Component({
     selector: "ah-home",
@@ -17,6 +20,10 @@ export class HomeComponent implements OnInit, OnDestroy {
         console.log("Home Registiert: OnInit");
         this.isAndroid = !!this.page.android;
         this.page.actionBarHidden = false;
+        application.android.on(AndroidApplication.activityBackPressedEvent, (data: AndroidActivityBackPressedEventData) => {
+          
+        });
+
     }
 
     ngOnDestroy() {
@@ -26,4 +33,5 @@ export class HomeComponent implements OnInit, OnDestroy {
     navigateTo(page: string){
         this._router.navigate([page]);
     }
+
 }

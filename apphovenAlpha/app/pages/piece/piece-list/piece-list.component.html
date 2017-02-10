@@ -1,0 +1,24 @@
+<StackLayout class="ah-main-container">
+    <StackLayout #pieceContainer class="piece-container">
+            <StackLayout class="movement-container">
+                <Label class="piece-text" text="Your current pieces:"></Label>
+                <StackLayout class="movement-list-current">
+                    <ListView [items]="pieceArray" separatorColor="white" (itemTap)="onPieceTap($event)">
+                        <template let-piece="item">
+                            <StackLayout class="list-record-container"> 
+                                <GridLayout rows="auto, auto"columns="*, auto" class="list-record-item">
+                                    <Label row="0" col="0" class="piece-heading" [text]="piece.title"></Label>
+                                    <Label row="1" col="0" [text]="piece.movements" visibility="{{piece.movements ? 'visible' : 'collapsed' }}"></Label>
+                                    <Label row="0" col="1" class="icon-font" [text]="iconSettings" (tap)="showPieceOptions(piece.id)"></Label>                            
+                                    <!-- <GridLayout rows="* auto" columns="*, *">
+                                        <Button text="Record" row="0" col="0" (tap)="onPieceRecord(piece.id)"></Button>
+                                        <Button text="More Informations" row="0" col="1" (tap)="onPieceInformation(piece.id)"></Button>
+                                    </GridLayout> -->
+                                </GridLayout>
+                            </StackLayout>
+                        </template>
+                    </ListView>
+                </StackLayout>
+            </StackLayout>
+    </StackLayout>
+</StackLayout>

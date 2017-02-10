@@ -1,0 +1,63 @@
+label, .icon-font {
+    color: #F9F9F9;
+}
+
+button {
+    margin: 5%;
+    padding: 2%;
+    font-size: 19;
+    font-weight: bold; 
+    color: #F9F9F9;
+    background-color: #444444;
+    border-radius: 5;
+}
+
+.submit-button {
+    margin-top: 10%;
+}
+
+textfield {
+    margin-top: 10%;
+    color: #F9F9F9;
+}
+
+.ah-main-container-s {
+    background-color: #303030;
+    padding: 20%;
+}
+
+.recording-time {
+    color: #F9F9F9;
+    font-size: 80;
+    text-align: center;
+}
+.timer-container {
+    background-color: transparent;
+    padding: 3%;
+    border-radius: 3px;
+}
+
+.session-rating-container {
+    visibility: collapse;
+    background-color: transparent;
+}
+
+.icon-font {
+    font-family: 'fontawesome';
+    font-size: 48;
+}
+
+.icon-bar-container {
+    margin: 5% 10% 0 10%;
+    text-align: center;
+}
+
+.piece-information-container {
+    margin: 0, 10%, 5%, 10%;
+    text-align: center
+}
+
+.rating-information {
+    text-transform: uppercase;
+    text-align: center;
+}

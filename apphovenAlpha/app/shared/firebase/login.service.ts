@@ -26,6 +26,17 @@ export class LoginService {
         function (result) {
           BackendService.token = result.uid;
           BackendService.email = result.email;
+          firebase.keepInSync(
+              "/user/"+BackendService.token+"/piece", // which path in your Firebase needs to be kept in sync?
+              true      // set to false to disable this feature again
+          ).then(
+              function () {
+              console.log("firebase.keepInSync is ON for ../piece");
+              },
+              function (error) {
+              console.log("firebase.keepInSync error: " + error);
+              }
+          );
           console.log("LOGIN SUCCESS - SERVICE");
           return JSON.stringify(result);
         },

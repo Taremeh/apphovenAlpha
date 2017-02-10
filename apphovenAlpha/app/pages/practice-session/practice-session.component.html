@@ -1,0 +1,19 @@
+<StackLayout class="ah-main-container">
+    <StackLayout #pieceContainer class="piece-container">
+            <StackLayout class="movement-container">
+                <Label class="piece-text" text="Your sessions:"></Label>
+                <StackLayout class="movement-list-current">
+                    <ListView [items]="sessionArray" separatorColor="white">
+                        <template let-piece="item">
+                            <StackLayout class="list-record-container"> 
+                                <GridLayout rows="auto, auto"columns="*, auto" class="list-record-item">
+                                    <Label row="0" col="0" class="piece-heading" [text]="piece.pieceId"></Label>
+                                    <Label row="1" col="0" [text]="piece.userNotes"></Label>
+                                </GridLayout>
+                            </StackLayout>
+                        </template>
+                    </ListView>
+                </StackLayout>
+            </StackLayout>
+    </StackLayout>
+</StackLayout>

@@ -8,6 +8,7 @@ import { NativeScriptRouterModule } from "nativescript-angular/router";
 // Declarations
 import { AppComponent } from "./app.component";
 import { TempoTermPipe } from "./pages/metronome/tempo-term.pipe";
+import { TimerPipe } from "./pages/piece/piece-recorder/timer.pipe";
 import { routes, navigatableComponents } from "./app.routing";
 
 // Providers
@@ -47,7 +48,8 @@ import { ProfileModule } from "./pages/profile/profile.module";
   declarations: [
     AppComponent,
     ...navigatableComponents,
-    TempoTermPipe
+    TempoTermPipe,
+    TimerPipe
   ],
   bootstrap: [AppComponent]
 })

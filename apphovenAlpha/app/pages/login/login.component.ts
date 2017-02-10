@@ -7,6 +7,8 @@ import { View } from "ui/core/view";
 import { prompt } from "ui/dialogs";
 import { Page } from "ui/page";
 import { TextField } from "ui/text-field";
+import { RouterExtensions } from "nativescript-angular/router";
+
 
 import { alert, alertExt, LoginService, setHintColor, User  } from "../../shared";
 
@@ -32,7 +34,8 @@ export class LoginComponent implements OnInit {
 
     constructor(private _router: Router,
         private userService: LoginService,
-        private page: Page) {
+        private page: Page,
+        private _routerExtensions: RouterExtensions) {
         this.user = new User();
         this.user.email = "";
         this.user.password = "";
@@ -64,7 +67,8 @@ export class LoginComponent implements OnInit {
         this.userService.login(this.user)
         .then((data) => {
             this.isAuthenticating = false;
-            this._router.navigate(["/home"]);
+            this._routerExtensions.navigate(["/home"], { clearHistory: true });
+            //this._router.navigate(["/home"]);
         })
         .catch((err) => {
             this.isAuthenticating = false;

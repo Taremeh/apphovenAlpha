@@ -1,8 +1,9 @@
 import { Injectable } from "@angular/core";
-import { getString, setString } from "application-settings";
+import { getString, setString, getNumber, setNumber } from "application-settings";
 
 const tokenKey = "token";
 const email = "email";
+const lastPieceId = "lastPieceId";
 
 export class BackendService {
   
@@ -25,4 +26,13 @@ export class BackendService {
   static set email(email: string) {
     setString("email", email);
   }
+
+  static get lastPieceId(): number {
+    return getNumber("lastPieceId");
+  }
+
+  static set lastPieceId(lastPieceId: number) {
+    setNumber("lastPieceId", lastPieceId);
+  }
+  
 }

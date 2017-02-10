@@ -1,0 +1,30 @@
+<StackLayout class="ah-main-container">
+    <StackLayout #pieceContainer class="piece-container">
+        <ScrollView #scrlView orientation="horizontal">
+            <Label class="piece-heading" text="{{ pieceTitle }}"></Label>
+        </ScrollView>
+            <Label class="piece-text" text="Work-Number: {{ pieceWorkNumber }}"></Label>
+            <Label class="piece-text" text="Movements: {{ pieceMovementAmount }}" visibility="{{pieceMovementAmount ? 'visible' : 'collapsed' }}"></Label>
+            
+            <StackLayout class="movement-container" visibility="{{pieceMovementAmount ? 'visible' : 'collapsed' }}">
+                <Label class="piece-text" text="Your current movements:"></Label>
+                <StackLayout class="movement-list-current">
+                    <ListView [items]="selectedArray" separatorColor="white" (itemTap)="handleItemTap($event)">
+                        <template let-movement="item">
+                            <GridLayout rows="* auto" columns="*" class="list-record-container"> 
+                                <GridLayout rows="auto, auto" columns="*" class="{{ movement.state ? 'list-record-item' : 'list-record-item-add' }}">
+                                    <Label class="piece-heading" text="{{movement.state }} / {{ movement.title }}" row="0" col="0"></Label>
+                                    <Label text="{{ showRemainingMovements ? (movement.state ? 'delete' : 'ADD TO LIST') : (movement.state ? 'CLICK TO RECORD' : 'ADD TO LIST') }}" row="1" col="0"></Label> 
+
+                                    <StackLayout *ngIf="showRemainingMovements" row="0" col="0" class="icon-font">
+                                        <Label text="{{ movement.state ? iconRemove : iconAdd }}"></Label>
+                                    </StackLayout>                           
+                                </GridLayout>
+                            </GridLayout>
+                        </template>
+                    </ListView>
+                    <Button [text]="toggleButtonText" (tap)="toggleRemainingMovements()"></Button>
+                </StackLayout>
+            </StackLayout>
+    </StackLayout> 
+</StackLayout>

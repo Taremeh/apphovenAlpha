@@ -1,0 +1,33 @@
+<StackLayout class="ah-main-container-s">
+    <StackLayout class="timer-container">
+        <Label class="recording-time" text="{{ time | timerformat | date:'HH:mm:ss' }}" (tap)="showPieceDetails()"></Label>
+        <ScrollView *ngIf="showPiece" orientation="horizontal" class="piece-information-container">
+            <GridLayout rows="auto" columns="auto, auto">
+                <Label [text]="pieceTitle" col="0"></Label>
+                <Label *ngIf="movementTitle" text=" | {{ movementTitle }}" col="1"></Label>
+            </GridLayout>
+        </ScrollView>
+        <Button *ngIf="button1" [text]="recordingTimeButton" (tap)="toggleRecordingTime()"></Button>
+        <GridLayout *ngIf="buttonContainer" rows="auto" columns="*,*">
+            <Button [text]="recordingTimeButton" (tap)="start(3)" col="0"></Button>
+            <Button text="Continue" (tap)="start(2)" col="1"></Button>
+        </GridLayout>
+    </StackLayout>
+    <StackLayout #sessionRatingContainer class="session-rating-container">
+
+        <GridLayout rows="auto" columns="*, *, *, *, *" orientation="horizontal" class="icon-bar-container">
+            <Label class="icon-font" *ngFor="let star of ratingIcons" text="{{ star.iconCode }}" col="{{ star.position-1 }}" (tap)="onRatingStarTap(star.position)"></Label> 
+        </GridLayout>
+        <Label class="rating-information" text="Your progress"></Label>
+
+        <GridLayout rows="auto" columns="*, *, *" orientation="horizontal" class="icon-bar-container">
+            <Label class="icon-font" *ngFor="let smile of smileIcons" text="{{ smile.iconCode }}" col="{{ smile.position-1 }}" (tap)="onSmileTap(smile.position-1)" style="{{ smile.iconState ? 'color: '+smile.iconColor : 'color: #F9F9F9' }}"></Label> 
+        </GridLayout>
+        <Label class="rating-information"text="Your happiness"></Label>
+        
+        <TextField [(ngModel)]="userSessionNotes"></TextField>
+        <Label class="rating-information" text="Take notes, write a report:"></Label>   
+
+        <Button text="Save Session" (tap)="saveSession()" class="submit-button"></Button>
+    </StackLayout>
+</StackLayout>

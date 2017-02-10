@@ -1,7 +1,7 @@
 <StackLayout class="main-container">
     <StackLayout #searchContainer class="search-container">
-            <SearchBar #sbComposer class="sb-composer" hint="Mozart" [text]="searchPhrase" (textChange)="searchComposer(sbComposer.text)"></SearchBar>     
-            <SearchBar #sbPiece class="sb-piece" hint="Eine kleine Nachtmusik" [text]="searchPhrase" (textChange)="searchPiece(sbPiece.text)"></SearchBar>     
+            <SearchBar #sbComposer class="sb-composer" hint="Mozart" text="{{ searchPhraseComposer }}" (textChange)="searchComposer(sbComposer.text)"></SearchBar>     
+            <SearchBar #sbPiece class="sb-piece" hint="Eine kleine Nachtmusik" text="{{ searchPhrasePiece }}" (textChange)="searchPiece(sbPiece.text)"></SearchBar>     
 
             <StackLayout #searchComposerList class="search-composer-list">
                 <ListView [items]="composerArray" class="list-group" (itemTap)="onComposerItemTap($event)">
@@ -32,7 +32,7 @@
         </ScrollView>
             <Label class="piece-text" text="Work-Number: {{ pieceItemText.piece_work_number }}"></Label>
             <Label class="piece-text" text="Movements: {{ pieceItemText.piece_movement_amount }}" visibility="{{ pieceItemText.piece_movement_amount ? 'visible' : 'collapsed' }}"></Label>
-            <ListView [items]="pieceMovementArray" separatorColor="white" visibility="{{ pieceMovementArray ? 'visible' : 'collapsed' }}">
+            <ListView [items]="pieceMovementArray" separatorColor="white">
                 <template let-movement="item">
                     <GridLayout rows="* auto" columns="*"> 
                         <StackLayout row="1" col="0" class="list-group-item" orientation="horizontal" (tap)="onMovementItemTap(movement)">

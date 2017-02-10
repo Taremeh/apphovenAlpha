@@ -1,11 +1,17 @@
-<ActionBar title="Home">
-</ActionBar>
+<StackLayout class="ah-main-container">
+    <ActionBar title="Apphoven">
+    </ActionBar>
 
-<StackLayout>
     <Button (tap)="navigateTo('/settings')" text="Settings"></Button>
     <Button (tap)="navigateTo('/profile')" text="Profile"></Button>
     <Button (tap)="navigateTo('/metronome')" text="Metronome"></Button>
     <Button (tap)="navigateTo('/composers')" text="Composers"></Button>
     <Button (tap)="navigateTo('/search')" text="Search"></Button>
+    <Button (tap)="navigateTo('/piece-list')" text="Piece List"></Button>
     <Button (tap)="navigateTo('/addpiece')" text="add piece"></Button>
+
+    <!-- The piece recorder can be opened via piece-list. This button is meant for testing purposes only. -->
+    <Button (tap)="navigateTo('/piece-recorder/1368/-1')" text="record piece"></Button>
+    
+    <Button (tap)="navigateTo('/practice-session')" text="practice sessions"></Button>
 </StackLayout>
