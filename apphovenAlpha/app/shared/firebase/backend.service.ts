@@ -3,7 +3,7 @@ import { getString, setString, getNumber, setNumber } from "application-settings
 
 const tokenKey = "token";
 const email = "email";
-const lastPracticeDuration  = "lastPracticeDuration";
+const lastPieceId = "lastPieceId";
 
 export class BackendService {
   
@@ -27,12 +27,12 @@ export class BackendService {
     setString("email", email);
   }
 
-  static get lastPracticeDuration(): number {
-    return getNumber("lastPracticeDuration");
+  static get lastPieceId(): number {
+    return getNumber("lastPieceId");
   }
 
-  static set lastPracticeDuration(lastPracticeDuration: number) {
-    setNumber("lastPracticeDuration", lastPracticeDuration);
+  static set lastPieceId(lastPieceId: number) {
+    setNumber("lastPieceId", lastPieceId);
   }
-
+  
 }

@@ -4,6 +4,8 @@ import { HomeComponent } from "./pages/home/home.component";
 import { SettingsComponent } from "./pages/settings/settings.component";
 import { ProfileComponent } from "./pages/profile/profile.component";
 import { MetronomeComponent } from "./pages/metronome/metronome.component";
+import { ComposerComponent } from "./pages/composer/composer.component";
+import { SearchComponent } from "./pages/search/search.component";
 import { AddPieceComponent } from "./pages/piece/addpiece/addpiece.component";
 import { PieceDashboardComponent } from "./pages/piece/piece-dashboard/piece-dashboard.component";
 import { PieceListComponent } from "./pages/piece/piece-list/piece-list.component";
@@ -21,10 +23,12 @@ export const routes = [
   { path: 'settings', component: SettingsComponent, clearHistory: true, canActivate: [AuthGuard] },
   { path: 'profile', component: ProfileComponent, canActivate: [AuthGuard] },
   { path: 'metronome', component: MetronomeComponent, canActivate: [AuthGuard] },
+  { path: 'composer/:id', component: ComposerComponent, canActivate: [AuthGuard] },
+  { path: 'search', component: SearchComponent, canActivate: [AuthGuard] },
   { path: 'addpiece', component: AddPieceComponent, canActivate: [AuthGuard] },
   { path: 'piece-db/:pieceId/:originType', component: PieceDashboardComponent, canActivate: [AuthGuard] },
   { path: 'piece-list', component: PieceListComponent, canActivate: [AuthGuard] },
-  { path: 'piece-recorder', component: PieceRecorderComponent, canActivate: [AuthGuard] },
+  { path: 'piece-recorder/:pieceId/:movementId', component: PieceRecorderComponent, canActivate: [AuthGuard] },
   { path: 'practice-session', component: PracticeSessionComponent, canActivate: [AuthGuard] },
 ];
 
@@ -35,6 +39,8 @@ export const navigatableComponents = [
   SettingsComponent,
   ProfileComponent,
   MetronomeComponent,
+  ComposerComponent,
+  SearchComponent,
   AddPieceComponent,
   PieceDashboardComponent,
   PieceListComponent,

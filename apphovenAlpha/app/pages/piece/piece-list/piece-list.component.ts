@@ -2,7 +2,7 @@ import { Component, OnInit, NgZone } from "@angular/core";
 import firebase = require("nativescript-plugin-firebase");
 import { PageRoute } from "nativescript-angular/router";
 import { Observable as RxObservable } from 'rxjs/Observable';
-import { HttpService, BackendService, PieceService } from "../../../shared";
+import { HttpService, BackendService } from "../../../shared";
 import { Page } from "ui/page";
 import * as application from "application";
 import { AndroidApplication, AndroidActivityBackPressedEventData } from "application";
@@ -23,7 +23,7 @@ export class PieceListComponent implements OnInit {
     public pieceMovementArray: Array<any>;
     public pieceMovementArrayNotSelected: Array<any>;
 
-    // Icons
+    // Icons:
     public iconSettings = String.fromCharCode(0xf013);
 
     // Nativescript doesn't allow an easy way to render an object, 
@@ -33,7 +33,7 @@ export class PieceListComponent implements OnInit {
     public pieceMovementAmount: number;
 
     constructor(private _pageRoute: PageRoute, private _page: Page, private _router: Router,
-                private _ngZone: NgZone, private _pieceService: PieceService) {
+                private _ngZone: NgZone) {
         this.pieceArray = [];
         this.pieceMovementArray = [];
         this.pieceMovementIdArray = [];
@@ -77,7 +77,7 @@ export class PieceListComponent implements OnInit {
 
                                 let lenMovements = result.value[this.pieceMovementIdArray[i]].movementItem.length;
                                 for (let iMov = 0; iMov < lenMovements; iMov++) {
-                                    if(result.value[this.pieceMovementIdArray[i]].movementItem[iMov].state == 1){
+                                    if(result.value[this.pieceMovementIdArray[i]].movementItem[iMov].state = 1){
                                         this.pieceMovementArray.push(result.value[this.pieceMovementIdArray[i]].movementItem[iMov].title);
                                     }
                                 }
@@ -135,7 +135,6 @@ export class PieceListComponent implements OnInit {
     }
 
     showPieceOptions(pieceId: number){
-        console.log("üBERMITTELTE PIECE ID: ->" + pieceId + "<-");
         let that = this;
         let options = {
             title: "Piece Options",
@@ -146,36 +145,15 @@ export class PieceListComponent implements OnInit {
         dialogs.action(options).then((result) => {
             console.log(result);
             if(result == "Remove Piece"){
-                this._pieceService.removePiece(pieceId, -1).then(
-                    function () {
-                    console.log("success REMOVING");
-                    that.loadFirebaseData();
-                },
-                function (error) {
-                console.log("firebase.keepInSync error: " + error);
-                }
-                );
-
-                
-                /*
-                
-                FIREBASE PIECE REMOVAL MOVED TO EXTERNAL PIECE-SERVICE
-                THIS CODE WILL BE DELETED IN NEXT COMMIT
-
                 firebase.remove("/user/" + BackendService.token + "/piece/" + pieceId).then(
                 function () {
-                    if(pieceId == BackendService.lastPieceId){
-                        // -1 indicates: Last used Piece was removed
-                        BackendService.lastPieceId = -1;
-                        BackendService.lastMovementId = -1;
-                    }
-                    console.log("success REMOVING");
-                    that.loadFirebaseData();
+                console.log("success REMOVING");
+                that.loadFirebaseData();
                 },
                 function (error) {
                 console.log("firebase.keepInSync error: " + error);
                 }
-                );*/
+            );;
             }
         });
     }

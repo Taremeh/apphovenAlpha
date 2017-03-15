@@ -2,7 +2,7 @@ import { Component, OnInit, NgZone } from "@angular/core";
 import firebase = require("nativescript-plugin-firebase");
 import { PageRoute } from "nativescript-angular/router";
 import { Observable as RxObservable } from 'rxjs/Observable';
-import { HttpService, BackendService, PieceService } from "../../../shared";
+import { HttpService, BackendService } from "../../../shared";
 import { Page } from "ui/page";
 import * as application from "application";
 import { AndroidApplication, AndroidActivityBackPressedEventData } from "application";
@@ -30,7 +30,7 @@ export class PieceDashboardComponent implements OnInit {
     public toggleButtonText = "Add / Remove Movements";
     public showRemainingMovements: boolean = false;
 
-    // Icons
+    // Icons:
     public iconRemove = String.fromCharCode(0xf1f8);
     public iconAdd = String.fromCharCode(0xf067);
 
@@ -40,8 +40,7 @@ export class PieceDashboardComponent implements OnInit {
     public pieceWorkNumber: string;
     public pieceMovementAmount: number;
 
-    constructor(private _pageRoute: PageRoute, private _page: Page, private _routerExtensions: RouterExtensions, 
-        private _router: Router, private _ngZone: NgZone, private _pieceService: PieceService) {
+    constructor(private _pageRoute: PageRoute, private _page: Page, private _routerExtensions: RouterExtensions, private _router: Router, private _ngZone: NgZone) {
 
         this.pieceMovementArray = [];
         this.pieceMovementArrayNotSelected = [];
@@ -86,21 +85,15 @@ export class PieceDashboardComponent implements OnInit {
                                 // Add only movements to pieceMovementArray, that are being practiced
                                 this.pieceMovementArray.push({
                                     title: result.value.movementItem[i].title,
-                                    state: result.value.movementItem[i].state,
-                                    id: result.value.movementItem[i].id,
+                                    state: result.value.movementItem[i].state
                                 });
                             }
 
                             // Add all movements to pieceMovementArrayAll
                             this.pieceMovementArrayAll.push({
                                 title: result.value.movementItem[i].title,
-                                state: result.value.movementItem[i].state,
-                                id: result.value.movementItem[i].id,
+                                state: result.value.movementItem[i].state
                             });
-
-                            if(result.value.movementItem[i].lastUsed) {
-                                this.pieceMovementArrayAll[i].lastUsed = result.value.movementItem[i].lastUsed;
-                            }
                         }
 
                         if(initialize){    
@@ -170,7 +163,7 @@ export class PieceDashboardComponent implements OnInit {
     }
 
     recordSession(args){
-        this._router.navigate(['/piece-recorder/'+this.routerParamId['pieceId']+'/'+this.selectedArray[args.index].id]);
+        this._router.navigate(['/piece-recorder/'+this.routerParamId['pieceId']+"/"+args.index]);
     }
 
     handleItemTap(args){
@@ -190,17 +183,10 @@ export class PieceDashboardComponent implements OnInit {
     updateMovementList(type: number, args){
         if(this.pieceMovementAmount > 0) {
             let that = this;
-            let currentDate = new Date().getTime();
             if(type == 1) {
                 // TYPE 1 = ADD MOVEMENT to PRACTICE LIST
                 console.log("HANDLE ADD");
                 this.pieceMovementArrayAll[args.index].state = 1;
-                this.pieceMovementArrayAll[args.index].lastUsed = currentDate;
-
-                // Set lastPieceId & lastMovementId in BackendService DEL
-                /*BackendService.lastPieceId = Number(this.routerParamId['pieceId']);
-                BackendService.lastMovementId = Number(args.index);*/
-
                 this.firebaseAction();
             } else if (type == 2){
                 // TYPE 2 = REMOVE MOVEMENT FROM PRACTICE LIST
@@ -214,11 +200,9 @@ export class PieceDashboardComponent implements OnInit {
                         cancelButtonText: "No!",
                     }).then(function (result) {
                         if(result){
-                            // REMOVE ENTIRE PIECE & PRACTICE SESSIONS THROUGH pieceService
-                            that._pieceService.removePiece(that.routerParamId['pieceId'], -1).then(function() {
-                                console.log("PIECE DELETED");
-                                that._routerExtensions.navigate(["/piece-list"], { clearHistory: true });
-                            });
+                            // STILL IN DEVELOPMENT
+                            that.pieceMovementArrayAll[args.index].state = 0;
+                            that.firebaseAction();
                         }
                     });
                 } else {
@@ -230,15 +214,8 @@ export class PieceDashboardComponent implements OnInit {
                         cancelButtonText: "No!",
                     }).then(function (result) {
                         if(result){
-                            that._pieceService.removePiece(that.routerParamId['pieceId'], args.index).then(function() {
-                                // Set BackendService: lastMovementId to none (-1) DEL
-                                /*if(BackendService.lastMovementId == args.index){
-                                    BackendService.lastMovementId = -1;
-                                }*/
-
-                                that.pieceMovementArrayAll[args.index].state = 0;
-                                that.firebaseAction();
-                            });   
+                            that.pieceMovementArrayAll[args.index].state = 0;
+                            that.firebaseAction();
                         }
                     });
                 }
@@ -247,9 +224,9 @@ export class PieceDashboardComponent implements OnInit {
     }
 
     firebaseAction(){
-        console.log("ARRAY: "+JSON.stringify(this.pieceMovementArrayAll));
+
         let that = this;
-        firebase.update(
+        firebase.setValue(
                 '/user/'+BackendService.token+'/piece/'+this.routerParamId['pieceId']+'/movementItem',
                 this.pieceMovementArrayAll
             ).then(

@@ -3,7 +3,6 @@ npm-debug.log
 
 app/**/*.js
 app/**/*.js.map
-!app/pages/metronome/workers/processor.js
 !app/shared/everlive.all.min.js
 hooks/
 lib/

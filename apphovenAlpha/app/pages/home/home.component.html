@@ -2,26 +2,16 @@
     <ActionBar title="Apphoven">
     </ActionBar>
 
-    <!-- <GridLayout rows="auto" columns="*, *">
-        <StackLayout row="0" col="0" class="grid-button">
-            <Label [text]="addPieceIcon" class="icon-font"></Label>
-            <Label text="New Piece" class="heading-font"></Label>
-        </StackLayout>
-        <StackLayout row="0" col="1" class="grid-button">
-            <Label [text]="pieceListIcon" class="icon-font"></Label>
-            <Label text="Piece List" class="heading-font"></Label>
-        </StackLayout>
-    </GridLayout> -->
-
     <Button (tap)="navigateTo('/settings')" text="Settings"></Button>
     <Button (tap)="navigateTo('/profile')" text="Profile"></Button>
     <Button (tap)="navigateTo('/metronome')" text="Metronome"></Button>
+    <Button (tap)="navigateTo('/composers')" text="Composers"></Button>
+    <Button (tap)="navigateTo('/search')" text="Search"></Button>
     <Button (tap)="navigateTo('/piece-list')" text="Piece List"></Button>
-    <Button (tap)="navigateTo('/addpiece')" text="add piece"></Button>    
-    <Button (tap)="navigateTo('/practice-session')" text="practice sessions"></Button>
-    <Button (tap)="not()" text="notify"></Button>
-</StackLayout>
+    <Button (tap)="navigateTo('/addpiece')" text="add piece"></Button>
 
-<DockLayout stretchLastChild="false">
-  <Button (tap)="practiceNow()" dock="bottom" [text]="actionButtonText" style="background-color: white; margin: -5;"></Button>
-</DockLayout>
+    <!-- The piece recorder can be opened via piece-list. This button is meant for testing purposes only. -->
+    <Button (tap)="navigateTo('/piece-recorder/1368/-1')" text="record piece"></Button>
+    
+    <Button (tap)="navigateTo('/practice-session')" text="practice sessions"></Button>
+</StackLayout>

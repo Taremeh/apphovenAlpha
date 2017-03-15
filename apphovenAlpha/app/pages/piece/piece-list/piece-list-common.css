@@ -5,6 +5,12 @@
     margin: 0;
 }
 
+.piece-container {
+    background-color: #f7f7f7;
+    padding: 10%;
+    border-radius: 3px;
+}
+
 .piece-heading {
     font-size: 20;
 }
@@ -17,13 +23,14 @@
 
 .list-record-container {
     background-color: transparent;
+    padding: 10%;
 }
 
 .list-record-item {
-    background-color: #f7f7f7;
     padding: 10%;
-    border-radius: 3px;
-    margin-bottom: 20;
+    border-color: grey;
+    border-width: 1;
+    border-radius: 4;
 }
 
 .icon-font {

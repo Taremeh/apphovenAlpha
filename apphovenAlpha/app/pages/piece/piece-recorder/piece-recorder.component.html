@@ -1,7 +1,7 @@
 <StackLayout class="ah-main-container-s">
     <StackLayout class="timer-container">
         <Label class="recording-time" text="{{ time | timerformat | date:'HH:mm:ss' }}" (tap)="showPieceDetails()"></Label>
-        <ScrollView *ngIf="showPieceMeta" orientation="horizontal" class="piece-information-container">
+        <ScrollView *ngIf="showPiece" orientation="horizontal" class="piece-information-container">
             <GridLayout rows="auto" columns="auto, auto">
                 <Label [text]="pieceTitle" col="0"></Label>
                 <Label *ngIf="movementTitle" text=" | {{ movementTitle }}" col="1"></Label>
@@ -13,34 +13,6 @@
             <Button text="Continue" (tap)="start(2)" col="1"></Button>
         </GridLayout>
     </StackLayout>
-    <StackLayout #pieceSelectionContainer class="piece-selection-container">
-        <ListView *ngIf="!selectMultiplePiecesState" [items]="autoselectPiece" separatorColor="transparent">
-            <template let-piece="item">
-                <StackLayout (tap)="onPieceTap(piece)"> 
-                    <GridLayout rows="auto, auto"columns="*, auto" class="autoselect-item">
-                        <Label row="0" col="0" class="piece-heading" text="{{ piece.movementTitle ? piece.movementTitle + ' | ' + piece.pieceTitle : piece.pieceTitle }}"></Label>
-                    </GridLayout>
-                </StackLayout>
-            </template>
-        </ListView>
-        <ListView [items]="selectionPieceArray" separatorColor="transparent">
-            <template let-piece="item">
-                <StackLayout class="list-record-container" (tap)="onPieceTap(piece)"> 
-                    <GridLayout rows="auto" columns="{{ selectMultiplePiecesState ? '40, *' : 'auto, *' }}" class="{{ selectMultiplePiecesState ? 'multi-list-item' : 'regular-list-item' }}">
-                        <!-- <Image row="0" col="0" *ngIf="selectMultiplePiecesState" class="piece-checkbox" stretch="aspectFill" [src]="imageSource(piece)" style="background-color: white"></Image> -->
-                        <Label *ngIf="selectMultiplePiecesState" class="icon-font" text="{{ piece.iconCode }}" col="0" style="{{ 'font-size: 35; color: ' + piece.iconColor }}" (tap)="onSelectionSmileTap(piece)"></Label>
-                        <StackLayout row="0" col="1">
-                        <Label class="piece-heading" text="{{ piece.movementTitle ? piece.movementTitle + ' | ' + piece.pieceTitle : piece.pieceTitle }}"></Label>
-                        <Slider *ngIf="selectMultiplePiecesState" [(ngModel)]="piece.durationSliderValue" (valueChange)="sliderValueChanged(piece)" minValue="0" maxValue="100"></Slider>
-                        </StackLayout>
-                    </GridLayout>
-                </StackLayout>
-            </template>
-        </ListView>
-        <Button *ngIf="selectMultiplePiecesState" text="Save" (tap)="saveMultipleSessions()"></Button>
-        <Label *ngIf="!selectMultiplePiecesState" row="0" col="1" text="Select multiple pieces" (tap)="activateMultiplePieceSelection()" style="text-align: center"></Label>
-    </StackLayout>
-
     <StackLayout #sessionRatingContainer class="session-rating-container">
 
         <GridLayout rows="auto" columns="*, *, *, *, *" orientation="horizontal" class="icon-bar-container">
