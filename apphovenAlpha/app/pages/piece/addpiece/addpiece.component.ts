@@ -2,7 +2,7 @@ import { Component, OnInit, ViewChild, ElementRef, NgZone } from "@angular/core"
 import { View } from "ui/core/view";
 import { Page } from "ui/page";
 import { TextField } from "ui/text-field";
-import { HttpService, BackendService } from "../../../shared";
+import { HttpService, BackendService, PieceService } from "../../../shared";
 import { Color } from "color";
 import * as application from "application";
 import { AndroidApplication, AndroidActivityBackPressedEventData } from "application";
@@ -40,7 +40,8 @@ export class AddPieceComponent implements OnInit {
     // Navigation Helper Variable
     public currentView: number = 0;
 
-    constructor(private _page: Page, private _httpService: HttpService, private _router: Router) {
+    constructor(private _page: Page, private _httpService: HttpService, private _router: Router,
+        private _pieceService: PieceService) {
         // Initializing Arrays
         this.composerArray = [];
         this.composerData = [];
@@ -62,15 +63,13 @@ export class AddPieceComponent implements OnInit {
     @ViewChild("scrlView") scrlView: ElementRef;
 
     ngOnInit() {
-        // Hide Action bar
+        // Hide Action-Bar
         this._page.actionBarHidden = true;
 
         // Create onBackButtonPressed-Listener
         application.android.on(AndroidApplication.activityBackPressedEvent, (data: AndroidActivityBackPressedEventData) => {
-          if (1 < 2) {
             console.log("BACK BUTTON EVENT TRIGGERED");
             this.backEvent(data);
-          }
         });
     }
     
@@ -169,55 +168,64 @@ export class AddPieceComponent implements OnInit {
     showPieceItem(indexNumber: number) {
         this.pieceMovementArray = [];
 
-        firebase.query(
-            (result) => {
-                if (result) {
-                    console.log("Event type: " + result.type);
-                    console.log("Key: " + result.key);
-                    console.log("Value: " + JSON.stringify(result.value));
-                    if(this.movementArray[indexNumber]){
-                        var len = this.movementArray[indexNumber].length;
-                        if(result.value){
-                            for (let i = 0; i < len; i++) {
-                                this.pieceMovementArray.push({
-                                    title: result.value.movementItem[i].title,
-                                    state: result.value.movementItem[i].state
-                                });
-                                console.log(result.value.movementItem[i].title);
+
+        if(this.movementArray != null) {
+            // IF MOVEMENTS EXIST
+            firebase.query(
+                (result) => {
+                    if (result) {
+                        console.log("Event type: " + result.type);
+                        console.log("Key: " + result.key);
+                        console.log("Value: " + JSON.stringify(result.value));
+                        if(this.movementArray[indexNumber]){
+                            var len = this.movementArray[indexNumber].length;
+                            if(result.value){
+                                for (let i = 0; i < len; i++) {
+                                    this.pieceMovementArray.push({
+                                        title: result.value.movementItem[i].title,
+                                        state: result.value.movementItem[i].state,
+                                        id: null // will be defined later
+                                    });
+                                    console.log(result.value.movementItem[i].title);
+                                }
+                            } else {
+                                for (let i = 0; i < len; i++) {
+                                    this.pieceMovementArray.push({
+                                        title: this.movementArray[indexNumber][i],
+                                        state: 0,
+                                        id: null // will be defined later
+                                    });
+                                }
                             }
                         } else {
-                            for (let i = 0; i < len; i++) {
-                                this.pieceMovementArray.push({
-                                    title: this.movementArray[indexNumber][i],
-                                    state: 0
-                                });
-                            }
+                            console.log("ARRAY EMPTY!");
                         }
-                    } else {
-                        console.log("ARRAY EMPTY!");
+
+                        let searchContainer = <View>this.searchContainer.nativeElement;
+                        let pieceContainer = <View>this.pieceContainer.nativeElement;
+                        let scrollview = <View>this.scrlView.nativeElement;
+
+                        this.currentView = 2;
+                        
+                        scrollview.style.borderBottomColor = new Color("#00ffed");
+                        searchContainer.style.visibility = "collapse";
+                        pieceContainer.style.visibility = "visible";
+
                     }
-
-                    let searchContainer = <View>this.searchContainer.nativeElement;
-                    let pieceContainer = <View>this.pieceContainer.nativeElement;
-                    let scrollview = <View>this.scrlView.nativeElement;
-
-                    this.currentView = 2;
-                    
-                    scrollview.style.borderBottomColor = new Color("#00ffed");
-                    searchContainer.style.visibility = "collapse";
-                    pieceContainer.style.visibility = "visible";
-
+                },
+                "/user/" + BackendService.token + "/piece/" + this.pieceId,
+                {
+                    singleEvent: true,
+                    orderBy: {
+                        type: firebase.QueryOrderByType.CHILD,
+                        value: 'since'
+                    }
                 }
-            },
-            "/user/" + BackendService.token + "/piece/" + this.pieceId,
-            {
-                singleEvent: true,
-                orderBy: {
-                    type: firebase.QueryOrderByType.CHILD,
-                    value: 'since'
-                }
-            }
-        );   
+            ); 
+        } else {
+            // IF NO MOVEMENTS EXIST
+            console.log("!!! !!! !!! NO MOVEMENTS FOUND !!! !!! !!!");
+        }
     }
 
     imageSource(movement) {
@@ -237,18 +245,69 @@ export class AddPieceComponent implements OnInit {
     }
 
     addPiece(){
+        let that = this;
+        this._pieceService.addPiece(this.pieceId, this.pieceData[this.pieceDataId], this.movementArray, this.pieceMovementArray)
+        .then(
+            function () {
+                console.log("SUCCESS"); 
+                // Add Piece-Id to backend service DEL
+                // BackendService.lastPieceId = Number(that.pieceId);
+                //that._routerExtensions.navigate(["/piece-db/"+that.pieceId], { clearHistory: true });
+                that._router.navigate(["/piece-db/"+that.pieceId+"/1"]);
+            },
+            function (error) {
+                console.log("ERROR: " + error);
+            }
+        );
+
+        /*
         let i;
         let sP = this.pieceData[this.pieceDataId];
+        let piecePracticeArray;
         let piecePracticeMovements: any[];
         let piecePracticeMovementsAmount: number = 0;
-        for(i = 0; i < this.pieceMovementArray.length; i++){
-            if(this.pieceMovementArray[i].state){
-                piecePracticeMovementsAmount += i;
+        let dateToday = new Date().getTime();
+
+        // Needed for BackendService: lastMovementId
+        let firstMovementAdded = false
+        let movementId = -2;
+
+        if(this.movementArray != null) {
+            // MOVEMENTS EXIST
+            for(i = 0; i < this.pieceMovementArray.length; i++){
+                // Define Movement Id
+                this.pieceMovementArray[i].id = i;
+
+                // Defines lastMovementId for BackendService. If multiple movements selected, register first one
+                if(!firstMovementAdded && this.pieceMovementArray[i].state){
+                    movementId = i;
+                    firstMovementAdded = true;
+                }
+                if(this.pieceMovementArray[i].state){
+                    // IF BEING PRACTICED
+                    this.pieceMovementArray[i].lastUsed = dateToday;
+                    this.pieceMovementArray[i].added = dateToday;
+                    piecePracticeMovementsAmount += i;
+                }
             }
+            
+            piecePracticeArray = { pieceTitle: sP.piece_title, 
+                pieceWorkNumber: sP.piece_work_number, 
+                movementItem: this.pieceMovementArray, 
+                movementItemAmount: piecePracticeMovementsAmount
+            };
+
+            console.log(piecePracticeArray.pieceTitle, piecePracticeArray.pieceWorkNumber);
+        } else {
+            // MOVEMENTS DO NOT EXIST
+            piecePracticeArray = { pieceTitle: sP.piece_title, 
+                pieceWorkNumber: sP.piece_work_number, 
+                movementItemAmount: piecePracticeMovementsAmount,
+                lastUsed: dateToday,
+                added: dateToday
+            };
+            console.log(piecePracticeArray.pieceTitle, piecePracticeArray.pieceWorkNumber);
         }
-        
-        let piecePracticeArray = {pieceTitle: sP.piece_title, pieceWorkNumber: sP.piece_work_number, movementItem: this.pieceMovementArray, movementItemAmount: piecePracticeMovementsAmount};
-        console.log(piecePracticeArray.pieceTitle, piecePracticeArray.pieceWorkNumber);
 
         let that = this;
         firebase.setValue(
@@ -257,13 +316,16 @@ export class AddPieceComponent implements OnInit {
         ).then(
         function () {
             console.log("SUCCESS");
+            // Add Piece-Id to backend service
             BackendService.lastPieceId = Number(that.pieceId);
+            BackendService.lastMovementId = Number(movementId);
             //that._routerExtensions.navigate(["/piece-db/"+that.pieceId], { clearHistory: true });
             that._router.navigate(["/piece-db/"+that.pieceId+"/1"]);
         },
         function (error) {
             console.log("ERROR: " + error);
         });
+        */
     }
 
     // Handle Android Back-Button-Event (Navigation Logic)

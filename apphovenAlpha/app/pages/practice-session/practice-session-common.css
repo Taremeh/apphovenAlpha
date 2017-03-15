@@ -1,3 +1,11 @@
+.graph-container {
+    background-color: #982528;
+    visibility: visible;
+    margin: 3;
+    border-radius: 3;
+    color: #f7f7f7;
+}
+
 .list-group-item-text {
     background-color: transparent;
     border-color: transparent;
@@ -35,5 +43,4 @@
 
 .icon-font {
     font-family: 'fontawesome';
-    font-size: 30;
 }

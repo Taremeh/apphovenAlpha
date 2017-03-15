@@ -8,14 +8,14 @@ import { NativeScriptRouterModule } from "nativescript-angular/router";
 // Declarations
 import { AppComponent } from "./app.component";
 import { TempoTermPipe } from "./pages/metronome/tempo-term.pipe";
-import { TimerPipe } from "./pages/piece/piece-recorder/timer.pipe";
+import { GraphLegendPipe } from "./pages/practice-session/graph-legend.pipe"
+import { TimerPipe } from "./shared";
 import { routes, navigatableComponents } from "./app.routing";
 
 // Providers
 import { authProviders } from "./app.routing";
-import { setStatusBarColors, BackendService, LoginService } from "./shared";
+import { setStatusBarColors, BackendService, LoginService, PieceService, HttpService } from "./shared";
 import { PerformanceTestService } from "./pages/metronome/performance-test.service";
-import { HttpService } from "./shared";
 
 // Modules
 import { LoginModule } from "./pages/login/login.module";
@@ -33,6 +33,7 @@ import { ProfileModule } from "./pages/profile/profile.module";
     authProviders,
     PerformanceTestService,
     HttpService,
+    PieceService
   ],
   imports: [
     NativeScriptModule,
@@ -49,7 +50,8 @@ import { ProfileModule } from "./pages/profile/profile.module";
     AppComponent,
     ...navigatableComponents,
     TempoTermPipe,
-    TimerPipe
+    TimerPipe,
+    GraphLegendPipe
   ],
   bootstrap: [AppComponent]
 })

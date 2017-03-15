@@ -1,9 +1,9 @@
 <StackLayout class="ah-main-container">
-    <StackLayout #pieceContainer class="piece-container">
+    <StackLayout class="piece-container">
             <StackLayout class="movement-container">
-                <Label class="piece-text" text="Your current pieces:"></Label>
+                <!-- <Label class="piece-text" text="Your current pieces:"></Label> -->
                 <StackLayout class="movement-list-current">
-                    <ListView [items]="pieceArray" separatorColor="white" (itemTap)="onPieceTap($event)">
+                    <ListView [items]="pieceArray" separatorColor="transparent" (itemTap)="onPieceTap($event)">
                         <template let-piece="item">
                             <StackLayout class="list-record-container"> 
                                 <GridLayout rows="auto, auto"columns="*, auto" class="list-record-item">
