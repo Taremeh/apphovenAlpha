@@ -16,5 +16,18 @@ https://blog.apphoven.com
   https://github.com/jlooper/sample-Groceries/tree/angular-firebase/app
   
 - Metronome
-  (Working Component, without styling; using nativescript-sound)
+  (Working Component, without styling; using nativescript-sound & Background-ServiceWorker)
   https://github.com/NathanWalker/nativescript-sound 
+
+- Add-Piece Component
+  (Composer/Piece-Search & Piece-Adding Functionality)
+
+- Practice Time Recorder
+  (Time Recorder and Practice Session Rating)
+
+- Practice Session Component
+  (List, containing Users Practice Session - using own custom-built graphs)
+
+
+
+(Icons used: http://fontawesome.io)
