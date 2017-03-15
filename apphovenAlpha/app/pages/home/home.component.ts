@@ -51,11 +51,6 @@ export class HomeComponent implements OnInit, OnDestroy {
         this._router.navigate([page]);
     }
 
-
-    not(){
-        console.log("Nothing.");
-    }
-
     practiceNow(){
         // if(!BackendService.lastPieceId || BackendService.lastPieceId == -1 || BackendService.lastMovementId == -1){
         //    console.log("No ID found");

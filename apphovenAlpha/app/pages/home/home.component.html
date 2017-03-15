@@ -19,9 +19,8 @@
     <Button (tap)="navigateTo('/piece-list')" text="Piece List"></Button>
     <Button (tap)="navigateTo('/addpiece')" text="add piece"></Button>    
     <Button (tap)="navigateTo('/practice-session')" text="practice sessions"></Button>
-    <Button (tap)="not()" text="notify"></Button>
 </StackLayout>
 
 <DockLayout stretchLastChild="false">
-  <Button (tap)="practiceNow()" dock="bottom" [text]="actionButtonText" style="background-color: white; margin: -5;"></Button>
+    <Button (tap)="practiceNow()" dock="bottom" [text]="actionButtonText" style="background-color: white; margin: -5;"></Button>
 </DockLayout>

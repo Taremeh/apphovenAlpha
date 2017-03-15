@@ -6,7 +6,7 @@
 <TextField #tfVal [ngModel]="interval" keyboardType="number" (returnPress)="setInterval(tfVal.text)"></TextField>
 <GridLayout class="m-15" rows="auto" columns="50 * 50">
     <Label class="h3" text="40" textWrap="true" row="10" col="0"></Label>
-    <Slider #slVal minValue="40" maxValue="300" [(ngModel)]="interval" (valueChange)="setInterval(interval)" row="0" col="1"></Slider>
+    <Slider #slVal minValue="40" maxValue="300" [(ngModel)]="interval" (valueChange)="setInterval(slVal.value)" row="0" col="1"></Slider>
     <Label class="h3" text="300" textWrap="true" row="0" col="2"></Label>
 </GridLayout>
 <Button (tap)="start()" text="Start"></Button>

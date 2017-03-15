@@ -1,7 +1,7 @@
 import { Injectable, Inject } from "@angular/core";
 import { BackendService } from "./backend.service";
 import firebase = require("nativescript-plugin-firebase");
-import { Observable } from "rxjs/Rx"
+import { Observable } from "rxjs/Rx";
 
 @Injectable()
 export class PieceService {

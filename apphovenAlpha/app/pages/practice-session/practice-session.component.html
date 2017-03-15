@@ -1,4 +1,17 @@
 <StackLayout class="ah-main-container">
+    <StackLayout class="graph-container">
+        <GridLayout rows="auto, auto">
+            <Label row="0" *ngIf="!graphValue && sessionArray" text="Graph: No sessions this week" style="margin-bottom: 25; vertical-align: center; text-align: center;"></Label>
+            <GridLayout row="0" rows="115, auto" columns="auto, *, *, *, *, *, *, *" orientation="horizontal" (swipe)="onSwipe($event)">
+                <Label text="{{ leg1 }}" row="0" col="0" style="vertical-align: top;"></Label>
+                <Label text="{{ leg2 }}" row="0" col="0" style="vertical-align: center;"></Label>
+                <Label text="{{ longestPracticeDuration > 3600 ? '0h' : '0min' }}" row="0" col="0" style="vertical-align: bottom;"></Label>
+                <StackLayout *ngFor="let day of week" col="{{ day.position+1 }}" height="{{ day.value }}" style="background-color: #f7f7f7; margin: 5; vertical-align: bottom;" row="0"></StackLayout>
+                <Label *ngFor="let day of week" col="{{ day.position+1 }}" text="{{ day.name }}" style="margin: 5; vertical-align: bottom; text-align: center;" row="1"></Label>
+            </GridLayout> 
+            <Label row="1" *ngIf="currentWeekName" text="{{ currentWeek < -1 ? 'Week of ' + (currentWeekName | date:'dd.MM') : (currentWeekName) }}" style="margin-bottom: 5; vertical-align: bottom; text-align: center;"></Label>
+        </GridLayout>
+    </StackLayout>
     <StackLayout #pieceContainer class="piece-container">
             <StackLayout class="movement-container">
                 <Label class="piece-text" text="Your sessions:"></Label>
@@ -6,14 +19,16 @@
                     <ListView [items]="sessionArray" separatorColor="white">
                         <template let-piece="item">
                             <StackLayout class="list-record-container"> 
-                                <GridLayout rows="auto, auto"columns="*, auto" class="list-record-item">
-                                    <Label row="0" col="0" class="piece-heading" [text]="piece.pieceId"></Label>
-                                    <Label row="1" col="0" [text]="piece.userNotes"></Label>
+                                <GridLayout rows="auto, auto, auto"columns="*, auto" class="list-record-item">
+                                    <Label row="0" col="0" class="piece-heading" text='ID: {{ piece.pieceId }} | {{ piece.date | date:"EEE d.MM - H:m" }}'></Label>
+                                    <Label row="1" col="0" class="icon-font" text='Duration: {{ (piece.duration > 20) ? (piece.duration | timerformat | date:"HH:mm:ss") : (piece.duration | timerformat | date:"mm:ss") }}{{ piece.userProgressRating ? ("  |  " + piece.userProgressRating + " " + starIcon) : "" }}{{ piece.userHappinessRating ? ("  |  " + smileIcons[(piece.userHappinessRating-1)].iconCode) : "" }}'></Label>
+                                    <Label *ngIf="piece.userNotes" row="2" [text]="piece.userNotes"></Label>
                                 </GridLayout>
                             </StackLayout>
                         </template>
                     </ListView>
                 </StackLayout>
+                <Label *ngIf="!sessionArray" text="No Sessions found"></Label>
             </StackLayout>
     </StackLayout>
 </StackLayout>
