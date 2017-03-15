@@ -1,0 +1,16 @@
+.grid-button {
+    background-color: white;
+    margin: 10 10 10 10;
+    padding: 10 10 10 10;
+    border-radius: 4;
+}
+
+.icon-font {
+    font-size: 120;
+    text-align: center;
+}
+
+.heading-font {
+    font-size: 25;
+    text-align: center;
+}

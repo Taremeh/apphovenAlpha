@@ -37,7 +37,7 @@ textfield {
     border-radius: 3px;
 }
 
-.session-rating-container {
+.session-rating-container, .piece-selection-container {
     visibility: collapse;
     background-color: transparent;
 }
@@ -53,11 +53,37 @@ textfield {
 }
 
 .piece-information-container {
-    margin: 0, 10%, 5%, 10%;
-    text-align: center
+    text-align: center;
 }
 
 .rating-information {
     text-transform: uppercase;
     text-align: center;
+}
+
+.autoselect-item {
+    padding: 10%;
+    border-radius: 3px;
+    border-width: 3px;
+    border-color: white;
+    font-weight: bold;
+    margin-bottom: 20;
+}
+
+.piece-checkbox {
+  margin-right: 10;
+  height: 30;
+  width: 30;
+}
+
+.regular-list-item {
+    margin: 5;
+    font-size: 14;
+    vertical-align: center;
+}
+
+.multi-list-item{
+    margin: 15;
+    font-size: 14;
+    vertical-align: center;
 }
