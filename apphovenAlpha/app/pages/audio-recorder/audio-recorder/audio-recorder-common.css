@@ -1,0 +1,40 @@
+button {
+    margin: 5%;
+    padding: 2%;
+    font-size: 19;
+    font-weight: bold; 
+    color: #F9F9F9;
+    background-color: #E53935;
+    border-radius: 5;
+}
+
+.amplitude {
+    background-color: #E53935;
+}
+/* test */
+.piece-select-container {
+    visibility: collapse;
+    vertical-align: stretch;
+    height: 100%;
+}
+
+.recordButtonContainer {
+    margin-top: 0;
+}
+
+.meterLineListView {
+    margin-bottom: 20;
+}
+
+.save-button {
+    background-color: #757575;
+}
+
+.top-correction {
+    font-size: 12;
+    margin-top: -12;
+}
+
+.small-top-correction {
+    margin-top: 2;
+}

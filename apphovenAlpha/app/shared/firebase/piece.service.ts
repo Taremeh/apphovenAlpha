@@ -42,7 +42,7 @@ export class PieceService {
                 }
             }
             
-            piecePracticeArray = { pieceTitle: sP.piece_title, 
+            piecePracticeArray = { pieceId: pieceId, pieceTitle: sP.piece_title, 
                 pieceWorkNumber: sP.piece_work_number, 
                 movementItem: pieceMovementArray, 
                 movementItemAmount: piecePracticeMovementsAmount,
@@ -51,7 +51,7 @@ export class PieceService {
             console.log(piecePracticeArray.pieceTitle, piecePracticeArray.pieceWorkNumber);
         } else {
             // MOVEMENTS DO NOT EXIST
-            piecePracticeArray = { pieceTitle: sP.piece_title, 
+            piecePracticeArray = { pieceId: pieceId, pieceTitle: sP.piece_title, 
                 pieceWorkNumber: sP.piece_work_number, 
                 movementItemAmount: piecePracticeMovementsAmount,
                 lastUsed: dateToday,
@@ -72,7 +72,6 @@ export class PieceService {
         return firebase.query(
             (result) => {
                 if (result.value) {
-                    console.log("TTTTTTTTTTTTTTTETETETETETeETTETSTSTSTTST");
                     
                     // Reset Practice Session Data Array:
                     let deleteSessionArray = [];

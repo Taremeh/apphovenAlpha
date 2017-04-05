@@ -19,7 +19,6 @@ import { PerformanceTestService } from "./pages/metronome/performance-test.servi
 
 // Modules
 import { LoginModule } from "./pages/login/login.module";
-import { HomeModule } from "./pages/home/home.module";
 import { SettingsModule } from "./pages/settings/settings.module";
 import { ProfileModule } from "./pages/profile/profile.module";
 
@@ -42,7 +41,6 @@ import { ProfileModule } from "./pages/profile/profile.module";
     NativeScriptRouterModule,
     NativeScriptRouterModule.forRoot(routes),
     LoginModule,
-    HomeModule,
     SettingsModule,
     ProfileModule
   ],

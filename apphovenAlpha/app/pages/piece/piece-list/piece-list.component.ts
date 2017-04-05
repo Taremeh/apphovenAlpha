@@ -120,7 +120,7 @@ export class PieceListComponent implements OnInit {
 
     ngOnInit() {
         // Hide Action-Bar
-        this._page.actionBarHidden = true;
+        //this._page.actionBarHidden = true;
 
         application.android.on(AndroidApplication.activityBackPressedEvent, (data: AndroidActivityBackPressedEventData) => {
             console.log("BACK BUTTON EVENT TRIGGERED");

@@ -13,11 +13,11 @@ button {
 }
 
 .submit-button {
-    margin-top: 10%;
+    margin-top: 10;
 }
 
 textfield {
-    margin-top: 10%;
+    margin-top: 10;
     color: #F9F9F9;
 }
 
@@ -31,6 +31,7 @@ textfield {
     font-size: 80;
     text-align: center;
 }
+
 .timer-container {
     background-color: transparent;
     padding: 3%;

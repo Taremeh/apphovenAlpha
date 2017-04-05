@@ -1,5 +1,5 @@
 <StackLayout class="ah-main-container">
-    <ActionBar title="Apphoven">
+    <ActionBar title="Apphoven" class="ah-action-bar">
     </ActionBar>
 
     <!-- <GridLayout rows="auto" columns="*, *">
@@ -12,6 +12,7 @@
             <Label text="Piece List" class="heading-font"></Label>
         </StackLayout>
     </GridLayout> -->
+    <Label text="{{ toastId }}"></Label>
 
     <Button (tap)="navigateTo('/settings')" text="Settings"></Button>
     <Button (tap)="navigateTo('/profile')" text="Profile"></Button>
@@ -19,8 +20,9 @@
     <Button (tap)="navigateTo('/piece-list')" text="Piece List"></Button>
     <Button (tap)="navigateTo('/addpiece')" text="add piece"></Button>    
     <Button (tap)="navigateTo('/practice-session')" text="practice sessions"></Button>
+    <Button (tap)="navigateTo('/audio-recorder')" text="record audio"></Button>
 </StackLayout>
 
 <DockLayout stretchLastChild="false">
-    <Button (tap)="practiceNow()" dock="bottom" [text]="actionButtonText" style="background-color: white; margin: -5;"></Button>
+    <Button (tap)="practiceNow()" dock="bottom" [text]="actionButtonText" class="practice-button" ></Button>
 </DockLayout>

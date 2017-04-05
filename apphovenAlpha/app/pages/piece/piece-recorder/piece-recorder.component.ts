@@ -10,6 +10,9 @@ import { Observable as RxObservable } from 'rxjs/Observable';
 import dialogs = require("ui/dialogs");
 import { AndroidApplication, AndroidActivityBackPressedEventData } from "application";
 import * as application from "application";
+import { RouterExtensions } from "nativescript-angular/router";
+import { Router } from "@angular/router";
+
 
 
 @Component({
@@ -64,7 +67,8 @@ export class PieceRecorderComponent implements OnInit {
 
     public currentView: number = 0;
 
-    constructor(private _page: Page, private _ngZone: NgZone, private _pieceService: PieceService){
+    constructor(private _page: Page, private _ngZone: NgZone, private _pieceService: PieceService, 
+    private _routerExtensions: RouterExtensions, private _router: Router){
 
         console.log("CONSTRUCTOR");
         // this.routerParamIds = [];
@@ -502,7 +506,7 @@ export class PieceRecorderComponent implements OnInit {
                             } else {
                                 this._ngZone.run(() => {
                                     this.selectionPieceArray.push({
-                                        pieceId: result.value[this.selectionPieceIds[i]].pieceId,
+                                        pieceId: this.selectionPieceIds[i],
                                         pieceTitle: result.value[this.selectionPieceIds[i]].pieceTitle,
                                         lastUsed: result.value[this.selectionPieceIds[i]].lastUsed,
                                         iconCode: String.fromCharCode(0xf11a), 
@@ -612,6 +616,8 @@ export class PieceRecorderComponent implements OnInit {
                 }
             }
         }
+
+        this._routerExtensions.navigate(["/home"], { queryParams: { "toastId": "123123" }, clearHistory: true });
 
     }
 

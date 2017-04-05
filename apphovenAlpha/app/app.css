@@ -1,12 +1,77 @@
 ﻿@import '~/css/core.light.css'; 
 
+/*
+ *  APPHOVEN THEME MODIFICATION
+ *
+ * (parent: core.light.css)
+ * (color schemes must coherent with android mainfest colors)
+ * (Tarek Alakmeh, april 2017)
+ *
+ */
+
+
+/*
+ * CONTAINER COLORS 
+ */
+.ah-c-primary {
+  background-color: #E53935;
+}
+
+.ah-c-primaryDark {
+  background-color: #C62828;
+}
+
+.ah-c-accent {
+  background-color: #EEEEEE;
+}
+
+/*
+ * TEXT COLORS
+ */
+
+.ah-text-primary {
+  color: white;
+  opacity: 0.87;
+}
+
+.ah-text-secondary {
+  color: #757575;
+}
+
+.ah-text-hint {
+  color: white;
+  opacity: 0.38;
+}
+
+/*
+ * ICONS
+ */
+
+.icon-font {
+    font-family: 'fontawesome';
+}
+
+
 .ah-main-container {
-  /* background-image: url("res://bg"); */
-  background-color: #982528;
+  /* background-image: url("res://bg"); #982528 */
+  background-color: #FAFAFA;
   padding: 20%;
   
 }
 
-.icon-font {
-    font-family: 'fontawesome';
+.ah-action-bar {
+  /*background-color: #232323;*/
+  color: white;
+}
+
+.clear-background {
+  background-color: inherit;
+} 
+
+.text-center {
+  text-align: center;
+}
+
+.font-light {
+   color: #F9F9F9;
 }

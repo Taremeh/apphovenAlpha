@@ -1,8 +1,6 @@
-.grid-button {
-    background-color: white;
-    margin: 10 10 10 10;
-    padding: 10 10 10 10;
-    border-radius: 4;
+.practice-button {
+    background-color: #BDBDBD;
+    margin: -6;
 }
 
 .icon-font {

@@ -2,6 +2,17 @@
 <resources>
     <color name="ns_primary">#F5F5F5</color>
 	<color name="ns_primaryDark">#757575</color>
-	<color name="ns_accent">#33B5E5</color>
-    <color name="ns_blue">#272734</color>
+	<color name="ns_accent">#F9F9F9</color>
+    <color name="ns_blue">#F9F9F9</color>
+
+    <!-- Primary RED 600 (instead of 500 / Therefore, all other also +100) -->
+    <color name="ah_primary">#F44336</color>
+    <color name="ah_primaryDark">#D32F2F</color>
+    <color name="ah_primaryColorLight">#FFCDD2</color>
+    <!-- <color name="ah_accent">#FFC107</color> -->
+    <color name="ah_accent">#F44336</color>
+
+    <color name="ah_textColor">#212121</color>
+    <color name="ah_textColorPrimary">#212121</color>
+    <color name="ah_textColorSecondary">#757575</color>
 </resources>

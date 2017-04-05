@@ -14,6 +14,7 @@ import { RouterExtensions } from "nativescript-angular/router";
     selector: "ah-addpiece",
     templateUrl: "pages/piece/addpiece/addpiece.component.html",
     styleUrls: ["pages/piece/addpiece/addpiece-common.css"],
+    providers: [HttpService]
 })
 export class AddPieceComponent implements OnInit {
 
@@ -76,8 +77,9 @@ export class AddPieceComponent implements OnInit {
     searchComposer(composerName: string){
         if((composerName+"").length > 3) {
                 this._httpService.getData(1, composerName).subscribe((res) => {
-                    console.log(JSON.stringify(res));
+                    // console.log(JSON.stringify(res));
                     // this.searchResp[0] = JSON.stringify(res.composer[0].name_de); // Currently: Display German Name
+                    console.log("GUT GUT GUT GUT");
                     this.composerData = res;
                     this.composerArray = [];
                     
@@ -86,8 +88,8 @@ export class AddPieceComponent implements OnInit {
                     }
                     
                 }, (e) => {
-                    console.log("ERROR: " + e);
-                    console.log("HEADER ERROR: " + e.header["Content-Type"]);
+                    console.log("HALLO ERROR: " + e);
+                    console.log("HEADER ERROR: " + JSON.stringify(e));
                 });
         }
     }
@@ -250,82 +252,16 @@ export class AddPieceComponent implements OnInit {
         .then(
             function () {
                 console.log("SUCCESS"); 
+                // BACKENDSERVICE FUNCTIONS MAY BE DELETED IN NEXT COMMIT
                 // Add Piece-Id to backend service DEL
                 // BackendService.lastPieceId = Number(that.pieceId);
-                //that._routerExtensions.navigate(["/piece-db/"+that.pieceId], { clearHistory: true });
+                // that._routerExtensions.navigate(["/piece-db/"+that.pieceId], { clearHistory: true });
                 that._router.navigate(["/piece-db/"+that.pieceId+"/1"]);
             },
             function (error) {
                 console.log("ERROR: " + error);
             }
         );
-
-        /*
-        let i;
-        let sP = this.pieceData[this.pieceDataId];
-        let piecePracticeArray;
-        let piecePracticeMovements: any[];
-        let piecePracticeMovementsAmount: number = 0;
-        let dateToday = new Date().getTime();
-
-        // Needed for BackendService: lastMovementId
-        let firstMovementAdded = false
-        let movementId = -2;
-
-        if(this.movementArray != null) {
-            // MOVEMENTS EXIST
-            for(i = 0; i < this.pieceMovementArray.length; i++){
-                // Define Movement Id
-                this.pieceMovementArray[i].id = i;
-
-                // Defines lastMovementId for BackendService. If multiple movements selected, register first one
-                if(!firstMovementAdded && this.pieceMovementArray[i].state){
-                    movementId = i;
-                    firstMovementAdded = true;
-                }
-                if(this.pieceMovementArray[i].state){
-                    // IF BEING PRACTICED
-                    this.pieceMovementArray[i].lastUsed = dateToday;
-                    this.pieceMovementArray[i].added = dateToday;
-                    piecePracticeMovementsAmount += i;
-                }
-            }
-            
-            piecePracticeArray = { pieceTitle: sP.piece_title, 
-                pieceWorkNumber: sP.piece_work_number, 
-                movementItem: this.pieceMovementArray, 
-                movementItemAmount: piecePracticeMovementsAmount
-            };
-
-            console.log(piecePracticeArray.pieceTitle, piecePracticeArray.pieceWorkNumber);
-        } else {
-            // MOVEMENTS DO NOT EXIST
-            piecePracticeArray = { pieceTitle: sP.piece_title, 
-                pieceWorkNumber: sP.piece_work_number, 
-                movementItemAmount: piecePracticeMovementsAmount,
-                lastUsed: dateToday,
-                added: dateToday
-            };
-            console.log(piecePracticeArray.pieceTitle, piecePracticeArray.pieceWorkNumber);
-        }
-
-        let that = this;
-        firebase.setValue(
-            '/user/'+BackendService.token+'/piece/'+this.pieceId,
-            piecePracticeArray
-        ).then(
-        function () {
-            console.log("SUCCESS");
-            // Add Piece-Id to backend service
-            BackendService.lastPieceId = Number(that.pieceId);
-            BackendService.lastMovementId = Number(movementId);
-            //that._routerExtensions.navigate(["/piece-db/"+that.pieceId], { clearHistory: true });
-            that._router.navigate(["/piece-db/"+that.pieceId+"/1"]);
-        },
-        function (error) {
-            console.log("ERROR: " + error);
-        });
-        */
     }
 
     // Handle Android Back-Button-Event (Navigation Logic)

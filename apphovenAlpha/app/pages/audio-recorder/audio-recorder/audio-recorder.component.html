@@ -1,0 +1,56 @@
+<ActionBar title="Apphoven" class="ah-action-bar"></ActionBar>
+<StackLayout #ahMainContainer class="ah-main-container">
+    <GridLayout  #meterLineContainer rows="*, auto">
+        <!-- MeterLine -->
+        <StackLayout (tap)="meterLineTap()" row="0">
+            <ListView #meterLineListView [items]="meterLine" separatorColor="transparent" isUserInteractionEnabled="false" class="meterLineListView">
+                <template let-meter="item">
+                    <!--<Label text="{{ meter.meterValue }}"></Label>-->
+                    <StackLayout orientation="vertical" width="100%">
+                        <!-- <Label text="{{ meter.meterValue }}" style="background-color: black"></Label> -->
+                        <Label text=" " horizontalAlignment="center" width="{{ meter.meterValue / 32800 * 100 }}%" height="20" class="amplitude"></Label>
+                    </StackLayout>
+                </template>
+            </ListView>
+        </StackLayout>
+
+        <!-- Dynamic Record / Save Button -->
+        <StackLayout class="recordButtonContainer" row="1">
+                <Button #recordButton [text]="recordButtonText" (tap)="recordToggle()"></Button>
+                <!-- <Button (tap)="practiceNow()" dock="bottom" [text]="actionButtonText" style="background-color: white; margin: -5;"></Button> -->
+        </StackLayout>
+    </GridLayout>
+
+    <!-- Piece Select TOP -->
+    <StackLayout #pieceSelectContainer class="piece-select-container">
+            <StackLayout>
+                <TextField #txField [text]="userRecordingTitle" hint="Short Recording-Title" (textChange)="txOnChange(txField.text)"></TextField>
+                <!-- <Label text="Set a concise title, to find this recording quickly again" class="text-center"></Label> -->
+
+                <SegmentedBar class="m-5" #sb [items]="sbBarPropsArray" (selectedIndexChange)="sbOnChange(sb.selectedIndex)"></SegmentedBar>
+                <StackLayout visibility="{{ sbVisibility1 ? 'visible' : 'collapsed' }}">
+                    <Label text="Just a snippet recording of the piece" class="m-15 h3 p-5 text-center ah-text-secondary small-top-correction"></Label>
+                    <Label text="(Recording-Type)" class="m-15 h3 p-5 text-center ah-text-secondary top-correction"></Label>
+                </StackLayout>
+                <StackLayout visibility="{{ sbVisibility2 ? 'visible' : 'collapsed' }}">
+                    <Label text="Full, concert-like recording of the piece" class="m-15 h3 p-5 text-center ah-text-secondary small-top-correction"></Label>
+                    <Label text="(Recording-Type)" class="m-15 h3 p-5 text-center ah-text-secondary top-correction"></Label>
+                </StackLayout>
+            </StackLayout>
+    </StackLayout>
+
+</StackLayout>
+
+<!-- Piece Select BOTTOM (DOCK) -->
+<DockLayout>
+    <StackLayout dock="bottom" height="400" #pieceSelectContainerBottom class="piece-select-container" style="vertical-align: bottom;">
+        <ListPicker *ngIf="showPicker" #picker class="piece-list-picker"
+                [items]="pieceNameArray" [selectedIndex]="selectedIndex" 
+                (selectedIndexChange)="selectedIndexChanged(picker)">
+        </ListPicker>
+
+        <Label *ngIf="showPickerReplacement" text="No pieces to select" class="m-15 h3 p-5 text-center ah-text-secondary"></Label>
+
+        <Button [text]="recordButtonText" (tap)="saveRecording()" class="save-button"></Button>
+    </StackLayout>
+</DockLayout>
