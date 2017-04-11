@@ -5,7 +5,7 @@
 
 .background {
   /* background-image: url("res://bg"); */
-  background-color: #E16853;
+  background-color: #E53935;
   background-repeat: no-repeat;
   background-size: cover;
   background-position: center;
@@ -26,7 +26,7 @@
 }
 .initial-button {
   background-color: white;
-  color: #CB1D00;
+  color: #E53935;
   height: 45;
   width: 275;
   vertical-align: center;
@@ -58,7 +58,7 @@ Button, TextField {
   margin-bottom: 10;
 }
 .submit-button {
-  background-color: #CB1D00;
+  background-color: #E53935;
   color: white;
   margin-top: 20;
 }

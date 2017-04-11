@@ -56,7 +56,12 @@
   /* background-image: url("res://bg"); #982528 */
   background-color: #FAFAFA;
   padding: 20%;
-  
+}
+
+.ah-main-container-red {
+  background-color: #E53935;
+  color: white;
+  padding: 20%;
 }
 
 .ah-action-bar {
@@ -74,4 +79,8 @@
 
 .font-light {
    color: #F9F9F9;
+}
+
+.font-dark {
+  color: #757575;
 }

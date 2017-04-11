@@ -1,4 +1,7 @@
-<StackLayout class="ah-main-container-s">
+<StackLayout *ngIf="noPiecesFound" class="ah-main-container-s">
+    <Label text="No pieces found" style="vertical-align: center; text-align: center;" class="h3"></Label>
+</StackLayout>
+<StackLayout *ngIf="!noPiecesFound" class="ah-main-container-s">
     <StackLayout class="timer-container">
         <Label class="recording-time" text="{{ time | timerformat | date:'HH:mm:ss' }}"></Label>
         <!-- Buttons -->

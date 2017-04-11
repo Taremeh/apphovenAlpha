@@ -1,4 +1,4 @@
-<StackLayout class="ah-main-container">
+<StackLayout class="ah-main-container-red">
     <StackLayout class="graph-container">
         <GridLayout rows="auto, auto">
             <Label row="0" *ngIf="!graphValue && sessionArray" text="Graph: No sessions this week" style="margin-bottom: 25; vertical-align: center; text-align: center;"></Label>
@@ -14,13 +14,12 @@
     </StackLayout>
     <StackLayout #pieceContainer class="piece-container">
             <StackLayout class="movement-container">
-                <Label class="piece-text" text="Your sessions:"></Label>
                 <StackLayout class="movement-list-current">
                     <ListView [items]="sessionArray" separatorColor="white">
                         <template let-piece="item">
                             <StackLayout class="list-record-container"> 
                                 <GridLayout rows="auto, auto, auto"columns="*, auto" class="list-record-item">
-                                    <Label row="0" col="0" class="piece-heading" text='ID: {{ piece.pieceId }} | {{ piece.date | date:"EEE d.MM - H:m" }}'></Label>
+                                    <Label row="0" col="0" class="piece-heading" text='{{ piece.date | date:"EEE d.MM - H:m" }}'></Label>
                                     <Label row="1" col="0" class="icon-font" text='Duration: {{ (piece.duration > 20) ? (piece.duration | timerformat | date:"HH:mm:ss") : (piece.duration | timerformat | date:"mm:ss") }}{{ piece.userProgressRating ? ("  |  " + piece.userProgressRating + " " + starIcon) : "" }}{{ piece.userHappinessRating ? ("  |  " + smileIcons[(piece.userHappinessRating-1)].iconCode) : "" }}'></Label>
                                     <Label *ngIf="piece.userNotes" row="2" [text]="piece.userNotes"></Label>
                                 </GridLayout>

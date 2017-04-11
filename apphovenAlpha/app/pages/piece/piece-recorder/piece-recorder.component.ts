@@ -22,9 +22,8 @@ import { Router } from "@angular/router";
 })
 export class PieceRecorderComponent implements OnInit {
     
-    // ROUTERPARAMS NOT NEEDED ANYMORE
-    // WILL BE DELETED IN NEXT COMMIT
-    // public routerParamIds: Array<any>;
+    // OnInit
+    private noPiecesFound: boolean = false;
 
     public timer: number; // Timeout Var
     public time: number = 0; // Passed Time in sec
@@ -532,11 +531,19 @@ export class PieceRecorderComponent implements OnInit {
 
                     } else {
                         //result.value.movementItem.length = 0;
-                        console.log("NO PIECES FOUND");
+                        this._ngZone.run(() => {
+                            this.noPiecesFound = true;
+                            console.log("NO PIECES FOUND");
+                        });
+                        // this._routerExtensions.navigate(["/home"], { queryParams: { "noPieces": true }, clearHistory: true });
                     }
 
                 } else {
-                    console.log("NO PIECES FOUND");
+                    this._ngZone.run(() => {
+                        this.noPiecesFound = true;
+                        console.log("NO PIECES FOUND");
+                    });
+                    // this._routerExtensions.navigate(["/home"], { queryParams: { "noPieces": true }, clearHistory: true });
                 }
             },
             "/user/" + BackendService.token + "/piece",

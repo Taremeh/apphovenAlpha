@@ -1,5 +1,5 @@
 .graph-container {
-    background-color: #982528;
+    background-color: inherit;
     visibility: visible;
     margin: 3;
     border-radius: 3;
@@ -14,8 +14,8 @@
 }
 
 .piece-container {
-    background-color: #f7f7f7;
-    padding: 10%;
+    margin-top: 20;
+    background-color: inherit;
     border-radius: 3px;
 }
 
@@ -31,12 +31,11 @@
 
 .list-record-container {
     background-color: transparent;
-    padding: 10%;
 }
 
 .list-record-item {
     padding: 10%;
-    border-color: grey;
+    border-color: white;
     border-width: 1;
     border-radius: 4;
 }

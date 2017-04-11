@@ -1,0 +1,66 @@
+<StackLayout class="meta-info-container">
+    <ScrollView #scrlView orientation="horizontal">
+        <Label class="h2" text="{{ displayTitle }}"></Label>
+    </ScrollView>
+    <ScrollView #scrlView2 orientation="horizontal">
+        <Label *ngIf="pieceTitle && !recordingTitle" text="{{ pieceTitle }}"></Label>
+        <Label *ngIf="!pieceTitle && recordingTitle" text="{{ recordingTitle }}"></Label>
+        <Label *ngIf="pieceTitle && recordingTitle" text="{{ pieceTitle }} | {{ recordingTitle }}"></Label>
+    </ScrollView>
+
+    <!-- <ScrollView #scrlView3 orientation="horizontal">
+        <StackLayout *ngFor="let audioMeterBlock of audioMeterLine" height="{{ audioMeterBlock }}" width="30" style="background-color: #f7f7f7; margin: 5; vertical-align: center;" orientation="horizontal"></StackLayout>
+    </ScrollView> -->
+    <GridLayout class="audio-meter-container" height="40%" columns="{{ audioMeterColumns }}" rows="auto">
+        <StackLayout *ngFor="let audioMeterBlock of audioMeterLine" col="{{ audioMeterBlock.position }}" height="{{ audioMeterBlock.value / audioMeterMaxValue * 100 }}%" style="background-color: {{ audioMeterBlock.color }}; vertical-align: center;" row="0"></StackLayout>
+    </GridLayout>
+
+    <StackLayout class="time-slider-container">
+        <Slider #slVal minValue="0" maxValue="{{ duration }}" [(ngModel)]="audioTime" (valueChange)="setTime(slVal.value)"></Slider>
+    </StackLayout>
+
+   
+    
+    <StackLayout class="ah-main-container font-dark" orientation="horizontal">
+        <Label (tap)="addMark()" text="{{ addIcon }}" class="icon-font add-marker-icon"></Label>
+        <ScrollView orientation="horizontal">
+            <StackLayout orientation="horizontal">
+                <Label *ngFor="let mark of fbRecordingMarks" text="{{ mark.time | mstransformer }}" class="{{ mark.class }}" (tap)="onMarkTap(mark.position)"></Label>
+            </StackLayout>
+        </ScrollView>
+
+    <!--  
+
+        <StackLayout #pieceContainer class="piece-container">            
+            <StackLayout class="movement-container" visibility="{{pieceMovementAmount ? 'visible' : 'collapsed' }}">
+                <Label class="piece-text" text="Your current movements:"></Label>
+                <StackLayout class="movement-list-current">
+                    <ListView [items]="selectedArray" separatorColor="white" (itemTap)="handleItemTap($event)">
+                        <template let-movement="item">
+                            <GridLayout rows="* auto" columns="*" class="list-record-container"> 
+                                <GridLayout rows="auto, auto" columns="*" class="{{ movement.state ? 'list-record-item' : 'list-record-item-add' }}">
+                                    <Label class="piece-heading" text="{{movement.state }} / {{ movement.title }}" row="0" col="0"></Label>
+                                    <Label text="{{ showRemainingMovements ? (movement.state ? 'delete' : 'ADD TO LIST') : (movement.state ? 'CLICK TO RECORD' : 'ADD TO LIST') }}" row="1" col="0"></Label> 
+
+                                    <StackLayout *ngIf="showRemainingMovements" row="0" col="0" class="icon-font">
+                                        <Label text="{{ movement.state ? iconRemove : iconAdd }}"></Label>
+                                    </StackLayout>                           
+                                </GridLayout>
+                            </GridLayout>
+                        </template>
+                    </ListView>
+                    <Button [text]="toggleButtonText" (tap)="toggleRemainingMovements()"></Button>
+                </StackLayout>
+            </StackLayout>
+    </StackLayout> -->
+    </StackLayout>
+</StackLayout>
+
+<!-- Piece Select BOTTOM (DOCK) -->
+<DockLayout>
+    <StackLayout dock="bottom" height="200" style="vertical-align: bottom;">
+
+         <Button [text]="playButton" (tap)="togglePlay()"></Button>
+
+    </StackLayout>
+</DockLayout>

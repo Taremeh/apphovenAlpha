@@ -493,27 +493,81 @@ export class AudioRecorderComponent implements OnInit {
         let duration = this.recordingEnd - this.recordingStart;
         let pieceId;
         let movementId;
-        if(this.selectedIndex == null){
-            pieceId = -1;
-            movementId = -1;
-        } else {
-            console.log("SEL INDEX: " + this.selectedIndex);
-            console.log("DATA: " + this.pieceArray[this.selectedIndex].pieceId);
-            pieceId = this.pieceArray[this.selectedIndex].pieceId;
-            movementId = this.pieceArray[this.selectedIndex].movementId;
+        let firebaseRecordingItem;
+        let recordingDate = this.recordingStart;
+
+        // Shrink MeterData if > 20  
+        if(this.meterData.length > 20){
+            // Max MeterBlocks to display
+            let maxVal = 20;
+            let delta = Math.floor(this.meterData.length / maxVal);
+            let tmpArray = [];
+            for (let i = 0; i < this.meterData.length; i=i+delta) {
+                tmpArray.push(this.meterData[i]);
+            }
+
+            // Reset
+            this.meterData = [];
+
+            // Refill with max. 100 elements
+            this.meterData = tmpArray;
         }
+
+        if(this.selectedIndex == null){
+            firebaseRecordingItem = {
+                // NO PIECE & NO MOVEMENTS EXIST
+                'duration': duration,
+                'recordingTitle': this.userRecordingTitle,
+                'recordingType': this.recordingType,
+                'fileName': this.fileName,
+                'audioMeterLine': this.meterData,
+                'fileLocation': 0,
+                'recordingDate': recordingDate
+            }
+        } else {
+            console.log("SELECTED INDEX: " + this.selectedIndex);
+            console.log("DATA: " + this.pieceArray[this.selectedIndex].pieceId);
+
+            pieceId = this.pieceArray[this.selectedIndex].pieceId;
+            if(this.pieceArray[this.selectedIndex].movementId || this.pieceArray[this.selectedIndex].movementId == 0) {
+                console.log("EXISTS: " + this.pieceArray[this.selectedIndex].movementId);
+                // MOVEMENT EXISTS
+                movementId = this.pieceArray[this.selectedIndex].movementId;
+                firebaseRecordingItem = {
+                    'duration': duration,
+                    'pieceId': pieceId,
+                    // pieceTitle (including movement) only TEMPORARY
+                    'pieceTitle': this.pieceNameArray[this.selectedIndex],
+                    'movementId': movementId,
+                    'recordingTitle': this.userRecordingTitle,
+                    'recordingType': this.recordingType,
+                    'fileName': this.fileName,
+                    'audioMeterLine': this.meterData,
+                    'fileLocation': 0,
+                    'recordingDate': recordingDate
+                }
+            } else {
+                console.log("NOT exists: " +  this.pieceArray[this.selectedIndex].movementId);
+                // ONLY PIECE (No movements)
+                firebaseRecordingItem = {
+                'duration': duration,
+                'pieceId': pieceId,
+                // pieceTitle (including movement) only TEMPORARY
+                'pieceTitle': this.pieceNameArray[this.selectedIndex],
+                'recordingTitle': this.userRecordingTitle,
+                'recordingType': this.recordingType,
+                'fileName': this.fileName,
+                'audioMeterLine': this.meterData,
+                'fileLocation': 0,
+                'recordingDate': recordingDate
+            }
+            }
+        }
+    
         
         firebase.setValue(
                 '/user/'+BackendService.token+'/recording/'+this.fileName,
-                {
-                    'duration': duration,
-                    'pieceId': pieceId,
-                    'movementId': movementId,
-                    'recordingTitle': this.userRecordingTitle,
-                    'fileName': this.fileName,
-                    'audioMeterLine': JSON.stringify(this.meterData),
-                    'location': 0
-                }
+                firebaseRecordingItem
             ).then(
                 function (result) {
                     // BackendService: Update lastPieceId & lastMovementId (DEL)

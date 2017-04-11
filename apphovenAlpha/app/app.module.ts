@@ -9,7 +9,7 @@ import { NativeScriptRouterModule } from "nativescript-angular/router";
 import { AppComponent } from "./app.component";
 import { TempoTermPipe } from "./pages/metronome/tempo-term.pipe";
 import { GraphLegendPipe } from "./pages/practice-session/graph-legend.pipe"
-import { TimerPipe } from "./shared";
+import { TimerPipe, MillisecondTransformerPipe } from "./shared";
 import { routes, navigatableComponents } from "./app.routing";
 
 // Providers
@@ -23,7 +23,7 @@ import { SettingsModule } from "./pages/settings/settings.module";
 import { ProfileModule } from "./pages/profile/profile.module";
 
 // Currently disabled: (ToDo: Find a way to regulate the status bar)
-//setStatusBarColors();
+// setStatusBarColors();
 
 @NgModule({
   providers: [
@@ -49,7 +49,8 @@ import { ProfileModule } from "./pages/profile/profile.module";
     ...navigatableComponents,
     TempoTermPipe,
     TimerPipe,
-    GraphLegendPipe
+    GraphLegendPipe,
+    MillisecondTransformerPipe
   ],
   bootstrap: [AppComponent]
 })

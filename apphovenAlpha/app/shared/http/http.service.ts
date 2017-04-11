@@ -18,7 +18,8 @@ export class HttpService {
         console.log("COMPOSER ID CHECK: " + composer_id);
         let urlPath = "&type=" + type + "&composer_id=" + composer_id + "&query=" + encodeURI(query);
         console.log("PATH: " + urlPath);
-        return this.http.get(this.serverUrlBase + urlPath)
+        let headers = this.createRequestHeader();
+        return this.http.get(this.serverUrlBase + urlPath, { headers: headers })
             .map(res => res.json());
     } 
     getResponseInfo(urlPath: string) {
@@ -42,5 +43,14 @@ export class HttpService {
         headers.append("Content-Type", "application/json");
         let options = new RequestOptions({ headers: headers });
         return options;
+    }
+
+    private createRequestHeader() {
+        let headers = new Headers();
+        // set headers here e.g.
+        headers.append("AuthKey", "my-key");
+        headers.append("AuthToken", "my-token");
+        headers.append("Content-Type", "application/json");
+        return headers;
     }
 }

@@ -1,0 +1,22 @@
+<ActionBar title="Apphoven" class="ah-action-bar"></ActionBar>
+<StackLayout class="ah-main-container">
+    <StackLayout class="piece-container">
+            <StackLayout class="movement-container">
+                <!-- <Label class="piece-text" text="Your current pieces:"></Label> -->
+                <!-- <StackLayout class="movement-list-current"> -->
+                <StackLayout>
+                    <ListView class="list-group clear-background" [items]="fbRecordingArray" separatorColor="transparent" (itemTap)="onRecordingTap($event)">
+                        <template let-recording="item">
+                            <StackLayout class="list-group-item clear-background"> 
+                                <GridLayout rows="auto, auto"columns="*, auto">
+                                    <Label row="0" col="0" class="list-group-item-heading" [text]="recording.displayTitle"></Label>
+                                    <Label row="1" col="0" class="list-group-item-text" textWrap="true" text="{{ recording.recordingDate | date:'medium' }}" visibility="{{recording.recordingDate ? 'visible' : 'collapsed' }}"></Label>
+                                    <Label row="0" col="1" class="icon-font icon-container" [text]="iconSettings" (tap)="showRecordingOptions(recording.fileName)"></Label>                    
+                                </GridLayout>
+                            </StackLayout>
+                        </template>
+                    </ListView>
+                </StackLayout>
+            </StackLayout>
+    </StackLayout>
+</StackLayout>

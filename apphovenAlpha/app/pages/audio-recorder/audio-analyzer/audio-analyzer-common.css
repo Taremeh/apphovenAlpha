@@ -1,0 +1,50 @@
+button {
+    margin: 5%;
+    padding: 2%;
+    font-size: 19;
+    font-weight: bold; 
+    color: #F9F9F9;
+    background-color: #757575;
+    border-radius: 5;
+}
+
+.meta-info-container {
+    padding: 20%;
+    background-color: #F44336;
+    color: white;
+}
+
+.ah-main-container-s {
+  /* background-image: url("res://bg"); #982528 */
+  background-color: #FAFAFA;  
+}
+
+.audio-meter-container {
+    margin-top: 15;
+    margin-bottom: 15;
+}
+
+.time-slider-container {
+    background-color: #FAFAFA;
+    padding: 10;
+    color: #F44336;
+}
+
+.add-marker-icon {
+    font-size: 20;
+    margin-left: -15;
+    margin-right: 10;
+    padding: 15;
+}
+
+.mark-label {
+    padding: 3;
+    margin: 0 3 0 3;
+    background-color: #BDBDBD;
+    vertical-align: center;
+}
+
+.mark-label-highlight {
+    color: white;
+    background-color: #F44336;
+}
