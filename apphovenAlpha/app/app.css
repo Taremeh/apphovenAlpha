@@ -54,7 +54,7 @@
 
 .ah-main-container {
   /* background-image: url("res://bg"); #982528 */
-  background-color: #FAFAFA;
+  /* background-color: #FAFAFA; */
   padding: 20%;
 }
 
@@ -72,6 +72,11 @@
 .clear-background {
   background-color: inherit;
 } 
+
+.light-background{
+  /* background-color: #F3F3F3; */
+  background-color: #FAFAFA;
+}
 
 .text-center {
   text-align: center;

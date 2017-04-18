@@ -13,12 +13,17 @@ button {
 }
 
 .submit-button {
-    margin-top: 10;
+    margin-top: 10%;
 }
 
 textfield {
-    margin-top: 10;
+    margin-top: 10%;
     color: #F9F9F9;
+}
+
+.piece-heading {
+    font-size: 15;
+    margin: 5;
 }
 
 .ah-main-container-s {
@@ -31,7 +36,6 @@ textfield {
     font-size: 80;
     text-align: center;
 }
-
 .timer-container {
     background-color: transparent;
     padding: 3%;
@@ -83,8 +87,24 @@ textfield {
     vertical-align: center;
 }
 
-.multi-list-item{
+.multi-list-item {
     margin: 15;
     font-size: 14;
     vertical-align: center;
+}
+
+.button-container {
+    margin-top: 15;
+}
+
+.info-text {
+    margin-bottom: 5;
+    color: #b5b5b5;
+}
+
+.select-mult-button-class {
+    padding: 4;
+    width: 220;
+    background-color: #444444;
+    border-radius: 5;
 }

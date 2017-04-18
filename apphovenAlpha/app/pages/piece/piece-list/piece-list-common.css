@@ -26,7 +26,6 @@
     margin-bottom: 20;
 }
 
-.icon-font {
-    font-family: 'fontawesome';
-    font-size: 30;
+.icon-container {
+    padding: 0 10 10 10;
 }

@@ -2,18 +2,20 @@ import { Component, OnInit, OnDestroy } from "@angular/core";
 import { Router } from "@angular/router";
 import { Page } from "ui/page";
 import { BackendService } from "../../shared";
+import { RouterExtensions } from "nativescript-angular/router";
+let utilityModule = require("utils/utils");
 
 import firebase = require("nativescript-plugin-firebase");
 
 @Component({
     selector: "ah-settings",
     templateUrl: "pages/settings/settings.component.html",
-    styleUrls: ["pages/settings/settings-common.css", "pages/settings/settings.component.css"],
+    styleUrls: ["pages/settings/settings-common.css"],
 })
 
 export class SettingsComponent implements OnInit, OnDestroy {
     isAndroid;
-    constructor(private _router: Router, private page: Page) { }
+    constructor(private _router: Router, private page: Page, private _routerExtensions: RouterExtensions) { }
 
     ngOnInit() {
         console.log("Registiert: OnInit");
@@ -28,6 +30,14 @@ export class SettingsComponent implements OnInit, OnDestroy {
     logOut() {
         BackendService.token = "";
         firebase.logout();
-        this._router.navigate(["/login"]);
+        this._routerExtensions.navigate(["/login"], { clearHistory: true });
+    }
+
+    tapUrl(url: string) {
+        if(url == "imslp"){
+            utilityModule.openUrl("https://imslp.org");
+        } else if (url == "blog") {
+            utilityModule.openUrl("https://www.blog.apphoven.com");
+        }
     }
 }

@@ -1,10 +1,12 @@
-import { Component, OnInit, ViewChild, ElementRef, NgZone } from "@angular/core";
+import { Component, OnInit, OnDestroy, ViewChild, ElementRef, NgZone } from "@angular/core";
 import { View } from "ui/core/view";
 import { Color } from "color";
 import firebase = require("nativescript-plugin-firebase");
 import { BackendService, PieceService } from "../../../shared";
 import { Observable as RxObservable } from 'rxjs/Observable';
 import { knownFolders, File } from 'file-system';
+import * as application from "application";
+import { AndroidApplication, AndroidActivityBackPressedEventData } from "application";
 // import * as fs from 'file-system';
 import * as app from 'application';
 import * as color from 'color';
@@ -15,6 +17,7 @@ import { Slider } from 'ui/slider';
 // import { SnackBar } from 'nativescript-snackbar';
 import { SegmentedBarItem } from "ui/segmented-bar";
 import { TNSRecorder, TNSPlayer, AudioPlayerOptions, AudioRecorderOptions } from 'nativescript-audio';
+import { RouterExtensions } from "nativescript-angular/router";
 
 @Component({
     selector: "ah-audio-recorder",
@@ -22,7 +25,7 @@ import { TNSRecorder, TNSPlayer, AudioPlayerOptions, AudioRecorderOptions } from
     styleUrls: ["pages/audio-recorder/audio-recorder/audio-recorder-common.css"]
 })
 
-export class AudioRecorderComponent implements OnInit {
+export class AudioRecorderComponent implements OnInit, OnDestroy {
     public isPlaying: boolean;
     public isRecording: boolean;
     public recordedAudioFile: string;
@@ -63,6 +66,9 @@ export class AudioRecorderComponent implements OnInit {
     // UI DATA
     private userRecordingTitle: string;
 
+    // APP LOGIC
+    private fileCreated: boolean;
+
     @ViewChild("ahMainContainer") ahMainContainer: ElementRef;
     @ViewChild("meterLineContainer") meterLineContainer: ElementRef;
     @ViewChild("meterLineListView") meterLineListView: ElementRef;
@@ -71,7 +77,7 @@ export class AudioRecorderComponent implements OnInit {
     @ViewChild("recordButton") recordButton: ElementRef;
 
 
-    constructor(private _ngZone: NgZone) {
+    constructor(private _ngZone: NgZone, private _routerExtensions: RouterExtensions) {
         this.player = new TNSPlayer();
         this.recorder = new TNSRecorder();
         //this.set('currentVolume', 1);
@@ -99,7 +105,44 @@ export class AudioRecorderComponent implements OnInit {
     }
 
     ngOnInit(){
+        application.android.on(AndroidApplication.activityBackPressedEvent, (data: AndroidActivityBackPressedEventData) => {
+            console.log("BACK BUTTON EVENT TRIGGERED");
+            if(this.isRecording || this.fileCreated){
+                data.cancel = true;
+                let options = {
+                    title: "Abort recording?",
+                    message: "Are you sure you want to stop recording without saving?",
+                    okButtonText: "Delete recording",
+                    cancelButtonText: "No, stay!",
+                };
+                dialogs.confirm(options).then((result: boolean) => {
+                    if(result){
+                        // Remove & go back
 
+                        // Stop Recording
+                        if(this.isRecording) {
+                            this.stopRecord();
+                        }
+
+                        // Delete Recorded File
+                        this.deleteRecording();
+                        this._routerExtensions.back();
+                    } else {
+                        // Stay
+                    }
+                });
+            }
+        });
+    
+    }
+
+    ngOnDestroy(){
+        if(this.isRecording){
+            this.stopRecord();
+        }
+
+        application.android.off(AndroidApplication.activityBackPressedEvent);
+        console.log("AudioRecorder - ngOnDestroy()");
     }
 
     recordToggle(){
@@ -147,6 +190,7 @@ export class AudioRecorderComponent implements OnInit {
             this.recordButtonText = "Stop Audio Recording";
         }
     }
+
 
     public startRecord() {
         if (TNSRecorder.CAN_RECORD()) {
@@ -234,6 +278,7 @@ export class AudioRecorderComponent implements OnInit {
         this.recorder.stop().then(() => {
             //this.set("isRecording", false);
             this.isRecording = false;
+            this.fileCreated = true;
             //this._SnackBar.simple("Recorder stopped");
             this.resetMeter();
         }, (ex) => {
@@ -669,5 +714,20 @@ export class AudioRecorderComponent implements OnInit {
                 }
             }
         );
+    }
+
+    deleteRecording(){
+        let audioFolder = knownFolders.currentApp().getFolder("audio");
+        let deleteFile = audioFolder.getFile(this.fileName);
+        if (deleteFile) {
+            deleteFile.remove()
+                .then(res => {
+                // Success removing the file.
+                //this.resultMessage = "File successfully deleted!";
+                console.log("Sucessfully deleted");
+            }).catch(err => {
+                console.log(err.stack);
+            });
+        }
     }
 }

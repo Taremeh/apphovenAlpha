@@ -39,8 +39,8 @@
 .main-container {
   visibility: collapse;
   opacity: 0;
-  margin-left: 30;
-  margin-right: 30;
+  horizontal-align: center;
+  vertical-align: center;
   background-color: white;
 }
 .main-label {
@@ -71,6 +71,7 @@ Button, TextField {
 }
 .sign-up-stack {
   background-color: #311217;
+  width: auto;
 }
 .sign-up-stack Label {
   color: white;
@@ -84,4 +85,40 @@ Button, TextField {
   visibility: collapse;
   horizontal-align: center;
   opacity: 0;
+}
+
+
+/* ------ */
+
+.main-container {
+  height: auto;
+  width: 80%;
+}
+.initial-label {
+  font-size: 32;
+  letter-spacing: 0.4;
+}
+.main-label {
+  font-size: 28;
+  margin-top: 32;
+  margin-bottom: 32;
+  letter-spacing: 0.2;
+}
+TextField {
+  margin-bottom: 10;
+}
+.submit-button {
+  margin-top: 15;
+}
+.sign-up-stack Label {
+  padding-top: 5;
+  height: auto;
+  text-transform: uppercase;
+}
+.forgot-password-label {
+  font-size: 13;
+  text-transform: uppercase;
+}
+.logo-container Image {
+  top: 90;
 }

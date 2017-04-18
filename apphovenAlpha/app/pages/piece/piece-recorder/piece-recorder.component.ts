@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild, ElementRef, NgZone } from "@angular/core";
+import { Component, OnInit, OnDestroy, ViewChild, ElementRef, NgZone } from "@angular/core";
 import { setInterval, setTimeout, clearInterval } from "timer";
 import { PageRoute } from "nativescript-angular/router";
 import { View } from "ui/core/view";
@@ -20,7 +20,7 @@ import { Router } from "@angular/router";
     templateUrl: "pages/piece/piece-recorder/piece-recorder.component.html",
     styleUrls: ["pages/piece/piece-recorder/piece-recorder-common.css"]
 })
-export class PieceRecorderComponent implements OnInit {
+export class PieceRecorderComponent implements OnInit, OnDestroy {
     
     // OnInit
     private noPiecesFound: boolean = false;
@@ -63,6 +63,8 @@ export class PieceRecorderComponent implements OnInit {
     public selectedPieceId: number;
     public selectedMovementId: number;
     public selectMultiplePiecesState: boolean = false;
+    
+    private selectedPieceMovementTitle: string;
 
     public currentView: number = 0;
 
@@ -110,40 +112,6 @@ export class PieceRecorderComponent implements OnInit {
 
         this.loadPieceInformation();
 
-        /*
-        
-        -> NOT NEEDED ANYMORE <-
-        (WILL BE REMOVED IN NEXT COMMIT)
-        
-        firebase.query(
-            (result) => {
-                if (result) {
-                    console.log("Event type: " + result.type);
-                    console.log("Key: " + result.key);
-                    console.log("Value: " + JSON.stringify(result.value));
-                    if(result.value.movementItem){
-                        console.log("MOVEMENTS FOUND");
-                        this.movementTitle = result.value.movementItem[this.routerParamIds['movementId']].title;
-                    } else {
-                        console.log("NO MOVEMENTS FOUND");
-                    }
-                    
-                    this.pieceTitle = result.value.pieceTitle;
-                    this.pieceWorkNumber = result.value.pieceWorkNumber;
-
-                } else {
-                    console.log("Fatal Error: Piece not found");
-                }
-            },
-            "/user/" + BackendService.token + "/piece/" + this.routerParamIds['pieceId'],
-            {
-                singleEvent: true,
-                orderBy: {
-                    type: firebase.QueryOrderByType.CHILD,
-                    value: 'since'
-                }
-            }
-        );*/
     }
 
     @ViewChild("sessionRatingContainer") sessionRatingContainer: ElementRef;
@@ -160,7 +128,7 @@ export class PieceRecorderComponent implements OnInit {
             this.backEvent(data);
         });
     }
-
+    
     toggleRecordingTime(){
         let sessionRatingContainer = <View>this.sessionRatingContainer.nativeElement;
         let pieceSelectionContainer = <View>this.pieceSelectionContainer.nativeElement;
@@ -181,77 +149,6 @@ export class PieceRecorderComponent implements OnInit {
             this.recordingTimeButton = "Stop Recording";
             this.start(1);
         }
-
-        /*if(this.recordingTimeState){
-            sessionRatingContainer.style.visibility = "visible";
-            this.button1 = false;
-            this.buttonContainer = true;
-
-            this.recordingTimeState = false;
-            this.recordingTimeButton = "Restart";
-            this.stop();
-        } else {
-            sessionRatingContainer.style.visibility = "collapse";
-
-            this.recordingTimeState = true;
-            this.recordingTimeButton = "Stop Recording";
-            this.start(1);
-        }*/
-    }
-
-
-    // PROTOTYPE FUNCTION
-    // WILL BE DELETED IN NEXT COMMIT
-
-    // EXPL: Turned out, that this functions isn't useful. Will be deleted in next Commit
-    continueRecordingTick() {
-
-        //var now = new Date();
-        /* 
-        this.recordingTime[this.recordingTimeCycle].h = now.getHours() - this.timeMetronomeStarted.getHours() + this.recordingTime[this.recordingTimeCycle-1].h;
-        this.recordingTime[this.recordingTimeCycle].m = now.getMinutes() - this.timeMetronomeStarted.getMinutes() + this.recordingTime[this.recordingTimeCycle-1].m;
-        this.recordingTime[this.recordingTimeCycle].s = now.getSeconds() - this.timeMetronomeStarted.getSeconds() + this.recordingTime[this.recordingTimeCycle-1].s;
-        var h = now.getHours() - this.timeMetronomeStarted.getHours() + this.recordingTime.h;
-        var m = now.getMinutes() - this.timeMetronomeStarted.getMinutes() + this.recordingTime.m;
-        var s = now.getSeconds() - this.timeMetronomeStarted.getSeconds() + this.recordingTime.s;
-
-
-        this.time = h + ":" + m + ":" + s;
-        this.timer = setTimeout(this.continueRecordingTick.bind(this), 500);
-
-
-        if((now.getSeconds() - this.timeMetronomeStarted.getSeconds()) + this.recordingTime[this.recordingTimeCycle-1].s < 0){
-            this.recordingTime[this.recordingTimeCycle].s = 60 + (now.getSeconds() - this.timeMetronomeStarted.getSeconds()) + this.recordingTime[this.recordingTimeCycle-1].s;
-        } else {
-            this.recordingTime[this.recordingTimeCycle].s = now.getSeconds() - this.timeMetronomeStarted.getSeconds() + this.recordingTime[this.recordingTimeCycle-1].s;
-        }
-        if(this.recordingTime[this.recordingTimeCycle].s +  == 0){
-            this.recordingTime[this.recordingTimeCycle].m += 1;
-        }
-        if(this.recordingTime[this.recordingTimeCycle].m == 60) {
-            this.recordingTime[this.recordingTimeCycle].h += 1;
-            this.recordingTime[this.recordingTimeCycle].m = 0;
-        }
-        var h = now.getHours() - this.timeMetronomeStarted.getHours() + this.recordingTime.h;
-        var m = now.getMinutes() - this.timeMetronomeStarted.getMinutes() + this.recordingTime.m;
-        var s = now.getSeconds() - this.timeMetronomeStarted.getSeconds() + this.recordingTime.s;
-
-        let h = this.recordingTime[this.recordingTimeCycle].h + this.recordingTime[this.recordingTimeCycle-1].h;
-        let m; // Set later. Check needed for (-1 and 0X)
-        let s = this.checkTime(this.recordingTime[this.recordingTimeCycle].s);
-        console.log("SECONDS: "+now.getSeconds()+"     //     "+this.recordingTime[this.recordingTimeCycle].s);
-        console.log(h + ":" + m + ":" + s);
-        if(this.recordingTime[this.recordingTimeCycle].m == -1){
-            m = this.checkTime((this.recordingTime[this.recordingTimeCycle].m+1) + this.recordingTime[this.recordingTimeCycle-1].m);
-            console.log("HIER EIN M:     "+ m);
-        } else {
-            m = this.checkTime(this.recordingTime[this.recordingTimeCycle].m + this.recordingTime[this.recordingTimeCycle-1].m);
-            console.log("HIER EIN M:   X  "+ m);
-        }
-        
-        this.time = h + ":" + m + ":" + s;
-        this.timer = setTimeout(this.continueRecordingTick.bind(this), 500);
-        */
     }
 
     // Start Metronome
@@ -274,7 +171,6 @@ export class PieceRecorderComponent implements OnInit {
                 cancelButtonText: "No!",
             }).then(function (result) {
                 if(result){
-                    that.resetMeta();
                     that.button1 = true;
                     that.buttonContainer = false;
                     that.recordingTimeState = true;
@@ -334,7 +230,10 @@ export class PieceRecorderComponent implements OnInit {
     }
 
     ngOnDestroy() {
-        // Kill running metronome
+        // Remove BackPressedEvent Listener
+        application.android.off(AndroidApplication.activityBackPressedEvent);
+        console.log("PieceRecorder - ngOnDestroy()");
+        // Stop running recorder
         this.stop();
     }
 
@@ -419,25 +318,25 @@ export class PieceRecorderComponent implements OnInit {
         if(!this.selectMultiplePiecesState) {
             this.currentView = 1;
 
+
             let sessionRatingContainer = <View>this.sessionRatingContainer.nativeElement;
             let pieceSelectionContainer = <View>this.pieceSelectionContainer.nativeElement;
 
-
-            // META INFORMATION (SHOWN UNDER TIMER)
-            this.pieceTitle = piece.pieceTitle;
-            if(piece.movementTitle) {
-                this.movementTitle = piece.movementTitle;
-            } else {
-                this.movementTitle = null;
-            }
-            this.showPieceMeta = true;
-
+            this.buttonContainer = false;
             pieceSelectionContainer.style.visibility = "collapse";
             sessionRatingContainer.style.visibility = "visible";
 
             console.log("PIECE ID FOR FIREBASE: " + piece.pieceId);
             this.selectedPieceId = piece.pieceId;
-            piece.movementId ? this.selectedMovementId = piece.movementId : -1;
+            this.selectedPieceMovementTitle = piece.pieceTitle;
+
+            if(piece.movementId != null) {
+                this.selectedPieceMovementTitle = piece.movementTitle + " | " + piece.pieceTitle;
+                this.selectedMovementId = piece.movementId;
+            } else {
+                this.selectedMovementId = -1;
+            }
+
         } else {
             if(piece.state == 1) {
                 console.log("STATE 0");
@@ -450,10 +349,10 @@ export class PieceRecorderComponent implements OnInit {
     }
 
     activateMultiplePieceSelection() {
+        this.buttonContainer = false;
         this.currentView = 1;
         this.selectMultiplePiecesState = true;
         console.log(this.selectMultiplePiecesState);
-        this.selectionPieceArray.unshift(this.autoselectPiece[0]);
     }
     
     loadPieceInformation(){
@@ -523,10 +422,6 @@ export class PieceRecorderComponent implements OnInit {
                             this.selectionPieceArray.sort(function(a, b) {
                                 return parseFloat(b.lastUsed) - parseFloat(a.lastUsed);
                             });
-
-                            this.autoselectPiece = [];
-                            this.autoselectPiece.push(this.selectionPieceArray[0]);
-                            this.selectionPieceArray.shift();
                         });
 
                     } else {
@@ -567,6 +462,7 @@ export class PieceRecorderComponent implements OnInit {
                 '/user/'+BackendService.token+"/practice-session",
                 {
                     'duration': this.time,
+                    'pieceMovementTitle': this.selectedPieceMovementTitle,
                     'pieceId': this.selectedPieceId, // this.routerParamIds['pieceId'],
                     'movementId': this.selectedMovementId, // this.routerParamIds['movementId'],
                     'userProgressRating': this.sessionProgressRating,
@@ -601,12 +497,20 @@ export class PieceRecorderComponent implements OnInit {
 
                 let duration = Math.round(this.time / sliderValueTotal * this.selectionPieceArray[i].durationSliderValue);
                 let userHappiness = this.selectionPieceArray[i].iconState == -1 ? null : this.selectionPieceArray[i].iconState+1;
+                let pieceMovementTitle;
+
+                if(this.selectionPieceArray[i].movementId != null) {
+                    pieceMovementTitle = this.selectionPieceArray[i].movementTitle + " | " + this.selectionPieceArray[i].pieceTitle;
+                } else {
+                    pieceMovementTitle = this.selectionPieceArray[i].pieceTitle;
+                }
 
                 if(duration != 0){
                     firebase.push(
                         '/user/'+BackendService.token+"/practice-session",
                         {
                             'duration': duration,
+                            'pieceMovementTitle': pieceMovementTitle,
                             'pieceId': this.selectionPieceArray[i].pieceId, // this.routerParamIds['pieceId'],
                             'movementId': this.selectionPieceArray[i].movementId, // this.routerParamIds['movementId'],
                             'userProgressRating': null,
@@ -624,7 +528,7 @@ export class PieceRecorderComponent implements OnInit {
             }
         }
 
-        this._routerExtensions.navigate(["/home"], { queryParams: { "toastId": "123123" }, clearHistory: true });
+        this._routerExtensions.navigate(["/home"], { clearHistory: true });
 
     }
 
@@ -639,7 +543,7 @@ export class PieceRecorderComponent implements OnInit {
             this._ngZone.run(() => {
                 this.currentView -= 1;
                 this.selectMultiplePiecesState = false;
-                this.selectionPieceArray.shift();
+                this.buttonContainer = true;
             })
 
         } else if(this.currentView == 1) {
@@ -648,19 +552,15 @@ export class PieceRecorderComponent implements OnInit {
             let sessionRatingContainer = <View>this.sessionRatingContainer.nativeElement;
             let pieceSelectionContainer = <View>this.pieceSelectionContainer.nativeElement;
 
-            // DELETE META
-            this.resetMeta();
+            // SHOW BUTTONS (RESET / CONTINUE) AGAIN
+            this._ngZone.run(() => {
+                this.buttonContainer = true;
+            });  
 
+            
             sessionRatingContainer.style.visibility = "collapse";
             pieceSelectionContainer.style.visibility = "visible";
-        }
-    }
 
-    resetMeta(){
-        this._ngZone.run(() => {
-                this.pieceTitle = null;
-                this.movementTitle = null;
-                this.showPieceMeta = false;
-        });  
+        }
     }
 }

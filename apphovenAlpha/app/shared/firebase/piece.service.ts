@@ -105,9 +105,15 @@ export class PieceService {
                     
 
                     // Remove Practice Sessions
+                    /* 
+                     * DISABLED!
+                     * 
+                    
                     for (let i = 0; i < deleteSessionArray.length; i++) {
                         firebase.remove("/user/" + BackendService.token + "/practice-session/" + deleteSessionArray[i]);
-                    }
+                    } 
+                    
+                    */
                 }
             },
             "/user/" + BackendService.token + "/practice-session",

@@ -15,7 +15,7 @@ import { alert, alertExt, LoginService, setHintColor, User  } from "../../shared
 @Component({
     selector: "ah-login",
     templateUrl:  "pages/login/login.component.html",
-    styleUrls: ["pages/login/login-common.css", "pages/login/login.component.css"],
+    styleUrls: ["pages/login/login-common.css"],
 })
 
 export class LoginComponent implements OnInit {

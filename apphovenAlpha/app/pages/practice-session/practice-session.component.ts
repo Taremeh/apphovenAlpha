@@ -39,6 +39,9 @@ export class PracticeSessionComponent implements OnInit {
     public graphValue: boolean = false;
     public praticeTimeCalendar: Array<any>;
 
+    private firebaseRangeDate1: number;
+    private firebaseRangeDate2: number;
+
     constructor(private _pageRoute: PageRoute, private _page: Page, private _routerExtensions: RouterExtensions, private _router: Router, private _ngZone: NgZone) {
         this.week = new observableArrayModule.ObservableArray();
         this.sessionArray = [];
@@ -160,12 +163,6 @@ export class PracticeSessionComponent implements OnInit {
                         this.leg2 = Math.round(this.legtop/60/2);
                     }
                     
-                    /*this.leg1 = Math.round(this.legtop > 3600 ? this.legtop/60/60*roundValue : this.legtop/60)/roundValue;
-                    console.log(this.leg1);
-                    this.leg2 = Math.round(this.legtop > 3600 ? this.legtop/60/60/2*roundValue : this.legtop/60/2*roundValue)/roundValue;
-                    console.log(this.leg2);
-                    console.log("NR 222: " + this.week[1].date);*/
-                    
                     // Reset Graph Value Indicator
                     this.graphValue = false;
 
@@ -174,8 +171,9 @@ export class PracticeSessionComponent implements OnInit {
                             this._ngZone.run(() => {
                                 this.sessionArray.push(result.value[this.sessionIdArray[i]]);
                             });
-                            
-                            if(this.legtop > 0) {
+
+                            // Only display graph if one sessions duration is longer than 120s
+                            if(this.legtop > 120) {
                                 // prepare user-session Date (dateFirebase) for if-Check
                                 let dateFirebase = new Date(result.value[this.sessionIdArray[i]].date);
                                 dateFirebase.setHours(0,0,0,0)
@@ -219,101 +217,32 @@ export class PracticeSessionComponent implements OnInit {
                                     }
                                 });
                             } else {
+                                this.leg1 = 0;
+                                this.leg2 = 0;
+                                this.legtop = 0;
                                 this.graphValue = false;
                             }
-
-                            
-
-                            /*
-                            
-                            ALTERNATIVE APPROACH (not fully working)
-                            WILL BE DELETED
-                            
-                            switch(true) {
-                                case (dateFirebase.getTime() == this.week[0].date.getTime()):
-                                    console.log("YES TRIGGER:+");
-                                    
-                                    this.week[0].value += (graphHeight / (this.legtop) * (result.value[this.sessionIdArray[i]].duration));
-                                    this.graphValue = true;
-                                    
-                                    break;
-                                case (dateFirebase.getTime() == this.week[1].date.getTime()):
-                                    this.week[1].value += (graphHeight / (this.legtop) * (result.value[this.sessionIdArray[i]].duration));
-                                    this.graphValue = true;
-                                    break;
-                                case (dateFirebase.getTime() == this.week[2].date.getTime()):
-                                    this.week[2].value += (graphHeight / (this.legtop) * (result.value[this.sessionIdArray[i]].duration));
-                                    this.graphValue = true;
-                                    break;
-                                case (dateFirebase.getTime() == this.week[3].date.getTime()):
-                                    this.week[3].value += (graphHeight / (this.legtop) * (result.value[this.sessionIdArray[i]].duration));
-                                    this.graphValue = true;
-                                    break;
-                                case (dateFirebase.getTime() == this.week[4].date.getTime()):
-                                    this.week[4].value += (graphHeight / (this.legtop) * (result.value[this.sessionIdArray[i]].duration));
-                                    this.graphValue = true;
-                                    break;
-                                case (dateFirebase.getTime() == this.week[5].date.getTime()):
-                                    this.week[5].value += (graphHeight / (this.legtop) * (result.value[this.sessionIdArray[i]].duration));
-                                    this.graphValue = true;
-                                    break;
-                                case (dateFirebase.getTime() == this.week[6].date.getTime()):
-                                    this.week[6].value += (graphHeight / (this.legtop) * (result.value[this.sessionIdArray[i]].duration));
-                                    this.graphValue = true;
-                                    break;
-                            }*/
-                            /*
-
-                            DOES NOT WORK BECAUSE OF DOUBLE FOR-LOOP
-
-                            for(let wd = 0; wd < 7; wd++){
-                                console.log("WD: " + wd);
-                                console.log("1 " + this.week[1].date);
-                                console.log("WEEK DATE" + this.week[wd].date);
-                                // If dateGraph (This Mon, This Tue, This Wed...) == dateFirebase (e.g. Last Mon, This Tue, This Thu)
-                                if(dateFirebase.getTime() == this.week[wd].date.getTime()){
-                                    console.log("TRIGGERED TRIGGERED TRIGGERED");
-
-                                    // Define max. Graph-Height
-                                    let graphHeight = 100;
-
-                                    // Set Graph-Height (+= Addition if value already exists)
-                                    this.week[wd].value += (graphHeight / (this.legtop) * (result.value[this.sessionIdArray[i]].duration));
-                                    
-                                    // Graph-Value exists
-                                    this.graphValue = true;
-                                    
-                                    /* 
-
-                                    // NOT NEEDED ANYMORE
-                                    // (Will be deleted in next Commit)
-                                    
-                                    this.week[wd].duration += result.value[this.sessionIdArray[i]].duration;
-
-                                    if(this.week[wd].duration > this.longestPracticeDuration){
-                                        this.longestPracticeDuration = this.week[wd].duration;
-
-                                        let roundValue = 2;
-
-                                        this.legtop = this.longestPracticeDuration > 3600 ? Math.ceil(this.longestPracticeDuration/60/60*roundValue)*60*60/roundValue : Math.round(this.longestPracticeDuration/60*roundValue)*60/roundValue;
-
-                                        this.leg1 = Math.round(this.longestPracticeDuration > 3600 ? this.longestPracticeDuration/60/60*roundValue : this.longestPracticeDuration/60*roundValue)/roundValue;
-                                        this.leg2 = Math.round(this.longestPracticeDuration > 3600 ? this.longestPracticeDuration/60/60/2*roundValue : this.longestPracticeDuration/60/2*roundValue)/roundValue;
-
-                                        this.legtopChanged = true;
-
-                                        console.log("TRUE TRUE TRUE  " + this.legtop + " VS  " + this.week[wd].duration);
-                                    } 
-                                }
-                            }*/
                         }
+
+                    this._ngZone.run(() => {
+                        // Sort Sessions
+                        this.sessionArray.sort(function(a, b) {
+                            return parseFloat(a.date) - parseFloat(b.date);
+                        });
+                    });
+
 
                     console.log("Event type: " + result.type);
                     console.log("Key: " + result.key);
                     console.log("Value: " + JSON.stringify(result.value));
 
                 } else {
-                    this.sessionArray = null;
+                    this._ngZone.run(() => {
+                        this.leg1 = 0;
+                        this.leg2 = 0;
+                        this.legtop = 0;
+                        this.sessionArray = null;
+                    });
                     console.log("NO SESSIONS FOUND");
                 }
             },
@@ -322,8 +251,18 @@ export class PracticeSessionComponent implements OnInit {
                 singleEvent: true,
                 orderBy: {
                     type: firebase.QueryOrderByType.CHILD,
-                    value: 'since' // mandatory when type is 'child'
-                }
+                    value: 'date' // mandatory when type is 'child'
+                },
+                ranges: [
+                    {
+                        type: firebase.QueryRangeType.START_AT,
+                        value: this.firebaseRangeDate1
+                    },
+                    {
+                        type: firebase.QueryRangeType.END_AT,
+                        value: this.firebaseRangeDate2+799000
+                    }
+                ]
             }
         );
     }
@@ -331,10 +270,11 @@ export class PracticeSessionComponent implements OnInit {
     ngOnInit() {
         
         this._page.actionBarHidden = true;
-        application.android.on(AndroidApplication.activityBackPressedEvent, (data: AndroidActivityBackPressedEventData) => {
+        /*application.android.on(AndroidApplication.activityBackPressedEvent, (data: AndroidActivityBackPressedEventData) => {
             console.log("BACK BUTTON EVENT TRIGGERED");
             //this._router.navigate(['/addpiece']); 
-        });
+        });*/
+
     }
 
     onSwipe(args: SwipeGestureEventData) {
@@ -423,6 +363,16 @@ export class PracticeSessionComponent implements OnInit {
         } else {
             this.currentWeekName = this.week[0].date;
         }
+
+        let fbD1 = new Date(this.week[0].date);
+        this.firebaseRangeDate1 = fbD1.getTime();
+
+        let fbD2 = new Date(this.week[6].date);
+        this.firebaseRangeDate2 = fbD2.getTime();
+
+        console.log("XXXXXXXXXX MON " + this.firebaseRangeDate1);
+        console.log("XXXXXXXXXX SUN " + this.firebaseRangeDate2);
+        
 
     }
 

@@ -203,9 +203,10 @@ export class AudioAnalyzerComponent implements OnInit{
             // result argument is boolean
             if(result === undefined){
                 console.log("DELETE MARK");
-                  firebase.remove("/user/" + BackendService.token + "/recording/" + this.routerParamId['recordingFileName'] + "/mark/" + this.fbRecordingMarkIds[position]).then( (r) => {
-                      this.loadPieceInformation(0);
-                  });
+
+                firebase.remove("/user/" + BackendService.token + "/recording/" + this.routerParamId['recordingFileName'] + "/mark/" + this.fbRecordingMarks[position].id).then( (r) => {
+                    this.loadPieceInformation(0);
+                });
             }
             console.log("Dialog result: " + result);
         });
@@ -530,6 +531,7 @@ export class AudioAnalyzerComponent implements OnInit{
                                     this.fbRecordingMarks.push({
                                         time: result.value.mark[this.fbRecordingMarkIds[i]].time,
                                         text: result.value.mark[this.fbRecordingMarkIds[i]].text,
+                                        id: this.fbRecordingMarkIds[i],
                                         class: "mark-label"
                                     });
                                     console.log("ADDED: " + JSON.stringify(this.fbRecordingMarks[i]));

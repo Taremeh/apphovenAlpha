@@ -11,7 +11,7 @@
                                 <GridLayout rows="auto, auto"columns="*, auto">
                                     <Label row="0" col="0" class="list-group-item-heading" [text]="piece.title"></Label>
                                     <Label row="1" col="0" class="list-group-item-text" textWrap="true" [text]="piece.movements" visibility="{{piece.movements ? 'visible' : 'collapsed' }}"></Label>
-                                    <Label row="0" col="1" class="icon-font" [text]="iconSettings" (tap)="showPieceOptions(piece.id)"></Label>                            
+                                    <Label row="0" col="1" class="icon-font icon-container" [text]="iconSettings" (tap)="showPieceOptions(piece.id)"></Label>                            
                                 </GridLayout>
                             </StackLayout>
                         </template>

@@ -24,7 +24,7 @@ export class PieceListComponent implements OnInit {
     public pieceMovementArrayNotSelected: Array<any>;
 
     // Icons
-    public iconSettings = String.fromCharCode(0xf013);
+    public iconSettings = String.fromCharCode(0xf1f8);
 
     // Nativescript doesn't allow an easy way to render an object, 
     // which is created while loading the values from firebase. Therefore: Each value gets an own var
@@ -122,10 +122,10 @@ export class PieceListComponent implements OnInit {
         // Hide Action-Bar
         //this._page.actionBarHidden = true;
 
-        application.android.on(AndroidApplication.activityBackPressedEvent, (data: AndroidActivityBackPressedEventData) => {
+        /*application.android.on(AndroidApplication.activityBackPressedEvent, (data: AndroidActivityBackPressedEventData) => {
             console.log("BACK BUTTON EVENT TRIGGERED");
             //this._router.navigate(['/addpiece']);
-        });
+        });*/
     }
 
     onPieceTap(args){
@@ -137,45 +137,22 @@ export class PieceListComponent implements OnInit {
     showPieceOptions(pieceId: number){
         console.log("üBERMITTELTE PIECE ID: ->" + pieceId + "<-");
         let that = this;
-        let options = {
-            title: "Piece Options",
-            message: "Choose your option",
-            cancelButtonText: "Cancel",
-            actions: ["Remove Piece"]
-        };
-        dialogs.action(options).then((result) => {
-            console.log(result);
-            if(result == "Remove Piece"){
-                this._pieceService.removePiece(pieceId, -1).then(
+        dialogs.confirm({
+            title: "Delete piece from Practice-List?",
+            message: "Do you want to remove this piece (and all its movements) from your Practice-List? \n\nYour Practice-Progress (Practice-Sessions) won't be deleted.",
+            okButtonText: "Yes, remove please",
+            cancelButtonText: "No!",
+        }).then(function (result) {
+            if(result){
+                that._pieceService.removePiece(pieceId, -1).then(
                     function () {
-                    console.log("success REMOVING");
-                    that.loadFirebaseData();
+                        console.log("success REMOVING");
+                        that.loadFirebaseData();
                 },
                 function (error) {
                 console.log("firebase.keepInSync error: " + error);
                 }
                 );
-
-                
-                /*
-                
-                FIREBASE PIECE REMOVAL MOVED TO EXTERNAL PIECE-SERVICE
-                THIS CODE WILL BE DELETED IN NEXT COMMIT
-
-                firebase.remove("/user/" + BackendService.token + "/piece/" + pieceId).then(
-                function () {
-                    if(pieceId == BackendService.lastPieceId){
-                        // -1 indicates: Last used Piece was removed
-                        BackendService.lastPieceId = -1;
-                        BackendService.lastMovementId = -1;
-                    }
-                    console.log("success REMOVING");
-                    that.loadFirebaseData();
-                },
-                function (error) {
-                console.log("firebase.keepInSync error: " + error);
-                }
-                );*/
             }
         });
     }

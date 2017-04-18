@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild, ElementRef, NgZone } from "@angular/core";
+import { Component, OnInit, OnDestroy, ViewChild, ElementRef, NgZone } from "@angular/core";
 import { View } from "ui/core/view";
 import { Page } from "ui/page";
 import { TextField } from "ui/text-field";
@@ -16,7 +16,7 @@ import { RouterExtensions } from "nativescript-angular/router";
     styleUrls: ["pages/piece/addpiece/addpiece-common.css"],
     providers: [HttpService]
 })
-export class AddPieceComponent implements OnInit {
+export class AddPieceComponent implements OnInit, OnDestroy {
 
     public composerArray: Array<any>; // For Listview
     public composerData: Array<any>; // To fetch data
@@ -32,6 +32,7 @@ export class AddPieceComponent implements OnInit {
 
     public movementArray: Array<any>; // If exist, fetch movements from DB
     public pieceMovementArray: Array<any>; // Generate new movement array from 'movementArray' -> error prevention
+    public movementSelectCounter: number = 0;
 
     // Initializing user input vars
     public searchPhraseComposer;
@@ -72,6 +73,12 @@ export class AddPieceComponent implements OnInit {
             console.log("BACK BUTTON EVENT TRIGGERED");
             this.backEvent(data);
         });
+    }
+
+    ngOnDestroy() {
+        // Remove BackPressedEvent Listener
+        application.android.off(AndroidApplication.activityBackPressedEvent);
+        console.log("AddPiece - ngOnDestroy()");
     }
     
     searchComposer(composerName: string){
@@ -183,6 +190,11 @@ export class AddPieceComponent implements OnInit {
                             var len = this.movementArray[indexNumber].length;
                             if(result.value){
                                 for (let i = 0; i < len; i++) {
+                                    if(result.value.movementItem[i].state == 1){
+                                        // 2 = DISABLE! => IF MOVEMENT WAS ALREADY SELECTED
+                                        console.log("ALREADY SELECTED => DISABLE");
+                                        result.value.movementItem[i].state = 2;
+                                    }
                                     this.pieceMovementArray.push({
                                         title: result.value.movementItem[i].title,
                                         state: result.value.movementItem[i].state,
@@ -231,7 +243,7 @@ export class AddPieceComponent implements OnInit {
     }
 
     imageSource(movement) {
-        if (movement.state == 1) {
+        if (movement.state > 0) {
             return "res://li_checked";
         } else {
             return "res://li_unchecked";
@@ -240,28 +252,41 @@ export class AddPieceComponent implements OnInit {
 
     onMovementItemTap(movement) {
         if(movement.state == 1) {
+            this.movementSelectCounter = this.movementSelectCounter - 1;
             movement.state = 0;
-        } else {
+            console.log("STATE 1 zu 0");
+        } else if (movement.state == 0){
+            this.movementSelectCounter = this.movementSelectCounter + 1;
             movement.state = 1;
+            console.log("STATE 0 zu 1");
+        } else {
+            // NOTIFY: ALREADY SELECTED
+            console.log("Movement already added to list");
         }
     }
 
     addPiece(){
         let that = this;
-        this._pieceService.addPiece(this.pieceId, this.pieceData[this.pieceDataId], this.movementArray, this.pieceMovementArray)
-        .then(
-            function () {
-                console.log("SUCCESS"); 
-                // BACKENDSERVICE FUNCTIONS MAY BE DELETED IN NEXT COMMIT
-                // Add Piece-Id to backend service DEL
-                // BackendService.lastPieceId = Number(that.pieceId);
-                // that._routerExtensions.navigate(["/piece-db/"+that.pieceId], { clearHistory: true });
-                that._router.navigate(["/piece-db/"+that.pieceId+"/1"]);
-            },
-            function (error) {
-                console.log("ERROR: " + error);
-            }
-        );
+        // Movements available
+        if(this.pieceMovementArray != null && this.movementSelectCounter == 0){
+            // Notify: Select movement
+            console.log("SELECT MOVEMENT!");
+        } else {
+            this._pieceService.addPiece(this.pieceId, this.pieceData[this.pieceDataId], this.movementArray, this.pieceMovementArray)
+            .then(
+                function () {
+                    console.log("SUCCESS"); 
+                    // BACKENDSERVICE FUNCTIONS MAY BE DELETED IN NEXT COMMIT
+                    // Add Piece-Id to backend service DEL
+                    // BackendService.lastPieceId = Number(that.pieceId);
+                    // that._routerExtensions.navigate(["/piece-db/"+that.pieceId], { clearHistory: true });
+                    that._router.navigate(["/piece-db/"+that.pieceId+"/1"]);
+                },
+                function (error) {
+                    console.log("ERROR: " + error);
+                }
+            );
+        }
     }
 
     // Handle Android Back-Button-Event (Navigation Logic)

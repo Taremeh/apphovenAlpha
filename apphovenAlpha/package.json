@@ -1,10 +1,11 @@
 {
-  "description": "NativeScript Application",
-  "license": "SEE LICENSE IN <your-license-filename>",
+  "description": "Apphoven is an app for musicians",
+  "license": "UNLICENSED",
+  "private": true,
   "readme": "NativeScript Application",
-  "repository": "<fill-your-repository-here>",
+  "repository": "https://github.com/Taremeh/apphovenAlpha",
   "nativescript": {
-    "id": "org.nativescript.apphovenAlpha",
+    "id": "com.apphoven.apphovenAlpha",
     "tns-android": {
       "version": "2.5.0"
     }

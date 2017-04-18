@@ -1,5 +1,14 @@
 <ActionBar title="Apphoven" class="ah-action-bar"></ActionBar>
-<StackLayout #ahMainContainer class="ah-main-container">
-    <Label text="Apphoven is being developed continuously. Expect more to come!" style.whiteSpace="normal" class="text-center m-10"></Label>
-    <Button (tap)="logOut()" text="LogOut"></Button>
+<StackLayout row="1" #ahMainContainer class="ah-main-container">
+    <GridLayout rows="*, auto">
+    <StackLayout row="0">
+        <Label text="Apphoven is being developed continuously. Expect more to come!" style.whiteSpace="normal" class="text-center m-10"></Label>
+        <Button (tap)="logOut()" text="LogOut"></Button>
+    </StackLayout>
+    <StackLayout row="1" class="text-center ah-text-secondary">
+        <Label text="Visit the Apphoven Developer-Blog: blog.apphoven.com" style.whiteSpace="normal" (tap)="tapUrl('blog')"></Label>
+        <StackLayout class="hr-light m-y-10"></StackLayout>
+        <Label text="Apphoven is using Meta-Information from IMSLP.org" style.whiteSpace="normal" (tap)="tapUrl('imslp')"></Label>
+    </StackLayout>
+    </GridLayout>
 </StackLayout>

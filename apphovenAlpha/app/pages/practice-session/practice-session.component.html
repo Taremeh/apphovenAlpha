@@ -1,7 +1,7 @@
 <StackLayout class="ah-main-container-red">
     <StackLayout class="graph-container">
         <GridLayout rows="auto, auto">
-            <Label row="0" *ngIf="!graphValue && sessionArray" text="Graph: No sessions this week" style="margin-bottom: 25; vertical-align: center; text-align: center;"></Label>
+            <Label row="0" *ngIf="!graphValue || !sessionArray" text="Graph: No sessions this week" style="margin-bottom: 25; vertical-align: center; text-align: center;"></Label>
             <GridLayout row="0" rows="115, auto" columns="auto, *, *, *, *, *, *, *" orientation="horizontal" (swipe)="onSwipe($event)">
                 <Label text="{{ leg1 }}" row="0" col="0" style="vertical-align: top;"></Label>
                 <Label text="{{ leg2 }}" row="0" col="0" style="vertical-align: center;"></Label>
@@ -18,10 +18,16 @@
                     <ListView [items]="sessionArray" separatorColor="white">
                         <template let-piece="item">
                             <StackLayout class="list-record-container"> 
-                                <GridLayout rows="auto, auto, auto"columns="*, auto" class="list-record-item">
-                                    <Label row="0" col="0" class="piece-heading" text='{{ piece.date | date:"EEE d.MM - H:m" }}'></Label>
-                                    <Label row="1" col="0" class="icon-font" text='Duration: {{ (piece.duration > 20) ? (piece.duration | timerformat | date:"HH:mm:ss") : (piece.duration | timerformat | date:"mm:ss") }}{{ piece.userProgressRating ? ("  |  " + piece.userProgressRating + " " + starIcon) : "" }}{{ piece.userHappinessRating ? ("  |  " + smileIcons[(piece.userHappinessRating-1)].iconCode) : "" }}'></Label>
-                                    <Label *ngIf="piece.userNotes" row="2" [text]="piece.userNotes"></Label>
+                                <GridLayout rows="auto, auto, auto, auto"columns="auto, *, auto" class="list-record-item">
+                                    <!-- Minutes / Hours -->
+                                    <Label row="0" col="0" text='{{ (piece.duration > 3600) ? (piece.duration | timerformat | date:"HH") + " h" : (piece.duration | timerformat | date:"mm:ss") }}' class="piece-heading piece-heading-correction"></Label>
+                                    <!-- If Hours, then here Minutes -->
+                                    <Label row="1" col="0" text='{{ (piece.duration > 3600) ? (piece.duration | timerformat | date:"mm:ss") : (null) }}' class="piece-heading-correction"></Label>
+                                    <!-- Date & Time as big title -->
+                                    <Label row="0" col="1" class="piece-heading" text='{{ piece.date | date:"EEE d.MM - H:m" }}'></Label>
+                                    <Label row="1" col="1" text='{{ piece.pieceMovementTitle }}'></Label>
+                                    <Label *ngIf="piece.userNotes" row="2" col="1" [text]="piece.userNotes"></Label>
+                                    <Label row="3" col="1" class="icon-font" text='{{ piece.userProgressRating ? (piece.userProgressRating + " " + starIcon) : "" }}{{ piece.userHappinessRating ? ("  |  " + smileIcons[(piece.userHappinessRating-1)].iconCode) : "" }}'></Label>
                                 </GridLayout>
                             </StackLayout>
                         </template>

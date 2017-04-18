@@ -1,4 +1,4 @@
-import { Component, OnInit, NgZone } from "@angular/core";
+import { Component, OnInit, OnDestroy, NgZone } from "@angular/core";
 import firebase = require("nativescript-plugin-firebase");
 import { PageRoute } from "nativescript-angular/router";
 import { Observable as RxObservable } from 'rxjs/Observable';
@@ -17,7 +17,7 @@ import dialogs = require("ui/dialogs");
     styleUrls: ["pages/piece/piece-dashboard/piece-dashboard-common.css"]
 })
 
-export class PieceDashboardComponent implements OnInit {
+export class PieceDashboardComponent implements OnInit, OnDestroy {
 
     public routerParamId: Array<any>;
     public myItems: RxObservable<Array<any>>;
@@ -27,7 +27,7 @@ export class PieceDashboardComponent implements OnInit {
     public pieceMovementArrayAll: Array<any>;
     public selectedArray: Array<any>;
 
-    public toggleButtonText = "Add / Remove Movements";
+    public toggleButtonText = "Edit Practice-List";
     public showRemainingMovements: boolean = false;
 
     // Icons
@@ -157,6 +157,12 @@ export class PieceDashboardComponent implements OnInit {
         });
     }
 
+    ngOnDestroy() {
+        // Remove BackPressedEvent Listener
+        application.android.off(AndroidApplication.activityBackPressedEvent);
+        console.log("PieceDashboard - ngOnDestroy()");
+    }
+
     toggleRemainingMovements(type: number){
 
         this.showRemainingMovements = !this.showRemainingMovements;
@@ -175,8 +181,14 @@ export class PieceDashboardComponent implements OnInit {
 
     handleItemTap(args){
         if(!this.showRemainingMovements){
+            /*
+             * DISABLED!
+             * 
+
             // Reading-Mode -> Go to piece recorder
             this.recordSession(args);
+
+            */
         } else {
             // Editing-Mode -> Add / Remove movement from list
             if(this.pieceMovementArrayAll[args.index].state == 0){
@@ -224,9 +236,9 @@ export class PieceDashboardComponent implements OnInit {
                 } else {
                     // SURE you want to delete?
                     dialogs.confirm({
-                        title: "Reset your progress?",
-                        message: 'Do you want to reset your progress (practice time, ratings etc.) for \n\n"' + this.pieceTitle + '\n' + this.pieceMovementArrayAll[args.index].title + '" ?',
-                        okButtonText: "Yes, reset please",
+                        title: "Delete movement from list?",
+                        message: "Do you want to remove this movement from your Practice-List? \n\nYour Practice-Progress (Practice-Sessions) won't be deleted.",
+                        okButtonText: "Yes, remove please",
                         cancelButtonText: "No!",
                     }).then(function (result) {
                         if(result){

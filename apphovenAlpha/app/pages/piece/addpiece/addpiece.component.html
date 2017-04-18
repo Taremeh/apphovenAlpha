@@ -26,21 +26,27 @@
                 </ListView>
             </StackLayout>
     </StackLayout>
-    <StackLayout #pieceContainer class="piece-container">
+    <GridLayout rows="*, auto" #pieceContainer class="piece-container">
+        <StackLayout row="0">
+
         <ScrollView #scrlView orientation="horizontal">
             <Label class="piece-heading" text="{{ pieceItemText.piece_title }}"></Label>
         </ScrollView>
             <Label class="piece-text" text="Work-Number: {{ pieceItemText.piece_work_number }}"></Label>
             <Label class="piece-text" text="Movements: {{ pieceItemText.piece_movement_amount }}" visibility="{{ pieceItemText.piece_movement_amount ? 'visible' : 'collapsed' }}"></Label>
+            <Label *ngIf="!pieceItemText.piece_movement_amount" text="This piece doesn't contain any movements" class="no-movements-info"></Label>
             <ListView [items]="pieceMovementArray" separatorColor="white">
                 <template let-movement="item">
                     <GridLayout rows="* auto" columns="*"> 
-                        <StackLayout row="1" col="0" class="list-group-item" orientation="horizontal" (tap)="onMovementItemTap(movement)">
-                            <Image class="piece-checkbox" stretch="aspectFill" [src]="imageSource(movement)"></Image><Label class="piece-heading" [text]="movement.title"></Label>                            
+                        <StackLayout row="1" col="0" class="list-group-item movement-item" orientation="horizontal" (tap)="onMovementItemTap(movement)">
+                            <Image class="piece-checkbox" stretch="aspectFill" [src]="imageSource(movement)"></Image><Label class="piece-heading" style='{{ movement.state == 2 ? "color: #e0e0e0" : "color: black" }}' [text]="movement.title"></Label>  
                         </StackLayout>
                     </GridLayout>
                 </template>
             </ListView>
-            <Button text="START PRACTICING!" (tap)="addPiece()"></Button>
-    </StackLayout> 
+        </StackLayout>
+        <StackLayout row="1">
+        <Button text="ADD TO PRACTICE-LIST!" (tap)="addPiece()"></Button>
+        </StackLayout>
+    </GridLayout> 
 </StackLayout>

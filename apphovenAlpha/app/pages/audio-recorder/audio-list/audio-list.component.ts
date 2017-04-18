@@ -30,7 +30,7 @@ export class AudioListComponent {
     private noRecordingsFound: boolean;
 
     // Icons
-    public iconSettings = String.fromCharCode(0xf013);
+    public iconSettings = String.fromCharCode(0xf1f8);
 
     constructor(private _router: Router, private _ngZone: NgZone){
         this.fbRecordingIdArray = [];
@@ -48,17 +48,36 @@ export class AudioListComponent {
     showRecordingOptions(filename){
         console.log("FILENAME: ->" + filename + "<-");
         let that = this;
-        let options = {
-            title: "Recording Options",
-            message: "Choose your option",
-            cancelButtonText: "Cancel",
-            actions: ["Remove Recording"]
-        };
-        dialogs.action(options).then((result) => {
-            console.log(result);
-            if(result == "Remove Recording"){
+        dialogs.confirm({
+            title: "Remove recording?",
+            message: "Do you want to delete the recording and all its markers?",
+            okButtonText: "Yes, remove please",
+            cancelButtonText: "No!",
+        }).then(function (result) {
+            if(result){
+
+                // DELTE FILE FROM DEVICE
+                let audioFolder = knownFolders.currentApp().getFolder("audio");
+                let deleteFile = audioFolder.getFile(filename);
+                if (deleteFile) {
+                    // >> fs-delete-file-code
+                    deleteFile.remove()
+                        .then(res => {
+                            // Success removing the file.
+                            //this.resultMessage = "File successfully deleted!";
+                            console.log("Sucessfully deleted");
+                        }).catch(err => {
+                            console.log(err.stack);
+                        });
+                    // << fs-delete-file-code
+                } else {
+                    console.log("Already deleted")
+                    //this.resultMessage = "Already deleted file!";
+                }
+
+                // DELTE METAINFO FROM FIREBASE
                 firebase.remove("/user/" + BackendService.token + "/recording/" + filename).then( (r) => {
-                      this.loadPieceInformation();
+                      that.loadPieceInformation();
                 });;
             } else {
                 // ERROR

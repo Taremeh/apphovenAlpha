@@ -48,6 +48,8 @@ export class HomeComponent implements OnInit, OnDestroy {
     }
 
     ngOnDestroy() {
+        // Remove BackPressedEvent Listener
+        application.android.off(AndroidApplication.activityBackPressedEvent);
         console.log("Home - ngOnDestroy()");
     }
 
