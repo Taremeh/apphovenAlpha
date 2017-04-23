@@ -1,14 +1,16 @@
 import { Component, OnInit, OnDestroy, ViewChild, ElementRef, NgZone } from "@angular/core";
 import { View } from "ui/core/view";
 import { Page } from "ui/page";
-import { TextField } from "ui/text-field";
 import { HttpService, BackendService, PieceService } from "../../../shared";
 import { Color } from "color";
 import * as application from "application";
 import { AndroidApplication, AndroidActivityBackPressedEventData } from "application";
 import firebase = require("nativescript-plugin-firebase");
-import { Router } from "@angular/router";
 import { RouterExtensions } from "nativescript-angular/router";
+import * as Toast from "nativescript-toast";
+import { connectionType, getConnectionType } from "connectivity";
+import dialogs = require("ui/dialogs");
+
 
 @Component({
     selector: "ah-addpiece",
@@ -37,12 +39,12 @@ export class AddPieceComponent implements OnInit, OnDestroy {
     // Initializing user input vars
     public searchPhraseComposer;
     public searchPhrasePiece;
-    public searchHint = "Mozart";
+    public searchHint = "Composer Name";
 
     // Navigation Helper Variable
     public currentView: number = 0;
 
-    constructor(private _page: Page, private _httpService: HttpService, private _router: Router,
+    constructor(private _page: Page, private _httpService: HttpService, private _routerExtensions: RouterExtensions,
         private _pieceService: PieceService) {
         // Initializing Arrays
         this.composerArray = [];
@@ -73,6 +75,8 @@ export class AddPieceComponent implements OnInit, OnDestroy {
             console.log("BACK BUTTON EVENT TRIGGERED");
             this.backEvent(data);
         });
+
+        this.checkConnection();
     }
 
     ngOnDestroy() {
@@ -82,6 +86,7 @@ export class AddPieceComponent implements OnInit, OnDestroy {
     }
     
     searchComposer(composerName: string){
+        this.checkConnection();
         if((composerName+"").length > 3) {
                 this._httpService.getData(1, composerName).subscribe((res) => {
                     // console.log(JSON.stringify(res));
@@ -120,6 +125,7 @@ export class AddPieceComponent implements OnInit, OnDestroy {
     }
 
     searchPiece(pieceTitle: string) {
+        this.checkConnection();
         if((pieceTitle+"").length > 3) {
                 this._httpService.getData(2, pieceTitle, this.composerId).subscribe((res) => {
                     console.log(JSON.stringify(res));
@@ -190,14 +196,16 @@ export class AddPieceComponent implements OnInit, OnDestroy {
                             var len = this.movementArray[indexNumber].length;
                             if(result.value){
                                 for (let i = 0; i < len; i++) {
+                                    let disabledState = false;
                                     if(result.value.movementItem[i].state == 1){
                                         // 2 = DISABLE! => IF MOVEMENT WAS ALREADY SELECTED
                                         console.log("ALREADY SELECTED => DISABLE");
-                                        result.value.movementItem[i].state = 2;
+                                        disabledState = true;
                                     }
                                     this.pieceMovementArray.push({
                                         title: result.value.movementItem[i].title,
                                         state: result.value.movementItem[i].state,
+                                        disabled: disabledState,
                                         id: null // will be defined later
                                     });
                                     console.log(result.value.movementItem[i].title);
@@ -251,26 +259,30 @@ export class AddPieceComponent implements OnInit, OnDestroy {
     }
 
     onMovementItemTap(movement) {
-        if(movement.state == 1) {
-            this.movementSelectCounter = this.movementSelectCounter - 1;
-            movement.state = 0;
-            console.log("STATE 1 zu 0");
-        } else if (movement.state == 0){
-            this.movementSelectCounter = this.movementSelectCounter + 1;
-            movement.state = 1;
-            console.log("STATE 0 zu 1");
-        } else {
+        if(movement.disabled){
             // NOTIFY: ALREADY SELECTED
+            this.showToast("This piece is already on your Practice-List");
             console.log("Movement already added to list");
+        } else {
+            if(movement.state == 1) {
+                this.movementSelectCounter = this.movementSelectCounter - 1;
+                movement.state = 0;
+                console.log("STATE 1 zu 0");
+            } else if (movement.state == 0){
+                this.movementSelectCounter = this.movementSelectCounter + 1;
+                movement.state = 1;
+                console.log("STATE 0 zu 1");
+            }
         }
     }
 
     addPiece(){
         let that = this;
         // Movements available
-        if(this.pieceMovementArray != null && this.movementSelectCounter == 0){
+        if(this.pieceMovementArray[0] != null && this.movementSelectCounter == 0){
             // Notify: Select movement
-            console.log("SELECT MOVEMENT!");
+            this.showToast("Select a movement");
+            console.log("SELECT MOVEMENT! " + JSON.stringify(this.pieceMovementArray));
         } else {
             this._pieceService.addPiece(this.pieceId, this.pieceData[this.pieceDataId], this.movementArray, this.pieceMovementArray)
             .then(
@@ -280,7 +292,16 @@ export class AddPieceComponent implements OnInit, OnDestroy {
                     // Add Piece-Id to backend service DEL
                     // BackendService.lastPieceId = Number(that.pieceId);
                     // that._routerExtensions.navigate(["/piece-db/"+that.pieceId], { clearHistory: true });
-                    that._router.navigate(["/piece-db/"+that.pieceId+"/1"]);
+                    
+                    // Redirection: tutorialTour or regular?
+                    if(BackendService.tutorialTour > 0){
+                        that._routerExtensions.navigate(["/home/con-piece-add-success"], { clearHistory: true });
+                    } else {
+                        BackendService.toastLoaded = 1;
+                        that._routerExtensions.navigate(["/home/tos-piece-add-success"], { clearHistory: true });
+                    }
+
+                    // Navigate to Home
                 },
                 function (error) {
                     console.log("ERROR: " + error);
@@ -324,6 +345,22 @@ export class AddPieceComponent implements OnInit, OnDestroy {
             // RESET VALUES
             //this.pieceArray = [];
             sbPiece.focus();
+        }
+    }
+
+    public showToast(message: string) {
+        Toast.makeText(message).show();
+    }
+
+    checkConnection(){
+        if (getConnectionType() == connectionType.none) {
+            dialogs.alert({
+                title: "No Internet Connection",
+                message: "You require an internet connection to add pieces to the Piece-List.",
+                okButtonText: "Go back"
+            }).then(() => {
+                this._routerExtensions.back();
+            });
         }
     }
 }

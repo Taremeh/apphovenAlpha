@@ -1,4 +1,8 @@
-<ActionBar title="Apphoven" class="ah-action-bar"></ActionBar>
+<ActionBar class="ah-action-bar">
+    <GridLayout columns="*">
+        <Label col="0" text="APPHOVEN" style="font-size: 20; vertical-align: center;"></Label>
+    </GridLayout>
+</ActionBar>
 <StackLayout row="1" #ahMainContainer class="ah-main-container">
     <GridLayout rows="*, auto">
     <StackLayout row="0">
@@ -6,7 +10,11 @@
         <Button (tap)="logOut()" text="LogOut"></Button>
     </StackLayout>
     <StackLayout row="1" class="text-center ah-text-secondary">
+        <Label text="Access Beta-Function: Metronome" style.whiteSpace="normal" style="color: black" (tap)="betaFunction()"></Label>
+        <StackLayout class="hr-light m-y-10"></StackLayout>
         <Label text="Visit the Apphoven Developer-Blog: blog.apphoven.com" style.whiteSpace="normal" (tap)="tapUrl('blog')"></Label>
+        <StackLayout class="hr-light m-y-10"></StackLayout>
+        <Label text="Home Icons are made by Linh Pham and Freepik from Flaticon" style.whiteSpace="normal" (tap)="tapUrl('flaticon')"></Label>
         <StackLayout class="hr-light m-y-10"></StackLayout>
         <Label text="Apphoven is using Meta-Information from IMSLP.org" style.whiteSpace="normal" (tap)="tapUrl('imslp')"></Label>
     </StackLayout>

@@ -20,7 +20,6 @@ import { PerformanceTestService } from "./pages/metronome/performance-test.servi
 // Modules
 import { LoginModule } from "./pages/login/login.module";
 import { SettingsModule } from "./pages/settings/settings.module";
-import { ProfileModule } from "./pages/profile/profile.module";
 
 // Currently disabled: (ToDo: Find a way to regulate the status bar)
 // setStatusBarColors();
@@ -41,8 +40,7 @@ import { ProfileModule } from "./pages/profile/profile.module";
     NativeScriptRouterModule,
     NativeScriptRouterModule.forRoot(routes),
     LoginModule,
-    SettingsModule,
-    ProfileModule
+    SettingsModule
   ],
   declarations: [
     AppComponent,

@@ -1,7 +1,13 @@
 <StackLayout class="ah-main-container-s">
+    <GridLayout *ngIf="noPiecesFound" rows="*, auto" class="p-20">
+        <Image row="0" src="res://empty_shelf_white" stretch="aspectFill"></Image>
+        <Label row="1" text="No pieces found" class="text-center p-5 m-10"></Label>
+    </GridLayout>
+
+    <StackLayout *ngIf="!noPiecesFound">
     <StackLayout class="timer-container">
         <!-- Recording -->
-        <Label class="recording-time" text="{{ time | timerformat | date:'HH:mm:ss' }}"></Label>
+        <Label class="recording-time" text="{{ time | timerformat | date:'HH:mm:ss' }}"></Label> 
         <Button *ngIf="button1" [text]="recordingTimeButton" (tap)="toggleRecordingTime()"></Button>
         <GridLayout *ngIf="buttonContainer" rows="auto" columns="*,*">
             <Button [text]="recordingTimeButton" (tap)="start(3)" col="0"></Button>
@@ -12,7 +18,7 @@
     <StackLayout #pieceSelectionContainer class="piece-selection-container">
         <GridLayout rows="*, auto">
             <StackLayout row="0">
-                <Label text="Select the piece you've practiced:" class="h3 text-center info-text ah-text-secondary"></Label>
+                <Label text="{{ selectPieceInfo }}" class="h3 text-center info-text ah-text-secondary" style.whiteSpace="normal"></Label>
                 <!-- Single-Piece-Selection & Multi-Piece Selection -->
                 <ListView [items]="selectionPieceArray" separatorColor="transparent">
                     <template let-piece="item">
@@ -51,5 +57,6 @@
         <Label class="rating-information" text="Take notes, write a report:"></Label>   
 
         <Button text="Save Session" (tap)="saveSession()" class="submit-button"></Button>
+    </StackLayout>
     </StackLayout>
 </StackLayout>

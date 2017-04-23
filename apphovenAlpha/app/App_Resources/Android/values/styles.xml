@@ -5,9 +5,9 @@
     <style name="LaunchScreenThemeBase" parent="Theme.AppCompat.Light.NoActionBar">
         <item name="toolbarStyle">@style/NativeScriptToolbarStyle</item>
 
-        <item name="colorPrimary">@color/ns_primary</item>
-        <item name="colorPrimaryDark">@color/ns_primaryDark</item>
-        <item name="colorAccent">@color/ns_accent</item>
+        <item name="colorPrimary">@color/ah_primary</item>
+        <item name="colorPrimaryDark">@color/ah_primaryDark</item>
+        <item name="colorAccent">@color/ah_accent</item>
 
         <item name="android:windowBackground">@drawable/splash_screen</item>
         

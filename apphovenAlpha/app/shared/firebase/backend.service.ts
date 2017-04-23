@@ -4,6 +4,8 @@ import { getString, setString, getNumber, setNumber } from "application-settings
 const tokenKey = "token";
 const email = "email";
 const lastPracticeDuration  = "lastPracticeDuration";
+const tutorialTour = "tutorialTour";
+const toastLoaded = "toastLoaded";
 
 export class BackendService {
   
@@ -33,6 +35,22 @@ export class BackendService {
 
   static set lastPracticeDuration(lastPracticeDuration: number) {
     setNumber("lastPracticeDuration", lastPracticeDuration);
+  }
+
+  static get tutorialTour(): number {
+    return getNumber("tutorialTour");
+  }
+
+  static set tutorialTour(tutorialTour: number) {
+    setNumber("tutorialTour", tutorialTour);
+  }
+
+  static get toastLoaded(): number {
+    return getNumber("toastLoaded");
+  }
+
+  static set toastLoaded(toastLoaded: number) {
+    setNumber("toastLoaded", toastLoaded);
   }
 
 }

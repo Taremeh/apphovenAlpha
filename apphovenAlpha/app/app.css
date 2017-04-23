@@ -89,3 +89,17 @@
 .font-dark {
   color: #757575;
 }
+
+.beethoven-container {
+  background-color: #F44336;
+  padding: 20 10 20 10;
+}
+
+.beethoven-msg {
+  background-color: #FAFAFA;
+  color: black;
+  margin: 0 0 0 5;
+  padding: 10;
+  border-radius: 10;
+  height: auto;
+}

@@ -1,7 +1,7 @@
 import { Component, OnInit, NgZone } from "@angular/core";
 import firebase = require("nativescript-plugin-firebase");
 import { PageRoute } from "nativescript-angular/router";
-import { HttpService, BackendService, TimerPipe } from "../../shared";
+import { HttpService, BackendService, TimerPipe, PieceService } from "../../shared";
 import { Page } from "ui/page";
 import * as application from "application";
 import { AndroidApplication, AndroidActivityBackPressedEventData } from "application";
@@ -23,6 +23,7 @@ export class PracticeSessionComponent implements OnInit {
 
     public smileIcons: Array<any>; // Smile-Icons
     public starIcon = String.fromCharCode(0xf006);
+    private noSessionsFoundIcon = String.fromCharCode(0xf05c);
 
     public sessionsAvailable: boolean = false;
     public sessionArray: Array<any>;
@@ -42,7 +43,11 @@ export class PracticeSessionComponent implements OnInit {
     private firebaseRangeDate1: number;
     private firebaseRangeDate2: number;
 
-    constructor(private _pageRoute: PageRoute, private _page: Page, private _routerExtensions: RouterExtensions, private _router: Router, private _ngZone: NgZone) {
+    // UI
+    private gestureInfo: boolean = true;
+
+    constructor(private _pageRoute: PageRoute, private _page: Page, private _routerExtensions: RouterExtensions, 
+                private _router: Router, private _ngZone: NgZone, private _pieceService: PieceService) {
         this.week = new observableArrayModule.ObservableArray();
         this.sessionArray = [];
         this.sessionIdArray = [];
@@ -95,10 +100,7 @@ export class PracticeSessionComponent implements OnInit {
                     this.sessionIdArray = [];
                     this.longestPracticeDuration = 0;
 
-                    console.log("NR 222: " + this.week[1].date);
                     this.sessionsAvailable = true;
-
-                    let d = new Date();
                     
                     var lenSessions = Object.keys(result.value).length;
                     console.log("RESULT LENGTH: " + lenSessions);
@@ -107,19 +109,31 @@ export class PracticeSessionComponent implements OnInit {
                         this.sessionIdArray.push(Object.keys(result.value)[i]);
                     }
 
+                    // Sort Sessions
+                    let tmpResult = [];
+                    for (let i = 0; i < this.sessionIdArray.length; i++) {
+                        tmpResult.push(result.value[this.sessionIdArray[i]]);
+                    }
+                    tmpResult.sort(function(a, b) {
+                        return parseFloat(b.date) - parseFloat(a.date);
+                    });
+
                     // initialize var for lastDate-Check
                     let lastDate;
 
                     for (let i = 0; i < this.sessionIdArray.length; i++) {
 
-                        // date of user-session
-                        let d = new Date(result.value[this.sessionIdArray[i]].date).setHours(0,0,0,0);
+                        
 
+                        // date of user-session
+                        let d = new Date(tmpResult[i].date).setHours(0,0,0,0);
+                        console.log("CHECKING DATE " + i + ": " + tmpResult[i].date);
                         // if current and last date of user-session are the same, add the duration values
                         // (Same day => practice time addition)
+
                         if(d == lastDate){
-                            console.log("DOPPEL VALUE`!!!!!!!!!!!!!!!!");
-                            let duration = this.praticeTimeCalendar[i-1].duration + result.value[this.sessionIdArray[i]].duration;
+                            console.log("DOPPEL VALUE!");
+                            let duration = this.praticeTimeCalendar[i-1].duration + tmpResult[i].duration;
                             
                             this.praticeTimeCalendar.push({
                                 duration: duration,
@@ -127,7 +141,7 @@ export class PracticeSessionComponent implements OnInit {
                             });
 
                         } else {
-                            let duration = result.value[this.sessionIdArray[i]].duration;
+                            let duration = tmpResult[i].duration;
 
                             this.praticeTimeCalendar.push({
                                 duration: duration,
@@ -139,7 +153,7 @@ export class PracticeSessionComponent implements OnInit {
                         if(this.longestPracticeDuration < this.praticeTimeCalendar[i].duration
                             && this.praticeTimeCalendar[i].date >= this.week[0].date.getTime()){
                             this.longestPracticeDuration = this.praticeTimeCalendar[i].duration;
-                            console.log("LONLONGLONG: d: " + this.praticeTimeCalendar[i].date + " week: " + this.week[0].date);
+                            console.log("LONG d: " + this.praticeTimeCalendar[i].date + " week: " + this.week[0].date);
                         }
 
                         // Define current date of user-session as lastDate for next loop
@@ -151,7 +165,13 @@ export class PracticeSessionComponent implements OnInit {
                     let roundValue = 2;
 
                     // Determine highest possible graphValue (after rounding)
-                    this.legtop = this.longestPracticeDuration > 3600 ? Math.ceil(this.longestPracticeDuration/60/60*roundValue)*60*60/roundValue : Math.round(this.longestPracticeDuration/60*roundValue)*60/roundValue;
+                    // this.legtop = this.longestPracticeDuration > 3600 ? Math.ceil(this.longestPracticeDuration/60/60*roundValue)*60*60/roundValue : Math.round(this.longestPracticeDuration/60*roundValue)*60/roundValue;
+
+                    if(this.longestPracticeDuration > 3600) {
+                        this.legtop = Math.ceil(this.longestPracticeDuration/60/60*roundValue)*60*60/roundValue
+                    } else {
+                        this.legtop = Math.round(this.longestPracticeDuration/60*roundValue)*60/roundValue;
+                    }
 
                     console.log("LEGTOP : " + this.legtop + " // LONGEST PRACT DUR: " + this.longestPracticeDuration);
                     // Round values and define Legend-Text (leg1 => top; leg2 => center)
@@ -169,13 +189,13 @@ export class PracticeSessionComponent implements OnInit {
                         for (let i = 0; i < this.sessionIdArray.length; i++) {
                             // Push result for ListView-Array
                             this._ngZone.run(() => {
-                                this.sessionArray.push(result.value[this.sessionIdArray[i]]);
+                                this.sessionArray.push(tmpResult[i]);
                             });
 
                             // Only display graph if one sessions duration is longer than 120s
                             if(this.legtop > 120) {
                                 // prepare user-session Date (dateFirebase) for if-Check
-                                let dateFirebase = new Date(result.value[this.sessionIdArray[i]].date);
+                                let dateFirebase = new Date(tmpResult[i].date);
                                 dateFirebase.setHours(0,0,0,0)
                                 console.log("FIREBASE DATE: " + dateFirebase);
 
@@ -194,25 +214,25 @@ export class PracticeSessionComponent implements OnInit {
 
                                 this._ngZone.run(() => {
                                     if(dateFirebase.getTime() == this.week[0].date.getTime()){
-                                        this.week[0].value += (graphHeight / (this.legtop) * (result.value[this.sessionIdArray[i]].duration));
+                                        this.week[0].value += (graphHeight / (this.legtop) * (tmpResult[i].duration));
                                         this.graphValue = true;
                                     } else if (dateFirebase.getTime() == this.week[1].date.getTime()) {
-                                        this.week[1].value += (graphHeight / (this.legtop) * (result.value[this.sessionIdArray[i]].duration));
+                                        this.week[1].value += (graphHeight / (this.legtop) * (tmpResult[i].duration));
                                         this.graphValue = true;
                                     } else if (dateFirebase.getTime() == this.week[2].date.getTime()) {
-                                        this.week[2].value += (graphHeight / (this.legtop) * (result.value[this.sessionIdArray[i]].duration));
+                                        this.week[2].value += (graphHeight / (this.legtop) * (tmpResult[i].duration));
                                         this.graphValue = true;
                                     } else if (dateFirebase.getTime() == this.week[3].date.getTime()) {
-                                        this.week[3].value += (graphHeight / (this.legtop) * (result.value[this.sessionIdArray[i]].duration));
+                                        this.week[3].value += (graphHeight / (this.legtop) * (tmpResult[i].duration));
                                         this.graphValue = true;
                                     } else if (dateFirebase.getTime() == this.week[4].date.getTime()) {
-                                        this.week[4].value += (graphHeight / (this.legtop) * (result.value[this.sessionIdArray[i]].duration));
+                                        this.week[4].value += (graphHeight / (this.legtop) * (tmpResult[i].duration));
                                         this.graphValue = true;
                                     } else if (dateFirebase.getTime() == this.week[5].date.getTime()) {
-                                        this.week[5].value += (graphHeight / (this.legtop) * (result.value[this.sessionIdArray[i]].duration));
+                                        this.week[5].value += (graphHeight / (this.legtop) * (tmpResult[i].duration));
                                         this.graphValue = true;
                                     } else if (dateFirebase.getTime() == this.week[6].date.getTime()) {
-                                        this.week[6].value += (graphHeight / (this.legtop) * (result.value[this.sessionIdArray[i]].duration));
+                                        this.week[6].value += (graphHeight / (this.legtop) * (tmpResult[i].duration));
                                         this.graphValue = true;
                                     }
                                 });
@@ -224,13 +244,7 @@ export class PracticeSessionComponent implements OnInit {
                             }
                         }
 
-                    this._ngZone.run(() => {
-                        // Sort Sessions
-                        this.sessionArray.sort(function(a, b) {
-                            return parseFloat(a.date) - parseFloat(b.date);
-                        });
-                    });
-
+                        console.log("WEEK DAY 1: " + this.week[1].value);
 
                     console.log("Event type: " + result.type);
                     console.log("Key: " + result.key);
@@ -260,7 +274,7 @@ export class PracticeSessionComponent implements OnInit {
                     },
                     {
                         type: firebase.QueryRangeType.END_AT,
-                        value: this.firebaseRangeDate2+799000
+                        value: this.firebaseRangeDate2+86399000
                     }
                 ]
             }
@@ -268,7 +282,7 @@ export class PracticeSessionComponent implements OnInit {
     }
 
     ngOnInit() {
-        
+        console.log("LOADED " + this.firebaseRangeDate1 + " TO " + (this.firebaseRangeDate2+86399000));
         this._page.actionBarHidden = true;
         /*application.android.on(AndroidApplication.activityBackPressedEvent, (data: AndroidActivityBackPressedEventData) => {
             console.log("BACK BUTTON EVENT TRIGGERED");
@@ -278,6 +292,7 @@ export class PracticeSessionComponent implements OnInit {
     }
 
     onSwipe(args: SwipeGestureEventData) {
+        this.gestureInfo = false;
         console.log("Swipe Direction: " + args.direction);
         if(args.direction == 1) {
             this.currentWeek = this.currentWeek - 1;
@@ -376,4 +391,27 @@ export class PracticeSessionComponent implements OnInit {
 
     }
 
+    deleteSession(piece){
+        let that = this;
+        let options = {
+            title: "Delete Session?",
+            message: "Do you want to delete this Practice Session?",
+            okButtonText: "Delete Session",
+            cancelButtonText: "No, keep it!",
+        };
+        dialogs.confirm(options).then((result: boolean) => {
+            if(result){
+                that._pieceService.removeSession(piece.id).then(
+                    function () {
+                        console.log("success REMOVING");
+                        that.prepareWeekArray(true);
+                        that.loadFirebaseData(false);
+                },
+                function (error) {
+                console.log("firebase.keepInSync error: " + error);
+                });
+            }
+        });
+
+    }
 }

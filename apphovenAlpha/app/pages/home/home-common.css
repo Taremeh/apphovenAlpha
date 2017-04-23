@@ -1,7 +1,10 @@
 .practice-button {
-    background-color: #BDBDBD;
+    background-color: #F44336;
     margin: -6;
     height: 70;
+    font-size: 19;
+    font-weight: bold;
+    color: white; 
 }
 
 .icon-font {
@@ -12,4 +15,38 @@
 .heading-font {
     font-size: 25;
     text-align: center;
+}
+
+.home-icon {
+    height: 60;
+    width: 60;
+    margin: 15;
+}
+
+.home-icon-settings {
+    font-size: 15;
+}
+
+.icon-settings {
+    font-size: 25;
+    padding: 10 20 10 10;
+}
+
+.home-icon-container {
+    padding: 10;
+}
+
+.home-icon-container-last {
+    padding: 10 10 0 10
+}
+
+.home-icon-container-alt {
+    padding: 0 10 10 10;
+}
+
+.ah-main-container-s {
+  /* background-image: url("res://bg"); #982528 */
+  /* background-color: #FAFAFA; */
+  padding: 0 20 0 20;
+  margin-bottom: 60;
 }

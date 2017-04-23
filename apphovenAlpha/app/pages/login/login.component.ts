@@ -10,7 +10,7 @@ import { TextField } from "ui/text-field";
 import { RouterExtensions } from "nativescript-angular/router";
 
 
-import { alert, alertExt, LoginService, setHintColor, User  } from "../../shared";
+import { alert, alertExt, LoginService, setHintColor, User, BackendService  } from "../../shared";
 
 @Component({
     selector: "ah-login",
@@ -60,15 +60,19 @@ export class LoginComponent implements OnInit {
 
     login() {
         if (getConnectionType() == connectionType.none) {
+            this.isAuthenticating = false;
             alertExt("No Internet Connection", "You require an internet connection to log in.", "Cancel");
-        return;
+            return;
         }
 
         this.userService.login(this.user)
         .then((data) => {
             this.isAuthenticating = false;
-            this._routerExtensions.navigate(["/home"], { clearHistory: true });
-            //this._router.navigate(["/home"]);
+            if(BackendService.tutorialTour == 1){
+                this._routerExtensions.navigate(["/home/con-first-welcome"], { clearHistory: true });
+            } else {
+                this._routerExtensions.navigate(["/home/con-welcome-back"], { clearHistory: true });
+            }
         })
         .catch((err) => {
             this.isAuthenticating = false;
@@ -84,8 +88,9 @@ export class LoginComponent implements OnInit {
 
     signUp() {
         if (getConnectionType() == connectionType.none) {
-        alert("You require an internet connection to register.");
-        return;
+            this.isAuthenticating = false;
+            alert("You require an internet connection to register.");
+            return;
         }
 
         this.userService.register(this.user)
@@ -99,8 +104,8 @@ export class LoginComponent implements OnInit {
             console.log("BBB:" + message);
                 if (message.match(/FirebaseAuthUserCollisionException/)) {
                 alert("This email address is already in use.");
-            } else if(message.match(/Password should be at least 6 characters/)) {
-
+            } else if(message.match(/WEAK_PASSWORD/)) {
+                alert("Password should be at least 6 characters");
             } else {
                 alert("Unfortunately we were unable to create your account.");
             }

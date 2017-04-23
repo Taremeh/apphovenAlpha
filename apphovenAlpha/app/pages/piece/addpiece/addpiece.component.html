@@ -1,7 +1,7 @@
 <StackLayout class="main-container">
     <StackLayout #searchContainer class="search-container">
-            <SearchBar #sbComposer class="sb-composer" hint="Mozart" text="{{ searchPhraseComposer }}" (textChange)="searchComposer(sbComposer.text)"></SearchBar>     
-            <SearchBar #sbPiece class="sb-piece" hint="Eine kleine Nachtmusik" text="{{ searchPhrasePiece }}" (textChange)="searchPiece(sbPiece.text)"></SearchBar>     
+            <SearchBar #sbComposer class="sb-composer" hint="Composer Name" text="{{ searchPhraseComposer }}" (textChange)="searchComposer(sbComposer.text)"></SearchBar>     
+            <SearchBar #sbPiece class="sb-piece" hint="Work Number / Piece Title" text="{{ searchPhrasePiece }}" (textChange)="searchPiece(sbPiece.text)"></SearchBar>     
 
             <StackLayout #searchComposerList class="search-composer-list">
                 <ListView [items]="composerArray" class="list-group" (itemTap)="onComposerItemTap($event)">
@@ -39,7 +39,7 @@
                 <template let-movement="item">
                     <GridLayout rows="* auto" columns="*"> 
                         <StackLayout row="1" col="0" class="list-group-item movement-item" orientation="horizontal" (tap)="onMovementItemTap(movement)">
-                            <Image class="piece-checkbox" stretch="aspectFill" [src]="imageSource(movement)"></Image><Label class="piece-heading" style='{{ movement.state == 2 ? "color: #e0e0e0" : "color: black" }}' [text]="movement.title"></Label>  
+                            <Image class="piece-checkbox" stretch="aspectFill" [src]="imageSource(movement)"></Image><Label class="piece-heading" style='{{ movement.disabled ? "color: #e0e0e0" : "color: black" }}' [text]="movement.title"></Label>  
                         </StackLayout>
                     </GridLayout>
                 </template>

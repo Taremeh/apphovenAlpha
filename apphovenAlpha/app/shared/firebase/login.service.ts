@@ -6,6 +6,8 @@ import firebase = require("nativescript-plugin-firebase");
 @Injectable()
 export class LoginService {
   register(user: User) {
+    // Set tutorialTour to true (1)
+    BackendService.tutorialTour = 1;
     return firebase.createUser({
       email: user.email,
       password: user.password

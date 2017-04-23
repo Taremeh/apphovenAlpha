@@ -12,7 +12,9 @@ import { AndroidApplication, AndroidActivityBackPressedEventData } from "applica
 import * as application from "application";
 import { RouterExtensions } from "nativescript-angular/router";
 import { Router } from "@angular/router";
+import * as Toast from "nativescript-toast";
 
+declare var android;
 
 
 @Component({
@@ -54,6 +56,9 @@ export class PieceRecorderComponent implements OnInit, OnDestroy {
     public pieceWorkNumber;
     public movementTitle;
     public sessionStartedDate;
+
+    // UI
+    private selectPieceInfo: string = "Select the piece you've practiced:";
 
     // After Recording: Piece Selection
     public selectionPieceArray: Array<any>;
@@ -112,6 +117,9 @@ export class PieceRecorderComponent implements OnInit, OnDestroy {
 
         this.loadPieceInformation();
 
+        // CHANGE STATUS-BAR COLOR
+        // let window = application.android.foregroundActivity.getWindow();
+        // window.setStatusBarColor(new Color("#1c1c1c").android);
     }
 
     @ViewChild("sessionRatingContainer") sessionRatingContainer: ElementRef;
@@ -128,7 +136,7 @@ export class PieceRecorderComponent implements OnInit, OnDestroy {
             this.backEvent(data);
         });
     }
-    
+
     toggleRecordingTime(){
         let sessionRatingContainer = <View>this.sessionRatingContainer.nativeElement;
         let pieceSelectionContainer = <View>this.pieceSelectionContainer.nativeElement;
@@ -298,6 +306,7 @@ export class PieceRecorderComponent implements OnInit, OnDestroy {
         } else {
             // NOTIFY: PLEASE USE SLIDER FIRST!
             // (Add Toast-Notification)?
+            this.showToast("First, use the slider");
         }
     }
 
@@ -352,6 +361,7 @@ export class PieceRecorderComponent implements OnInit, OnDestroy {
         this.buttonContainer = false;
         this.currentView = 1;
         this.selectMultiplePiecesState = true;
+        this.selectPieceInfo = "Use the slider to define how much you practice each piece";
         console.log(this.selectMultiplePiecesState);
     }
     
@@ -368,6 +378,7 @@ export class PieceRecorderComponent implements OnInit, OnDestroy {
                     console.log("Value: " + JSON.stringify(result.value));
 
                     if(result.value){
+                        this.noPiecesFound = false;
                         console.log("PIECE-ITEMS FOUND");
                         var lenPieces = Object.keys(result.value).length;
                         for (let i = 0; i < lenPieces; i++) {
@@ -458,8 +469,8 @@ export class PieceRecorderComponent implements OnInit, OnDestroy {
             //this._pieceService.recordedPiece(1,1,1,1);
 
             let that = this;
-            firebase.push(
-                '/user/'+BackendService.token+"/practice-session",
+            firebase.setValue(
+                '/user/'+BackendService.token+"/practice-session/"+this.sessionStartedDate,
                 {
                     'duration': this.time,
                     'pieceMovementTitle': this.selectedPieceMovementTitle,
@@ -468,19 +479,29 @@ export class PieceRecorderComponent implements OnInit, OnDestroy {
                     'userProgressRating': this.sessionProgressRating,
                     'userHappinessRating': this.sessionHappinessRating,
                     'userNotes': this.userSessionNotes,
-                    'date': this.sessionStartedDate
+                    'date': this.sessionStartedDate,
+                    'id': this.sessionStartedDate
                 }
             ).then(
                 function (result) {
                     // BackendService: Update lastPieceId & lastMovementId (DEL)
                     // BackendService.lastPieceId = Number(that.routerParamIds['pieceId']);
                     // BackendService.lastMovementId = Number(that.routerParamIds['movementId']);
-
-                    dialogs.alert("Session saved! [to Firebase User/Session]").then(()=> {
-                        console.log("Dialog closed!");
-                    });
+                    
+                    // REDIRECTION 
+                    if(BackendService.tutorialTour > 1){
+                        // Tutorial Tour
+                        BackendService.toastLoaded = 1;
+                        that._routerExtensions.navigate(["/home/tcc-recorder-suc"], { clearHistory: true });
+                    } else {
+                        // Regular
+                        BackendService.toastLoaded = 1;
+                        that._routerExtensions.navigate(["/home/tos-recorder-suc"], { clearHistory: true });
+                    }
                 }
             );
+        } else {
+            this.showToast("Please practice more than 0 seconds");
         }
     }
 
@@ -506,8 +527,8 @@ export class PieceRecorderComponent implements OnInit, OnDestroy {
                 }
 
                 if(duration != 0){
-                    firebase.push(
-                        '/user/'+BackendService.token+"/practice-session",
+                    firebase.setValue(
+                        '/user/'+BackendService.token+"/practice-session/"+this.sessionStartedDate+"-"+i,
                         {
                             'duration': duration,
                             'pieceMovementTitle': pieceMovementTitle,
@@ -516,7 +537,8 @@ export class PieceRecorderComponent implements OnInit, OnDestroy {
                             'userProgressRating': null,
                             'userHappinessRating': userHappiness,
                             'userNotes': null,
-                            'date': this.sessionStartedDate
+                            'date': this.sessionStartedDate,
+                            'id': this.sessionStartedDate+"-"+i
                         }
                     ).then(
                         function (result) {
@@ -524,11 +546,22 @@ export class PieceRecorderComponent implements OnInit, OnDestroy {
                             console.log("TEST: " + i);
                         }
                     );
+                } else {
+                    this.showToast("Please practice more than 0 seconds");
                 }
             }
         }
 
-        this._routerExtensions.navigate(["/home"], { clearHistory: true });
+        // REDIRECTION
+        if(BackendService.tutorialTour > 1){
+            // Tutorial Tour
+            BackendService.toastLoaded = 1;
+            this._routerExtensions.navigate(["/home/tcc-recorder-suc"], { clearHistory: true });
+        } else {
+            // Regular
+            BackendService.toastLoaded = 1;
+            this._routerExtensions.navigate(["/home/tos-recorder-suc"], { clearHistory: true });
+        }
 
     }
 
@@ -544,6 +577,7 @@ export class PieceRecorderComponent implements OnInit, OnDestroy {
                 this.currentView -= 1;
                 this.selectMultiplePiecesState = false;
                 this.buttonContainer = true;
+                this.selectPieceInfo = "Select the piece you've practiced:";
             })
 
         } else if(this.currentView == 1) {
@@ -562,5 +596,9 @@ export class PieceRecorderComponent implements OnInit, OnDestroy {
             pieceSelectionContainer.style.visibility = "visible";
 
         }
+    }
+
+    public showToast(message: string) {
+        Toast.makeText(message).show();
     }
 }

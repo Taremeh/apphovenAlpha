@@ -8,6 +8,7 @@ import * as application from "application";
 import { AndroidApplication, AndroidActivityBackPressedEventData } from "application";
 import { Router } from "@angular/router";
 import dialogs = require("ui/dialogs");
+import * as Toast from "nativescript-toast";
 
 @Component({
     selector: "ah-piece-list",
@@ -31,6 +32,9 @@ export class PieceListComponent implements OnInit {
     public pieceTitle: string;
     public pieceWorkNumber: string;
     public pieceMovementAmount: number;
+
+    // UI
+    private noPiecesFound: boolean;
 
     constructor(private _pageRoute: PageRoute, private _page: Page, private _router: Router,
                 private _ngZone: NgZone, private _pieceService: PieceService) {
@@ -99,12 +103,19 @@ export class PieceListComponent implements OnInit {
                             }
                         }
                     } else {
-                        //result.value.movementItem.length = 0;
-                        console.log("NO PIECES FOUND");
+                        this._ngZone.run(() => {
+                            this.noPiecesFound = true;
+                            //result.value.movementItem.length = 0;
+                            console.log("NO PIECES FOUND");
+                        });
                     }
 
                 } else {
-                    console.log("NO PIECES FOUND");
+                    this._ngZone.run(() => {
+                        this.noPiecesFound = true;
+                        //result.value.movementItem.length = 0;
+                        console.log("NO PIECES FOUND");
+                    });
                 }
             },
             "/user/" + BackendService.token + "/piece",
@@ -129,9 +140,13 @@ export class PieceListComponent implements OnInit {
     }
 
     onPieceTap(args){
-        let pieceId = this.pieceArray[args.index].id;
-        console.log("PIECE ID TAPPED: "+pieceId);
-        this._router.navigate(['/piece-db/'+pieceId+"/0"]);
+        if(this.pieceArray[args.index].movements) {
+            let pieceId = this.pieceArray[args.index].id;
+            console.log("PIECE ID TAPPED: "+pieceId);
+            this._router.navigate(['/piece-db/'+pieceId+"/0"]);
+        } else {
+            this.showToast("This piece doesn't contain any movements");
+        }
     }
 
     showPieceOptions(pieceId: number){
@@ -155,5 +170,9 @@ export class PieceListComponent implements OnInit {
                 );
             }
         });
+    }
+    
+    public showToast(message: string) {
+        Toast.makeText(message).show();
     }
 }

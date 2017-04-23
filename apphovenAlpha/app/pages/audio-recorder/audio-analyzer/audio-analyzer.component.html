@@ -25,6 +25,7 @@
         <Label (tap)="addMark()" text="{{ addIcon }}" class="icon-font add-marker-icon"></Label>
         <ScrollView orientation="horizontal">
             <StackLayout orientation="horizontal">
+                <Label *ngIf="noMarks" text="Tap on the pin to add a marker" class="mark-info-label"></Label>
                 <Label *ngFor="let mark of fbRecordingMarks" text="{{ mark.time | mstransformer }}" class="{{ mark.class }}" (tap)="onMarkTap(mark.position)"></Label>
             </StackLayout>
         </ScrollView>

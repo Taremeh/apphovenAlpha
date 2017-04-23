@@ -29,6 +29,15 @@ export class MetronomeComponent implements OnInit {
         //this.worker = new Worker('./workers/processor');
     }
 
+
+    toggle() {
+        if(this.metronomeRunning){
+            this.stop();
+        } else {
+            this.start();
+        }
+    }
+
     start(){
         
         this.stop();

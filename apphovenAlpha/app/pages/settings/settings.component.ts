@@ -33,11 +33,17 @@ export class SettingsComponent implements OnInit, OnDestroy {
         this._routerExtensions.navigate(["/login"], { clearHistory: true });
     }
 
+    betaFunction(){
+        this._routerExtensions.navigate(["/metronome"]);
+    }
+
     tapUrl(url: string) {
         if(url == "imslp"){
             utilityModule.openUrl("https://imslp.org");
         } else if (url == "blog") {
             utilityModule.openUrl("https://www.blog.apphoven.com");
+        } else if (url == "flaticon"){
+            utilityModule.openUrl("http://flaticon.com");
         }
     }
 }

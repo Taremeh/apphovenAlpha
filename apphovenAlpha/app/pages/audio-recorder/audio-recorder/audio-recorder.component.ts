@@ -609,7 +609,7 @@ export class AudioRecorderComponent implements OnInit, OnDestroy {
             }
         }
     
-        
+        let that = this;
         firebase.setValue(
                 '/user/'+BackendService.token+'/recording/'+this.fileName,
                 firebaseRecordingItem
@@ -618,10 +618,7 @@ export class AudioRecorderComponent implements OnInit, OnDestroy {
                     // BackendService: Update lastPieceId & lastMovementId (DEL)
                     // BackendService.lastPieceId = Number(that.routerParamIds['pieceId']);
                     // BackendService.lastMovementId = Number(that.routerParamIds['movementId']);
-
-                    dialogs.alert("Recording saved!").then(()=> {
-                        console.log("Dialog closed!");
-                    });
+                    that._routerExtensions.navigate(["/audio-analyzer/"+that.fileName+"/backToHome"], { clearHistory: true });
                 }
             );
     }

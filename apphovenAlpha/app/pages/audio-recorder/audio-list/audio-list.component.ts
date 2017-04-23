@@ -98,6 +98,7 @@ export class AudioListComponent {
                     console.log("Value: " + JSON.stringify(result.value));
 
                     if(result.value){
+                        this.noRecordingsFound = false;
                         console.log("PIECE-ITEMS FOUND");
                         var lenPieces = Object.keys(result.value).length;
                         for (let i = 0; i < lenPieces; i++) {
@@ -106,11 +107,11 @@ export class AudioListComponent {
 
                         let displayTitle;
                         for (let i = 0; i < this.fbRecordingIdArray.length; i++) {
-                            console.log("mark 1");
                             if(result.value[this.fbRecordingIdArray[i]].recordingTitle != ""){
                                 console.log("RECORDING TITLE FOUND");
                                 displayTitle = result.value[this.fbRecordingIdArray[i]].recordingTitle;
-                            } else if(result.value[this.fbRecordingIdArray[i]].pieceTitle != ""){
+                            } else if(result.value[this.fbRecordingIdArray[i]].pieceTitle != null){
+                                console.log("pieceTitle found");
                                 displayTitle = result.value[this.fbRecordingIdArray[i]].pieceTitle;
                             } else {
                                 displayTitle = "Recording (no title)"; 
@@ -141,14 +142,17 @@ export class AudioListComponent {
                             });
                         });
                     } else {
-                        //result.value.movementItem.length = 0;
-                        this.noRecordingsFound = true;
-                        console.log("NO PIECES FOUND");
+                        this._ngZone.run(() => {
+                            this.noRecordingsFound = true;
+                            console.log("NO RECORDINGS FOUND");
+                        });
                     }
 
                 } else {
-                    this.noRecordingsFound = true;
-                    console.log("NO PIECES FOUND");
+                    this._ngZone.run(() => {
+                        this.noRecordingsFound = true;
+                        console.log("NO RECORDINGS FOUND");
+                    });
                 }
             },
             "/user/" + BackendService.token + "/recording",

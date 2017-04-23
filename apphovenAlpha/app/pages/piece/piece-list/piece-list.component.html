@@ -5,6 +5,10 @@
                 <!-- <Label class="piece-text" text="Your current pieces:"></Label> -->
                 <!-- <StackLayout class="movement-list-current">-->
                 <StackLayout>
+                    <GridLayout *ngIf="noPiecesFound" rows="*, auto" class="p-20">
+                        <Image row="0" src="res://empty_shelf_red" stretch="aspectFill"></Image>
+                        <Label row="1" text="No pieces found" class="text-center p-5 m-10"></Label>
+                    </GridLayout>
                     <ListView class="list-group clear-background" [items]="pieceArray" separatorColor="transparent" (itemTap)="onPieceTap($event)">
                         <template let-piece="item">
                             <StackLayout class="list-group-item clear-background"> 

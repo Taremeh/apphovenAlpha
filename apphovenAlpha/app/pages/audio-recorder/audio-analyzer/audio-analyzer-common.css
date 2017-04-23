@@ -48,3 +48,8 @@ button {
     color: white;
     background-color: #F44336;
 }
+
+.mark-info-label {
+    padding: 3;
+    vertical-align: center;
+}

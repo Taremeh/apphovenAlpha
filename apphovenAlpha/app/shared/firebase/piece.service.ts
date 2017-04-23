@@ -131,4 +131,8 @@ export class PieceService {
         }
         );        
     }
+
+    removeSession(pieceId: number) {
+        return firebase.remove("/user/" + BackendService.token + "/practice-session/" + pieceId);
+    }
 }

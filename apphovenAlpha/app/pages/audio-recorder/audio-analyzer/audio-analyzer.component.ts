@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild, ElementRef, NgZone } from "@angular/core";
+import { Component, OnInit, OnDestroy, ViewChild, ElementRef, NgZone } from "@angular/core";
 import { View } from "ui/core/view";
 import { Color } from "color";
 import { PageRoute } from "nativescript-angular/router";
@@ -6,6 +6,8 @@ import firebase = require("nativescript-plugin-firebase");
 import { BackendService, PieceService, MillisecondTransformerPipe } from "../../../shared";
 import { Observable as RxObservable } from 'rxjs/Observable';
 import { knownFolders, File } from 'file-system';
+import * as application from "application";
+import { AndroidApplication, AndroidActivityBackPressedEventData } from "application";
 // import * as fs from 'file-system';
 import * as app from 'application';
 import * as color from 'color';
@@ -16,6 +18,8 @@ import { Slider } from 'ui/slider';
 // import { SnackBar } from 'nativescript-snackbar';
 import { SegmentedBarItem } from "ui/segmented-bar";
 import { TNSRecorder, TNSPlayer, AudioPlayerOptions, AudioRecorderOptions } from 'nativescript-audio';
+import { RouterExtensions } from "nativescript-angular/router";
+
 
 @Component({
     selector: "ah-audio-analyzer",
@@ -24,7 +28,7 @@ import { TNSRecorder, TNSPlayer, AudioPlayerOptions, AudioRecorderOptions } from
     providers: [MillisecondTransformerPipe]
 })
 
-export class AudioAnalyzerComponent implements OnInit{
+export class AudioAnalyzerComponent implements OnInit, OnDestroy {
 
     private fbRecordingArray: Array<any>;
     private fbRecordingIdArray: Array<any>;
@@ -50,6 +54,7 @@ export class AudioAnalyzerComponent implements OnInit{
     private audioTime = 0;
     private playButton: string = "Play Recording";
     private addIcon = String.fromCharCode(0xf08d);
+    private noMarks = false;
 
     // AUDIO PLUGIN
     private player;
@@ -61,7 +66,7 @@ export class AudioAnalyzerComponent implements OnInit{
     private seekTimeout;
 
 
-    constructor(private _pageRoute: PageRoute, private _ngZone: NgZone, private _page: Page, private _msTransform: MillisecondTransformerPipe){
+    constructor(private _pageRoute: PageRoute, private _ngZone: NgZone, private _page: Page, private _msTransform: MillisecondTransformerPipe, private _routerExtensions: RouterExtensions){
         this.fbRecordingIdArray = [];
         this.fbRecordingArray = [];
         this.fbRecordingMarks = [];
@@ -75,8 +80,9 @@ export class AudioAnalyzerComponent implements OnInit{
 
         this._pageRoute.activatedRoute
         .switchMap(activatedRoute => activatedRoute.params)
-        .forEach((params) => { 
+        .forEach((params) => {
             this.routerParamId['recordingFileName'] = params['recordingFileName'];
+            this.routerParamId['optionalParam'] = params['optionalParam'];
         });
 
 		this.player.initFromFile({
@@ -106,10 +112,24 @@ export class AudioAnalyzerComponent implements OnInit{
         // Hide Action-Bar
         this._page.actionBarHidden = true;
 
-        /*application.android.on(AndroidApplication.activityBackPressedEvent, (data: AndroidActivityBackPressedEventData) => {
+        application.android.on(AndroidApplication.activityBackPressedEvent, (data: AndroidActivityBackPressedEventData) => {
             console.log("BACK BUTTON EVENT TRIGGERED");
-            //this._router.navigate(['/addpiece']);
-        });*/
+            if(this.routerParamId['optionalParam'] == "backToHome") {
+                data.cancel = true;
+                this._routerExtensions.navigate(["/home"], { clearHistory: true });
+            } else {
+                data.cancel = false;
+            }
+        });
+    }
+
+    ngOnDestroy(){
+        // STOP PLAYER IF IS AUDIO PLAYING
+        if(this.player.isAudioPlaying()){
+            this.player.dispose();
+        }
+        application.android.off(AndroidApplication.activityBackPressedEvent);
+        console.log("AudioAnalyzer - ngOnDestroy()");
     }
 
     public togglePlay() {
@@ -517,6 +537,7 @@ export class AudioAnalyzerComponent implements OnInit{
                             
                             if(result.value.mark != null){
                                 console.log("MARKS FOUND");
+                                this.noMarks = false;
                                 this.fbRecordingMarkIds = [];
                                 let recordingMarkings = Object.keys(result.value.mark).length;
                                 console.log("RESULT LENGTH: " + recordingMarkings);
@@ -549,6 +570,9 @@ export class AudioAnalyzerComponent implements OnInit{
                                     }
                                 });
 
+                            } else {
+                                // No marks found
+                                this.noMarks = true;
                             }
 
 

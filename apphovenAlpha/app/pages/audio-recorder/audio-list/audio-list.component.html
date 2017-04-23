@@ -1,10 +1,18 @@
-<ActionBar title="Apphoven" class="ah-action-bar"></ActionBar>
+<ActionBar class="ah-action-bar">
+    <GridLayout columns="*">
+        <Label col="0" text="APPHOVEN" style="font-size: 20; vertical-align: center;"></Label>
+    </GridLayout>
+</ActionBar>
 <StackLayout class="ah-main-container">
     <StackLayout class="piece-container">
             <StackLayout class="movement-container">
                 <!-- <Label class="piece-text" text="Your current pieces:"></Label> -->
                 <!-- <StackLayout class="movement-list-current"> -->
                 <StackLayout>
+                    <GridLayout *ngIf="noRecordingsFound" rows="*, auto" class="p-20">
+                        <Image row="0" src="res://empty_shelf_red_recorder" stretch="aspectFill"></Image>
+                        <Label row="1" text="No recordings found" class="text-center p-5 m-10"></Label>
+                    </GridLayout>
                     <ListView class="list-group clear-background" [items]="fbRecordingArray" separatorColor="transparent" (itemTap)="onRecordingTap($event)">
                         <template let-recording="item">
                             <StackLayout class="list-group-item clear-background"> 

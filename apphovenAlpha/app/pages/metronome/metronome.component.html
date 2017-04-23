@@ -1,14 +1,21 @@
-<ActionBar title="Metronom">
+<ActionBar class="ah-action-bar">
+    <GridLayout columns="*">
+        <Label col="0" text="APPHOVEN" style="font-size: 20; vertical-align: center;"></Label>
+    </GridLayout>
 </ActionBar>
 <StackLayout>
-<Label [text]="interval"></Label>
-<Label text="{{ interval | tempoterm }}"></Label>
-<TextField #tfVal [ngModel]="interval" keyboardType="number" (returnPress)="setInterval(tfVal.text)"></TextField>
+<TextField #tfVal [ngModel]="interval" keyboardType="number" (returnPress)="setInterval(tfVal.text)" style="font-size: 80; text-align: center; font-weight: bold"></TextField>
 <GridLayout class="m-15" rows="auto" columns="50 * 50">
     <Label class="h3" text="40" textWrap="true" row="10" col="0"></Label>
     <Slider #slVal minValue="40" maxValue="300" [(ngModel)]="interval" (valueChange)="setInterval(slVal.value)" row="0" col="1"></Slider>
     <Label class="h3" text="300" textWrap="true" row="0" col="2"></Label>
 </GridLayout>
-<Button (tap)="start()" text="Start"></Button>
-<Button (tap)="stop()" text="Stop"></Button>
+<Label text="{{ interval | tempoterm }}" class="h3 text-center"></Label>
 </StackLayout>
+
+<DockLayout stretchLastChild="false">
+    <StackLayout dock="bottom">
+        <Label text="This function is still under developement. Therefore it may not perform as expected." class="ah-text-secondary m-20 m-t-10 text-center" style.whiteSpace="normal"></Label>
+        <Button (tap)="toggle()" text="{{ metronomeRunning ? 'Stop' : 'Start' }}" class="p-10 m-20 m-t-0"></Button>
+    </StackLayout>
+</DockLayout>

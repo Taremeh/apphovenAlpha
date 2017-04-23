@@ -9,6 +9,7 @@
                 <StackLayout *ngFor="let day of week" col="{{ day.position+1 }}" height="{{ day.value }}" style="background-color: #f7f7f7; margin: 5; vertical-align: bottom;" row="0"></StackLayout>
                 <Label *ngFor="let day of week" col="{{ day.position+1 }}" text="{{ day.name }}" style="margin: 5; vertical-align: bottom; text-align: center;" row="1"></Label>
             </GridLayout> 
+            <Label row="1" *ngIf="gestureInfo" text="<< Swipe Left / Right >>" style="text-align: center; color:#FFCDD2;"></Label>
             <Label row="1" *ngIf="currentWeekName" text="{{ currentWeek < -1 ? 'Week of ' + (currentWeekName | date:'dd.MM') : (currentWeekName) }}" style="margin-bottom: 5; vertical-align: bottom; text-align: center;"></Label>
         </GridLayout>
     </StackLayout>
@@ -18,22 +19,22 @@
                     <ListView [items]="sessionArray" separatorColor="white">
                         <template let-piece="item">
                             <StackLayout class="list-record-container"> 
-                                <GridLayout rows="auto, auto, auto, auto"columns="auto, *, auto" class="list-record-item">
+                                <GridLayout rows="auto, auto, auto, auto"columns="auto, *, auto" class="list-record-item" (longPress)="deleteSession(piece)">
                                     <!-- Minutes / Hours -->
-                                    <Label row="0" col="0" text='{{ (piece.duration > 3600) ? (piece.duration | timerformat | date:"HH") + " h" : (piece.duration | timerformat | date:"mm:ss") }}' class="piece-heading piece-heading-correction"></Label>
+                                    <Label row="0" col="0" text='{{ (piece.duration >= 3600) ? (piece.duration | timerformat | date:"HH") + " h" : (piece.duration | timerformat | date:"mm:ss") }}' class="piece-heading piece-heading-correction"></Label>
                                     <!-- If Hours, then here Minutes -->
                                     <Label row="1" col="0" text='{{ (piece.duration > 3600) ? (piece.duration | timerformat | date:"mm:ss") : (null) }}' class="piece-heading-correction"></Label>
                                     <!-- Date & Time as big title -->
                                     <Label row="0" col="1" class="piece-heading" text='{{ piece.date | date:"EEE d.MM - H:m" }}'></Label>
                                     <Label row="1" col="1" text='{{ piece.pieceMovementTitle }}'></Label>
                                     <Label *ngIf="piece.userNotes" row="2" col="1" [text]="piece.userNotes"></Label>
-                                    <Label row="3" col="1" class="icon-font" text='{{ piece.userProgressRating ? (piece.userProgressRating + " " + starIcon) : "" }}{{ piece.userHappinessRating ? ("  |  " + smileIcons[(piece.userHappinessRating-1)].iconCode) : "" }}'></Label>
+                                    <Label row="3" col="1" class="icon-font" text='{{ piece.userProgressRating ? (piece.userProgressRating + " " + starIcon) : null }}{{ piece.userProgressRating && piece.userHappinessRating ? "  |  " : null}}{{ piece.userHappinessRating ? (smileIcons[(piece.userHappinessRating-1)].iconCode) : null }}'></Label>
                                 </GridLayout>
                             </StackLayout>
                         </template>
                     </ListView>
                 </StackLayout>
-                <Label *ngIf="!sessionArray" text="No Sessions found"></Label>
+                <Label *ngIf="!sessionArray" text="{{ noSessionsFoundIcon }} No Sessions found" class="icon-font text-center m-5 m-t-20" style="font-size:19"></Label>
             </StackLayout>
     </StackLayout>
 </StackLayout>
