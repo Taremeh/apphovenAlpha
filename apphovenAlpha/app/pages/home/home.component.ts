@@ -6,9 +6,11 @@ import { AndroidApplication, AndroidActivityBackPressedEventData } from "applica
 import * as application from "application";
 import { BackendService } from "../../shared";
 import { PageRoute } from "nativescript-angular/router";
+import "rxjs/add/operator/switchMap";
 import * as Toast from "nativescript-toast";
 import { Color } from "color";
 import * as dialogs from 'ui/dialogs';
+import { ActivatedRoute } from '@angular/router';
 
 @Component({
     selector: "ah-home",
@@ -42,6 +44,7 @@ export class HomeComponent implements OnInit, OnDestroy {
     @ViewChild("beethovenContainer") beethovenContainer: ElementRef;
     @ViewChild("mainContainer") mainContainer: ElementRef;
 
+    // Deprecated: private _pageRoute: PageRoute
     constructor(private _pageRoute: PageRoute, private _router: Router, private page: Page, private _ngZone: NgZone) {
         this.routerParamId = [];
         this.tutorialTour = (BackendService.tutorialTour > 0) ? BackendService.tutorialTour : false;

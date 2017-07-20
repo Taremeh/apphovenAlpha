@@ -1,31 +1,36 @@
 <StackLayout class="main-container">
     <StackLayout #searchContainer class="search-container">
-            <SearchBar #sbComposer class="sb-composer" hint="Composer Name" text="{{ searchPhraseComposer }}" (textChange)="searchComposer(sbComposer.text)"></SearchBar>     
-            <SearchBar #sbPiece class="sb-piece" hint="Work Number / Piece Title" text="{{ searchPhrasePiece }}" (textChange)="searchPiece(sbPiece.text)"></SearchBar>     
+        <!-- Search Bars -->
+        <SearchBar #sbComposer class="sb-composer" hint="Composer Name" text="{{ searchPhraseComposer }}" (textChange)="searchComposer(sbComposer.text)"></SearchBar>     
+        <SearchBar #sbPiece class="sb-piece" hint="Work Number / Piece Title" text="{{ searchPhrasePiece }}" (textChange)="searchPiece(sbPiece.text)"></SearchBar>     
 
-            <StackLayout #searchComposerList class="search-composer-list">
-                <ListView [items]="composerArray" class="list-group" (itemTap)="onComposerItemTap($event)">
-                    <template let-composer="item" let-i="index" let-odd="odd" let-even="even">
-                        <GridLayout class="list-group-item">
-                            <Label [text]="composer.name"></Label>
-                        </GridLayout>
-                    </template>
-                </ListView>
-            </StackLayout>
+        <!-- Composer Dropdown List -->
+        <StackLayout #searchComposerList class="search-composer-list">
+            <ListView [items]="composerArray" class="list-group" (itemTap)="onComposerItemTap($event)">
+                <template let-composer="item" let-i="index" let-odd="odd" let-even="even">
+                    <GridLayout class="list-group-item">
+                        <Label class="list-group-item-heading" [text]="composer.name"></Label>
+                    </GridLayout>
+                </template>
+            </ListView>
+        </StackLayout>
 
-            <StackLayout #searchPieceList class="search-piece-list">
-                <ListView class="list-group" [items]="pieceArray" (itemTap)="onPieceItemTap($event)" separatorColor="white">
-                    <template let-piece="item">
-                        <GridLayout rows="* auto" columns="*" class="list-group-item" style="border:1;"> 
-                            <StackLayout row="1" col="0" class="list-group-item">
-                                <Label class="list-group-item-heading" [text]="piece.piece_title"></Label>
-                                <Label class="list-group-item-text" visibility="{{ piece.piece_movement_title ? 'visible' : 'collapsed' }}" [text]="piece.piece_movement_text"></Label>
-                            </StackLayout>
-                        </GridLayout>
-                    </template>
-                </ListView>
-            </StackLayout>
+        <!-- Piece Dropdown List -->
+        <StackLayout #searchPieceList class="search-piece-list">
+            <ListView class="list-group" [items]="pieceArray" (itemTap)="onPieceItemTap($event)" separatorColor="black">
+                <template let-piece="item">
+                    <GridLayout rows="* auto" columns="*" style="border:1;"> 
+                        <StackLayout row="1" col="0" class="list-group-item">
+                            <Label class="list-group-item-heading" [text]="piece.piece_title"></Label>
+                            <Label class="list-group-item-text" visibility="{{ piece.piece_movement_title ? 'visible' : 'collapsed' }}" [text]="piece.piece_movement_text"></Label>
+                        </StackLayout>
+                    </GridLayout>
+                </template>
+            </ListView>
+        </StackLayout>
     </StackLayout>
+
+    <!-- Piece Dashboard (containing movements) -->
     <GridLayout rows="*, auto" #pieceContainer class="piece-container">
         <StackLayout row="0">
 
@@ -33,12 +38,13 @@
             <Label class="piece-heading" text="{{ pieceItemText.piece_title }}"></Label>
         </ScrollView>
             <Label class="piece-text" text="Work-Number: {{ pieceItemText.piece_work_number }}"></Label>
+            <Label class="piece-text" text="Composer: {{ pieceItemText.piece_composer_name }}"></Label>
             <Label class="piece-text" text="Movements: {{ pieceItemText.piece_movement_amount }}" visibility="{{ pieceItemText.piece_movement_amount ? 'visible' : 'collapsed' }}"></Label>
             <Label *ngIf="!pieceItemText.piece_movement_amount" text="This piece doesn't contain any movements" class="no-movements-info"></Label>
             <ListView [items]="pieceMovementArray" separatorColor="white">
                 <template let-movement="item">
                     <GridLayout rows="* auto" columns="*"> 
-                        <StackLayout row="1" col="0" class="list-group-item movement-item" orientation="horizontal" (tap)="onMovementItemTap(movement)">
+                        <StackLayout row="1" col="0" class="list-group-item" orientation="horizontal" (tap)="onMovementItemTap(movement)">
                             <Image class="piece-checkbox" stretch="aspectFill" [src]="imageSource(movement)"></Image><Label class="piece-heading" style='{{ movement.disabled ? "color: #e0e0e0" : "color: black" }}' [text]="movement.title"></Label>  
                         </StackLayout>
                     </GridLayout>

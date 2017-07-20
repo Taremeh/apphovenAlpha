@@ -20,7 +20,7 @@ export class PieceListComponent implements OnInit {
     public myItems: RxObservable<Array<any>>;
 
     public pieceArray: Array<any>;
-    public pieceMovementIdArray: Array<number>;
+    public pieceMovementIdArray: Array<any>;
     public pieceMovementArray: Array<any>;
     public pieceMovementArrayNotSelected: Array<any>;
 
@@ -37,7 +37,7 @@ export class PieceListComponent implements OnInit {
     private noPiecesFound: boolean;
 
     constructor(private _pageRoute: PageRoute, private _page: Page, private _router: Router,
-                private _ngZone: NgZone, private _pieceService: PieceService) {
+                private _ngZone: NgZone, private _pieceService: PieceService, private _httpService: HttpService) {
         this.pieceArray = [];
         this.pieceMovementArray = [];
         this.pieceMovementIdArray = [];
@@ -67,41 +67,70 @@ export class PieceListComponent implements OnInit {
 
                     if(result.value){
                         console.log("PIECE-ITEMS FOUND");
-                        var lenPieces = Object.keys(result.value).length;
+                        let composerName;
+                        let lenPieces = Object.keys(result.value).length;
                         for (let i = 0; i < lenPieces; i++) {
-                            this.pieceMovementIdArray.push(Number(Object.keys(result.value)[i]));
+                            this.pieceMovementIdArray.push(Object.keys(result.value)[i]);
                         }
+                        
 
                         for (let i = 0; i < this.pieceMovementIdArray.length; i++) {
-                            if(result.value[this.pieceMovementIdArray[i]].movementItem){
-                                console.log("MOVEMENT-ITEMS FOUND");
+                            // Get Composer Name
+                            this._ngZone.run(() => {
+                            // **********
+                            // DEV NOTICE!
+                            // Composer Name Function Currently Disabled
+                            // **********
+                            //this._httpService.getComposerName(result.value[this.pieceMovementIdArray[i]].composerId).subscribe((res) => {
+                                //composerName = res[0].name;      
+                                //console.log("COMPOSER NAME: " + composerName);                      
 
-                                // CLEARING
-                                this.pieceMovementArray = [];
+                                if(result.value[this.pieceMovementIdArray[i]].movementItem){
+                                    console.log("MOVEMENT-ITEMS FOUND");
 
-                                let lenMovements = result.value[this.pieceMovementIdArray[i]].movementItem.length;
-                                for (let iMov = 0; iMov < lenMovements; iMov++) {
-                                    if(result.value[this.pieceMovementIdArray[i]].movementItem[iMov].state == 1){
-                                        this.pieceMovementArray.push(result.value[this.pieceMovementIdArray[i]].movementItem[iMov].title);
+                                    // CLEARING
+                                    this.pieceMovementArray = [];
+
+                                    let lenMovements = result.value[this.pieceMovementIdArray[i]].movementItem.length;
+                                    for (let iMov = 0; iMov < lenMovements; iMov++) {
+                                        if(result.value[this.pieceMovementIdArray[i]].movementItem[iMov].state == 1){
+                                            this.pieceMovementArray.push(result.value[this.pieceMovementIdArray[i]].movementItem[iMov].title);
+                                        }
                                     }
+                                    let pieceMovementArrayString = this.pieceMovementArray.join(", ");
+                                    
+                                        this.pieceArray.push({
+                                            id: this.pieceMovementIdArray[i],
+                                            title: result.value[this.pieceMovementIdArray[i]].pieceTitle,
+                                            composerName: composerName,
+                                            dateAdded: result.value[this.pieceMovementIdArray[i]].dateAdded,
+                                            movements: pieceMovementArrayString,
+
+                                    })
+                                } else {
+
+                                        this.pieceArray.push({
+                                            id: this.pieceMovementIdArray[i],
+                                            title: result.value[this.pieceMovementIdArray[i]].pieceTitle,
+                                            composerName: composerName,
+                                            dateAdded: result.value[this.pieceMovementIdArray[i]].dateAdded,
+                                        });
+
                                 }
-                                let pieceMovementArrayString = this.pieceMovementArray.join(", ");
-                                this._ngZone.run(() => {
-                                    this.pieceArray.push({
-                                        id: this.pieceMovementIdArray[i],
-                                        title: result.value[this.pieceMovementIdArray[i]].pieceTitle,
-                                        movements: pieceMovementArrayString
-                                    });
-                                })
-                            } else {
-                                this._ngZone.run(() => {
-                                    this.pieceArray.push({
-                                        id: this.pieceMovementIdArray[i],
-                                        title: result.value[this.pieceMovementIdArray[i]].pieceTitle,
-                                    });
-                                });
-                            }
+                            //},
+                            //(e) => {
+                            //    console.log("COMPOSER NAME ERROR (composerId not contained in Firebase Piece Entry)");
+                            //});
+                            });
                         }
+
+                        // SORT PIECES:
+                        this._ngZone.run(() => {
+                            this.pieceArray.sort(function(a, b) {
+                                return parseFloat(b.dateAdded) - parseFloat(a.dateAdded);
+                            });
+                        });
+
                     } else {
                         this._ngZone.run(() => {
                             this.noPiecesFound = true;
@@ -123,8 +152,8 @@ export class PieceListComponent implements OnInit {
                 singleEvent: true,
                 orderBy: {
                     type: firebase.QueryOrderByType.CHILD,
-                    value: 'since' // mandatory when type is 'child'
-                }
+                    value: 'dateAdded' // mandatory when type is 'child'
+                },
             }
         );
     }

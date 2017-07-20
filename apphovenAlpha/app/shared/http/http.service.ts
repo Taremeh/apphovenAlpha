@@ -1,9 +1,11 @@
 import { Injectable } from "@angular/core";
 import { Http, Headers, Response, RequestOptions } from "@angular/http";
+import "rxjs/add/operator/map";
 
 @Injectable()
 export class HttpService {
     private serverUrlBase = "";
+    private base2 = "";
 
     constructor(private http: Http) { }
 
@@ -26,6 +28,29 @@ export class HttpService {
         let options = this.createRequestOptions();
         return this.http.get(this.serverUrlBase + urlPath, options)
             .do(res => res);
+    }
+
+    public getComposerName(composerId: number) {
+        let type = 3;
+        let urlPath = "&type=" + type + "&query=" + composerId;
+        console.log("PATH: " + urlPath);
+        let headers = this.createRequestHeader();
+        return this.http.get(this.serverUrlBase + urlPath, { headers: headers })
+            .map(res => res.json());
+    }
+
+    setData(data: any) {
+        let options = this.createRequestOptions2();
+        let type = 4;
+        return this.http.post(this.base2, data, options)
+            .map(res => res.json());
+    } 
+
+    private createRequestOptions2() {
+        let headers = new Headers();
+        headers.append("Content-Type", "application/json");
+        let options = new RequestOptions({ headers: headers });
+        return options;
     }
 
     getToken() {

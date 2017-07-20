@@ -4,6 +4,7 @@ import { HomeComponent } from "./pages/home/home.component";
 import { SettingsComponent } from "./pages/settings/settings.component";
 import { MetronomeComponent } from "./pages/metronome/metronome.component";
 import { AddPieceComponent } from "./pages/piece/addpiece/addpiece.component";
+import { RegisterPieceComponent } from "./pages/piece/addpiece/registerpiece/registerpiece.component";
 import { PieceDashboardComponent } from "./pages/piece/piece-dashboard/piece-dashboard.component";
 import { PieceListComponent } from "./pages/piece/piece-list/piece-list.component";
 import { PieceRecorderComponent } from "./pages/piece/piece-recorder/piece-recorder.component";
@@ -24,6 +25,7 @@ export const routes = [
   { path: 'settings', component: SettingsComponent, clearHistory: true, canActivate: [AuthGuard] },
   { path: 'metronome', component: MetronomeComponent, canActivate: [AuthGuard] },
   { path: 'addpiece', component: AddPieceComponent, canActivate: [AuthGuard] },
+  { path: 'addpiece/registerpiece/:composerId', component: RegisterPieceComponent, canActivate: [AuthGuard] },
   { path: 'piece-db/:pieceId/:originType', component: PieceDashboardComponent, canActivate: [AuthGuard] },
   { path: 'piece-list', component: PieceListComponent, canActivate: [AuthGuard] },
   { path: 'piece-recorder', component: PieceRecorderComponent, canActivate: [AuthGuard] },
@@ -41,6 +43,7 @@ export const navigatableComponents = [
   SettingsComponent,
   MetronomeComponent,
   AddPieceComponent,
+  RegisterPieceComponent,
   PieceDashboardComponent,
   PieceListComponent,
   PieceRecorderComponent,

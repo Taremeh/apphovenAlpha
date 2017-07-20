@@ -1,0 +1,29 @@
+button {
+    margin: 5%;
+    padding: 2%;
+    font-size: 19;
+    font-weight: bold; 
+    color: #F9F9F9;
+    background-color: #E53935;
+    border-radius: 5;
+}
+
+.button-add-movement, .button-remove-movement, .button-remove-movement-disabled {
+    width: auto;
+    margin: 3;
+    padding: 3;
+    text-align: center;
+    border-width: 1;
+    border-radius: 4;
+    border-color: green;
+}
+
+.button-remove-movement {
+    border-color: red;
+    color: black;
+}
+
+.button-remove-movement-disabled {
+    border-color: #EEEEEE;
+    color: #757575;
+}

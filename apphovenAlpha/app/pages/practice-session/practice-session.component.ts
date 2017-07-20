@@ -48,6 +48,19 @@ export class PracticeSessionComponent implements OnInit {
 
     constructor(private _pageRoute: PageRoute, private _page: Page, private _routerExtensions: RouterExtensions, 
                 private _router: Router, private _ngZone: NgZone, private _pieceService: PieceService) {
+
+        firebase.keepInSync(
+            "/user/" + BackendService.token + "/practice-session", // which path in your Firebase needs to be kept in sync?
+            true      // set to false to disable this feature again
+        ).then(
+            function () {
+                console.log("firebase.keepInSync is ON for /user/" + BackendService.token + "/practice-session");
+            },
+            function (error) {
+                // USER ALERT: Not in sync!
+                console.log("firebase.keepInSync error: " + error);
+            }
+        );
         this.week = new observableArrayModule.ObservableArray();
         this.sessionArray = [];
         this.sessionIdArray = [];

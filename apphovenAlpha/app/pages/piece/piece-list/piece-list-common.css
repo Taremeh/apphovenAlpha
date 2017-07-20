@@ -1,6 +1,4 @@
 .list-group-item-text {
-    background-color: transparent;
-    border-color: transparent;
     padding: 0;
     margin: 0;
 }
@@ -19,11 +17,13 @@
     background-color: transparent;
 }
 
-.list-record-item {
-    background-color: #f7f7f7;
-    padding: 10%;
-    border-radius: 3px;
-    margin-bottom: 20;
+.list-group-item {
+    margin: 20 0 20 20;
+    padding: 20 0 20 20;
+}
+
+.list-group-item-heading {
+    font-size: 18;
 }
 
 .icon-container {

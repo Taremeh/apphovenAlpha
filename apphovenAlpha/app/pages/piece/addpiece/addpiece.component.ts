@@ -1,7 +1,7 @@
 import { Component, OnInit, OnDestroy, ViewChild, ElementRef, NgZone } from "@angular/core";
 import { View } from "ui/core/view";
 import { Page } from "ui/page";
-import { HttpService, BackendService, PieceService } from "../../../shared";
+import { HttpService, BackendService, PieceService, ComposerNamePipe } from "../../../shared";
 import { Color } from "color";
 import * as application from "application";
 import { AndroidApplication, AndroidActivityBackPressedEventData } from "application";
@@ -114,14 +114,26 @@ export class AddPieceComponent implements OnInit, OnDestroy {
     }
 
      onPieceItemTap(args) { // Would it be possible to directly pass a parameter with the object?
-        console.log("Piece ID: " + this.pieceData[args.index].piece_id);
+        //console.log("Piece ID: " + this.pieceData[args.index].piece_id);
+
+        // Push Dummy
+        this.pieceData.push({
+            piece_id: -1
+        });
+
         this.pieceId = this.pieceData[args.index].piece_id;
-        this.pieceDataId = args.index;
-        this.pieceItemText = [];
-        this.pieceItemText = this.pieceArray[args.index];
-        console.log("PIECE ARRAY RAW: "+JSON.stringify(this.pieceArray[args.index]));
-        console.log("PIECE ARRAY CREATED: "+JSON.stringify(this.pieceItemText));
-        this.showPieceItem(args.index);
+
+        if(this.pieceId == -1){
+            // Register own piece
+            this._routerExtensions.navigate(["/addpiece/registerpiece/"+this.composerId], {clearHistory: true});
+        } else {
+            this.pieceDataId = args.index;
+            this.pieceItemText = [];
+            this.pieceItemText = this.pieceArray[args.index];
+            console.log("PIECE ARRAY RAW: "+JSON.stringify(this.pieceArray[args.index]));
+            console.log("PIECE ARRAY CREATED: "+JSON.stringify(this.pieceItemText));
+            this.showPieceItem(args.index);
+        }
     }
 
     searchPiece(pieceTitle: string) {
@@ -152,7 +164,21 @@ export class AddPieceComponent implements OnInit, OnDestroy {
 
                         let pLengthCut = this.pieceArray[i].piece_title.length - (this.composerName.length + 2);
                         this.pieceArray[i].piece_title = this.pieceArray[i].piece_title.substring(0, pLengthCut);
+
+                        this._httpService.getComposerName(this.pieceArray[i].piece_composer_id).subscribe((res) => {
+                            this.pieceArray[i].piece_composer_name = res[0].name;
+                            
+                        }, (e) => {
+                            console.log("COMPOSER NAME ERROR: " + e);
+                        });
                     }
+
+                    this.pieceArray.push({
+                        piece_id: -1,
+                        piece_title: "Haven't found your piece?",
+                        piece_movement_title: true,
+                        piece_movement_text: "Tap to add your own piece"
+                    })
                     
                 }, (e) => {
                     console.log("ERROR: " + e);
@@ -284,7 +310,7 @@ export class AddPieceComponent implements OnInit, OnDestroy {
             this.showToast("Select a movement");
             console.log("SELECT MOVEMENT! " + JSON.stringify(this.pieceMovementArray));
         } else {
-            this._pieceService.addPiece(this.pieceId, this.pieceData[this.pieceDataId], this.movementArray, this.pieceMovementArray)
+            this._pieceService.addPiece(this.pieceId, this.composerId, this.pieceData[this.pieceDataId], this.movementArray, this.pieceMovementArray)
             .then(
                 function () {
                     console.log("SUCCESS"); 

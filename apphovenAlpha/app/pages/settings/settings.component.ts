@@ -15,7 +15,18 @@ import firebase = require("nativescript-plugin-firebase");
 
 export class SettingsComponent implements OnInit, OnDestroy {
     isAndroid;
-    constructor(private _router: Router, private page: Page, private _routerExtensions: RouterExtensions) { }
+    private userEmail;
+
+    constructor(private _router: Router, private page: Page, private _routerExtensions: RouterExtensions) { 
+
+        firebase.getCurrentUser().then((user) => {
+            this.userEmail = user.email;
+            console.log("User uid: " + user.uid);
+        }, (error) => {
+            console.log("Firebase User Email not Found: " + error);
+        });
+
+    }
 
     ngOnInit() {
         console.log("Registiert: OnInit");

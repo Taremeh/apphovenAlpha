@@ -39,9 +39,11 @@ export class PieceDashboardComponent implements OnInit, OnDestroy {
     public pieceTitle: string;
     public pieceWorkNumber: string;
     public pieceMovementAmount: number;
+    public pieceComposer: string;
 
     constructor(private _pageRoute: PageRoute, private _page: Page, private _routerExtensions: RouterExtensions, 
-        private _router: Router, private _ngZone: NgZone, private _pieceService: PieceService) {
+        private _router: Router, private _ngZone: NgZone, private _pieceService: PieceService,
+        private _httpService: HttpService) {
 
         this.pieceMovementArray = [];
         this.pieceMovementArrayNotSelected = [];
@@ -52,7 +54,7 @@ export class PieceDashboardComponent implements OnInit, OnDestroy {
         this._pageRoute.activatedRoute
         .switchMap(activatedRoute => activatedRoute.params)
         .forEach((params) => { 
-            this.routerParamId['pieceId'] = Number(params['pieceId']);
+            this.routerParamId['pieceId'] = params['pieceId'];
             this.routerParamId['originType'] = Number(params['originType']);
         });
 
@@ -128,6 +130,15 @@ export class PieceDashboardComponent implements OnInit, OnDestroy {
                     
                     this.pieceTitle = result.value.pieceTitle;
                     this.pieceWorkNumber = result.value.pieceWorkNumber;
+
+                    // Get Composer Name
+                    this._httpService.getComposerName(result.value.composerId).subscribe((res) => {
+                        this._ngZone.run(() => {
+                            this.pieceComposer = res[0].name;      
+                        });
+                        console.log("COMPOSER NAME: " + this.pieceComposer); 
+                    });
+
                 } else {
                     console.log("Error: Piece not found");
                 }

@@ -4,7 +4,11 @@ import { Color } from "color";
 import firebase = require("nativescript-plugin-firebase");
 import { BackendService, PieceService } from "../../../shared";
 import { Observable as RxObservable } from 'rxjs/Observable';
+import * as fs from "file-system";
+
+// Maybe not needed anymore?
 import { knownFolders, File } from 'file-system';
+
 import * as application from "application";
 import { AndroidApplication, AndroidActivityBackPressedEventData } from "application";
 // import * as fs from 'file-system';
@@ -18,6 +22,7 @@ import { Slider } from 'ui/slider';
 import { SegmentedBarItem } from "ui/segmented-bar";
 import { TNSRecorder, TNSPlayer, AudioPlayerOptions, AudioRecorderOptions } from 'nativescript-audio';
 import { RouterExtensions } from "nativescript-angular/router";
+import { android as android } from "application";
 
 @Component({
     selector: "ah-audio-recorder",
@@ -42,6 +47,7 @@ export class AudioRecorderComponent implements OnInit, OnDestroy {
     private showPicker: boolean = false;
     private recordingStart;
     private recordingEnd;
+    private audioPath;
 
     private fileName: string;
 
@@ -84,6 +90,9 @@ export class AudioRecorderComponent implements OnInit, OnDestroy {
         this.audioEntities = [];
         this.meterLine = [];
         this.sbBarPropsArray = [];
+        this.audioPath = fs.knownFolders.documents().getFolder("audio");
+        console.log("P1: " + fs.path.normalize(this.audioPath.path));
+        console.log("PATH: "+this.audioPath);
 
 
         // SEGMENTED BAR
@@ -197,7 +206,7 @@ export class AudioRecorderComponent implements OnInit, OnDestroy {
             // Clear MeterValues
             this.meterData = [];
             this.meterLine = [];
-            var audioFolder = knownFolders.currentApp().getFolder("audio");
+            var audioFolder = this.audioPath; // knownFolders.currentApp().getFolder("audio");
             console.log(JSON.stringify(audioFolder));
 
             let androidFormat;
@@ -321,7 +330,7 @@ export class AudioRecorderComponent implements OnInit, OnDestroy {
 
     public getFile() {
         try {
-            var audioFolder = knownFolders.currentApp().getFolder("audio");
+            var audioFolder = this.audioPath; //knownFolders.documents().getFolder("audio");
             var recordedFile = audioFolder.getFile(`recording.${this.platformExtension()}`);
             console.log(JSON.stringify(recordedFile));
             console.log('recording exists: ' + File.exists(recordedFile.path));
@@ -334,7 +343,7 @@ export class AudioRecorderComponent implements OnInit, OnDestroy {
 
     public playRecordedFile(args) {
 
-        var audioFolder = knownFolders.currentApp().getFolder("audio");
+        var audioFolder = this.audioPath; // knownFolders.documents().getFolder("audio");
         var recordedFile = audioFolder.getFile(`recording.${this.platformExtension()}`);
         console.log("RECORDED FILE : " + JSON.stringify(recordedFile));
 
@@ -642,7 +651,7 @@ export class AudioRecorderComponent implements OnInit, OnDestroy {
                         console.log("PIECE-ITEMS FOUND");
                         var lenPieces = Object.keys(result.value).length;
                         for (let i = 0; i < lenPieces; i++) {
-                            this.pieceIdArray.push(Number(Object.keys(result.value)[i]));
+                            this.pieceIdArray.push(Object.keys(result.value)[i]);
                         }
 
                         for (let i = 0; i < this.pieceIdArray.length; i++) {
@@ -714,7 +723,7 @@ export class AudioRecorderComponent implements OnInit, OnDestroy {
     }
 
     deleteRecording(){
-        let audioFolder = knownFolders.currentApp().getFolder("audio");
+        let audioFolder = this.audioPath // knownFolders.documents().getFolder("audio");
         let deleteFile = audioFolder.getFile(this.fileName);
         if (deleteFile) {
             deleteFile.remove()

@@ -9,12 +9,13 @@
                         <Image row="0" src="res://empty_shelf_red" stretch="aspectFill"></Image>
                         <Label row="1" text="No pieces found" class="text-center p-5 m-10"></Label>
                     </GridLayout>
-                    <ListView class="list-group clear-background" [items]="pieceArray" separatorColor="transparent" (itemTap)="onPieceTap($event)">
+                    <ListView class="list-group" [items]="pieceArray" (itemTap)="onPieceTap($event)">
                         <template let-piece="item">
-                            <StackLayout class="list-group-item clear-background"> 
-                                <GridLayout rows="auto, auto"columns="*, auto">
+                            <StackLayout class="list-group-item"> 
+                                <GridLayout rows="auto, auto, auto"columns="*, auto">
                                     <Label row="0" col="0" class="list-group-item-heading" [text]="piece.title"></Label>
                                     <Label row="1" col="0" class="list-group-item-text" textWrap="true" [text]="piece.movements" visibility="{{piece.movements ? 'visible' : 'collapsed' }}"></Label>
+                                    <!-- <Label row="2" col="0" class="list-group-item-text" textWrap="true" fontStyle="italic" fontWeight="bold" paddingTop="5" [text]="piece.composerName"></Label>-->
                                     <Label row="0" col="1" class="icon-font icon-container" [text]="iconSettings" (tap)="showPieceOptions(piece.id)"></Label>                            
                                 </GridLayout>
                             </StackLayout>

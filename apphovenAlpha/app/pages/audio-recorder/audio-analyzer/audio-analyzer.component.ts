@@ -5,10 +5,13 @@ import { PageRoute } from "nativescript-angular/router";
 import firebase = require("nativescript-plugin-firebase");
 import { BackendService, PieceService, MillisecondTransformerPipe } from "../../../shared";
 import { Observable as RxObservable } from 'rxjs/Observable';
+import * as fs from "file-system";
+
+// Maybe not needed anymore?
 import { knownFolders, File } from 'file-system';
+
 import * as application from "application";
 import { AndroidApplication, AndroidActivityBackPressedEventData } from "application";
-// import * as fs from 'file-system';
 import * as app from 'application';
 import * as color from 'color';
 import * as platform from 'platform';
@@ -47,6 +50,7 @@ export class AudioAnalyzerComponent implements OnInit, OnDestroy {
     private audioMeterLine: Array<any>;
     private audioMeterColumns;
     private audioMeterMaxValue: number = 0;
+    private audioPath;
     private recordingDate;
     private displayTitle;
 
@@ -73,6 +77,7 @@ export class AudioAnalyzerComponent implements OnInit, OnDestroy {
         this.fbRecordingMarkIds = [];
         this.routerParamId = [];
         this.audioMeterLine = [];
+        this.audioPath = fs.knownFolders.documents().getFolder("audio");;
 
         // Audio-Plugin
         this.player = new TNSPlayer();
@@ -85,8 +90,9 @@ export class AudioAnalyzerComponent implements OnInit, OnDestroy {
             this.routerParamId['optionalParam'] = params['optionalParam'];
         });
 
+        let audioPathFileInit = fs.path.normalize(this.audioPath.path);
 		this.player.initFromFile({
-			audioFile: `~/audio/${this.routerParamId['recordingFileName']}.${this.platformExtension()}`, // ~ = app directory
+			audioFile: `${audioPathFileInit}/${this.routerParamId['recordingFileName']}.${this.platformExtension()}`, // ~ = app directory
 			loop: false,
 			completeCallback: this._trackComplete.bind(this),
 			errorCallback: this._trackError.bind(this)
@@ -100,6 +106,7 @@ export class AudioAnalyzerComponent implements OnInit, OnDestroy {
 			});
 		}, () => {
             console.log("ERROR LOADING !!!");
+            console.log("PATH ERROR: " + `${audioPathFileInit}/${this.routerParamId['recordingFileName']}.${this.platformExtension()}`);
             this.noRecordingFound = true;
             this.notifyFileLoss();
         });
@@ -276,7 +283,7 @@ export class AudioAnalyzerComponent implements OnInit, OnDestroy {
 
     public getFile() {
         try {
-            var audioFolder = knownFolders.currentApp().getFolder("audio");
+            var audioFolder = this.audioPath; // knownFolders.currentApp().getFolder("audio");
             var recordedFile = audioFolder.getFile(`${this.routerParamId['recordingFileName']}.${this.platformExtension()}`);
             console.log(JSON.stringify(recordedFile));
             console.log('recording exists: ' + File.exists(recordedFile.path));
@@ -293,7 +300,7 @@ export class AudioAnalyzerComponent implements OnInit, OnDestroy {
             this.resumePlayer();
         } else {
 
-            var audioFolder = knownFolders.currentApp().getFolder("audio");
+            var audioFolder = this.audioPath; // knownFolders.currentApp().getFolder("audio");
             var recordedFile = audioFolder.getFile(`recording.${this.platformExtension()}`);
             console.log("RECORDED FILE : " + JSON.stringify(recordedFile));
 

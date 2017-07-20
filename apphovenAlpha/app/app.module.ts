@@ -2,14 +2,14 @@
 import { NgModule } from "@angular/core";
 import { NativeScriptFormsModule } from "nativescript-angular/forms";
 import { NativeScriptHttpModule } from "nativescript-angular/http";
-import { NativeScriptModule } from "nativescript-angular/platform";
+import { NativeScriptModule } from "nativescript-angular/nativescript.module";
 import { NativeScriptRouterModule } from "nativescript-angular/router";
 
 // Declarations
 import { AppComponent } from "./app.component";
 import { TempoTermPipe } from "./pages/metronome/tempo-term.pipe";
 import { GraphLegendPipe } from "./pages/practice-session/graph-legend.pipe"
-import { TimerPipe, MillisecondTransformerPipe } from "./shared";
+import { TimerPipe, MillisecondTransformerPipe, ComposerNamePipe } from "./shared";
 import { routes, navigatableComponents } from "./app.routing";
 
 // Providers
@@ -48,7 +48,8 @@ import { SettingsModule } from "./pages/settings/settings.module";
     TempoTermPipe,
     TimerPipe,
     GraphLegendPipe,
-    MillisecondTransformerPipe
+    MillisecondTransformerPipe,
+    ComposerNamePipe
   ],
   bootstrap: [AppComponent]
 })

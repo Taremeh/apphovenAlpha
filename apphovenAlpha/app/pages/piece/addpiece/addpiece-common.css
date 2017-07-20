@@ -7,7 +7,7 @@
 .search-container {
     background-color: #f7f7f7;
     padding: 3%;
-    border-radius: 3px;
+    border-radius: 5;
 }
 
 .search-composer-list, .sb-composer {
@@ -25,7 +25,7 @@
 .piece-container {
     background-color: #f7f7f7;
     padding: 10%;
-    border-radius: 3px;
+    border-radius: 5;
 }
 
 .piece-checkbox {

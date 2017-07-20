@@ -36,6 +36,7 @@ export class PieceRecorderComponent implements OnInit, OnDestroy {
     // Recording-Time Button Text & State
     public recordingTimeButton: string = "Record Session";
     public recordingTimeState: boolean = false;
+    public recordingAutoStart: boolean = false;
 
     // Button & Button-Container States
     public button1: boolean = true;
@@ -65,8 +66,8 @@ export class PieceRecorderComponent implements OnInit, OnDestroy {
     public selectionPieceIds: Array<any>;
     public selectionPieceMovements: Array<any>;
     public autoselectPiece: Array<any>;
-    public selectedPieceId: number;
-    public selectedMovementId: number;
+    public selectedPieceId;
+    public selectedMovementId;
     public selectMultiplePiecesState: boolean = false;
     
     private selectedPieceMovementTitle: string;
@@ -135,7 +136,51 @@ export class PieceRecorderComponent implements OnInit, OnDestroy {
             console.log("BACK BUTTON EVENT TRIGGERED");
             this.backEvent(data);
         });
+
+        /*
+        Practice-Time Retriever (Future Update)
+
+        if(BackendService.practiceTimeBackup != 0){
+            console.log("BP-TIME: " + BackendService.practiceTimeBackup);
+            console.log("BP-TIMESTAMP: " + BackendService.practiceTimestampBackup);
+
+            if(BackendService.practiceTimestampBackup != 0){
+                let date = new Date()
+                let dateNow = date.getTime();
+                let dateBackup = BackendService.practiceTimestampBackup;
+
+                console.log("DATE NOW: " + dateNow);
+                console.log("DATE BACKUP: " + dateBackup)
+
+                let dateDifference = (dateNow - dateBackup);
+                if(dateDifference > 3600000){
+                    console.log(dateNow + " - " + BackendService.practiceTimestampBackup + " = " + dateDifference);
+                    alert("Want to save?");
+                } else if (dateDifference > 0) {
+                    console.log(dateNow + " - " + BackendService.practiceTimestampBackup + " = " + dateDifference);
+                    this.time = (BackendService.practiceTimeBackup + dateDifference)/1000;
+                    console.log("TIME mit Timestamp: " + this.time);
+                    this.recordingAutoStart = true;
+                } else {
+                    this.time = BackendService.practiceTimeBackup/1000;
+                    this.recordingAutoStart = true;
+                }
+            } else {
+                this.time = BackendService.practiceTimeBackup/1000;
+                console.log("TIME ohne Timestamp: " + this.time);
+            }
+        }*/
     }
+
+    /*
+    Practice-Time Retriever (Future Update)
+
+    ngAfterViewInit(){
+        if(this.recordingAutoStart){
+            this.toggleRecordingTime();
+        }
+    }
+    */
 
     toggleRecordingTime(){
         let sessionRatingContainer = <View>this.sessionRatingContainer.nativeElement;
@@ -150,22 +195,43 @@ export class PieceRecorderComponent implements OnInit, OnDestroy {
             this.recordingTimeState = false;
             this.recordingTimeButton = "Restart";
             this.stop();
+            BackendService.practiceTimestampBackup = 0;
         } else {
             pieceSelectionContainer.style.visibility = "collapse";
 
             this.recordingTimeState = true;
             this.recordingTimeButton = "Stop Recording";
+            /*
+
+            Practice-Time Retriever (Future Update)
+            if(BackendService.practiceTimeBackup != 0){
+                this.start(2);
+                console.log("HALLO")
+            } else {
+                this.start(1);
+            }
+            */
+            
             this.start(1);
         }
     }
 
     // Start Metronome
     start(type: number){
+        console.log("TEST TEST TEST");
         this.stop(); // Stop metronome, that's currently running
         
         if(type == 1) {
             this.sessionStartedDate = new Date().getTime();
-        }
+        } /*
+
+        Practice-Time Retriever (Future Update)
+        
+        else if(type == 2){
+            if(BackendService.practiceTimestampBackup != 0){
+                this.sessionStartedDate = BackendService.practiceTimestampBackup - (BackendService.practiceTimeBackup*1000);
+            }
+        } */
 
         let sessionRatingContainer = <View>this.sessionRatingContainer.nativeElement;
         let pieceSelectionContainer = <View>this.pieceSelectionContainer.nativeElement;
@@ -214,7 +280,13 @@ export class PieceRecorderComponent implements OnInit, OnDestroy {
             this.timer = setTimeout(tickNew, interval);
         } else if (type == 2){
             this.timer = setTimeout(tickContinue, interval);
-        }
+        } /*
+        Practice-Time Retriever (Future Update)
+        
+        else if (type == 4){
+            this.time = this.time
+            this.timer = setTimeout(tickContinue, interval);
+        }*/
         
         function tickNew() {
             var dt = Date.now() - expected; // the drift (positive for overshooting)
@@ -224,6 +296,9 @@ export class PieceRecorderComponent implements OnInit, OnDestroy {
             that.time += 1; // TIMER +1 SECOND
             expected += interval;
             that.timer = setTimeout(tickNew, Math.max(0, interval - dt)); // take into account drift
+            
+            // Save Practice-Time as Backup
+            BackendService.practiceTimeBackup = that.time;
         }
 
         function tickContinue() {
@@ -234,6 +309,9 @@ export class PieceRecorderComponent implements OnInit, OnDestroy {
             that.time += 1; // TIMER +1 SECOND
             expected += interval;
             that.timer = setTimeout(tickContinue, Math.max(0, interval - dt)); // take into account drift
+
+            // Save Practice-Time as Backup
+            BackendService.practiceTimeBackup = that.time;
         }
     }
 
@@ -241,6 +319,7 @@ export class PieceRecorderComponent implements OnInit, OnDestroy {
         // Remove BackPressedEvent Listener
         application.android.off(AndroidApplication.activityBackPressedEvent);
         console.log("PieceRecorder - ngOnDestroy()");
+
         // Stop running recorder
         this.stop();
     }
@@ -382,7 +461,7 @@ export class PieceRecorderComponent implements OnInit, OnDestroy {
                         console.log("PIECE-ITEMS FOUND");
                         var lenPieces = Object.keys(result.value).length;
                         for (let i = 0; i < lenPieces; i++) {
-                            this.selectionPieceIds.push(Number(Object.keys(result.value)[i]));
+                            this.selectionPieceIds.push(Object.keys(result.value)[i]);
                         }
 
                         for (let i = 0; i < this.selectionPieceIds.length; i++) {
@@ -513,60 +592,75 @@ export class PieceRecorderComponent implements OnInit, OnDestroy {
             }
         }
         console.log("SLIDER TOTAL: " + sliderValueTotal);
-        for (let i = 0; i < this.selectionPieceArray.length; i++) {
-            if(this.selectionPieceArray[i].durationSliderValue > 0) {
+        if(sliderValueTotal > 0){
+            for (let i = 0; i < this.selectionPieceArray.length; i++) {
+                if(this.selectionPieceArray[i].durationSliderValue > 0) {
 
-                let duration = Math.round(this.time / sliderValueTotal * this.selectionPieceArray[i].durationSliderValue);
-                let userHappiness = this.selectionPieceArray[i].iconState == -1 ? null : this.selectionPieceArray[i].iconState+1;
-                let pieceMovementTitle;
+                    let duration = Math.round(this.time / sliderValueTotal * this.selectionPieceArray[i].durationSliderValue);
+                    let userHappiness = this.selectionPieceArray[i].iconState == -1 ? null : this.selectionPieceArray[i].iconState+1;
+                    let pieceMovementTitle;
 
-                if(this.selectionPieceArray[i].movementId != null) {
-                    pieceMovementTitle = this.selectionPieceArray[i].movementTitle + " | " + this.selectionPieceArray[i].pieceTitle;
-                } else {
-                    pieceMovementTitle = this.selectionPieceArray[i].pieceTitle;
-                }
+                    if(this.selectionPieceArray[i].movementId != null) {
+                        pieceMovementTitle = this.selectionPieceArray[i].movementTitle + " | " + this.selectionPieceArray[i].pieceTitle;
+                    } else {
+                        pieceMovementTitle = this.selectionPieceArray[i].pieceTitle;
+                    }
 
-                if(duration != 0){
-                    firebase.setValue(
-                        '/user/'+BackendService.token+"/practice-session/"+this.sessionStartedDate+"-"+i,
-                        {
-                            'duration': duration,
-                            'pieceMovementTitle': pieceMovementTitle,
-                            'pieceId': this.selectionPieceArray[i].pieceId, // this.routerParamIds['pieceId'],
-                            'movementId': this.selectionPieceArray[i].movementId, // this.routerParamIds['movementId'],
-                            'userProgressRating': null,
-                            'userHappinessRating': userHappiness,
-                            'userNotes': null,
-                            'date': this.sessionStartedDate,
-                            'id': this.sessionStartedDate+"-"+i
-                        }
-                    ).then(
-                        function (result) {
-                            // BackendService: Update lastPieceId & lastMovementId
-                            console.log("TEST: " + i);
-                        }
-                    );
-                } else {
-                    this.showToast("Please practice more than 0 seconds");
+                    if(duration != 0){
+                        firebase.setValue(
+                            '/user/'+BackendService.token+"/practice-session/"+this.sessionStartedDate+"-"+i,
+                            {
+                                'duration': duration,
+                                'pieceMovementTitle': pieceMovementTitle,
+                                'pieceId': this.selectionPieceArray[i].pieceId, // this.routerParamIds['pieceId'],
+                                'movementId': this.selectionPieceArray[i].movementId, // this.routerParamIds['movementId'],
+                                'userProgressRating': null,
+                                'userHappinessRating': userHappiness,
+                                'userNotes': null,
+                                'date': this.sessionStartedDate,
+                                'id': this.sessionStartedDate+"-"+i
+                            }
+                        ).then(
+                            function (result) {
+                                // BackendService: Update lastPieceId & lastMovementId
+                                console.log("TEST: " + i);
+                            }
+                        );
+                    } else {
+                        this.showToast("Please practice more than 0 seconds");
+                    }
                 }
             }
-        }
-
-        // REDIRECTION
-        if(BackendService.tutorialTour > 1){
-            // Tutorial Tour
-            BackendService.toastLoaded = 1;
-            this._routerExtensions.navigate(["/home/tcc-recorder-suc"], { clearHistory: true });
+            // REDIRECTION
+            if(BackendService.tutorialTour > 1){
+                // Tutorial Tour
+                BackendService.toastLoaded = 1;
+                this._routerExtensions.navigate(["/home/tcc-recorder-suc"], { clearHistory: true });
+            } else {
+                // Regular
+                BackendService.toastLoaded = 1;
+                this._routerExtensions.navigate(["/home/tos-recorder-suc"], { clearHistory: true });
+            }
         } else {
-            // Regular
-            BackendService.toastLoaded = 1;
-            this._routerExtensions.navigate(["/home/tos-recorder-suc"], { clearHistory: true });
+            this.showToast("Please use the sliders to distribute your pracitce time");
         }
-
     }
 
     backEvent(args) {
         if(this.currentView == 0){
+            /*
+            Practice-Time Retriever (Future Update)
+
+            if(this.recordingTimeState){
+                let date = new Date();
+                let dateBackup = date.getTime();
+                BackendService.practiceTimestampBackup = dateBackup;
+                console.log("SAVED STAMP: " + BackendService.practiceTimestampBackup);
+            } else {
+                BackendService.practiceTimestampBackup = 0;
+            }
+
+            */
             return;
         } else {
             args.cancel = true;

@@ -1,5 +1,3 @@
-﻿@import '~/css/core.light.css'; 
-
 /*
  *  APPHOVEN THEME MODIFICATION
  *
@@ -44,6 +42,33 @@
 }
 
 /*
+ * Font
+ */
+
+.h1 {
+  font-size: 25;
+}
+
+.h2 {
+  font-size: 22;
+}
+
+.p {
+  font-size: 20;
+}
+
+.input-info, .input-info-container {
+  padding: 0 10 10 10;
+  font-size: 13;
+  color: #757575;
+}
+
+.input-info-container {
+  padding: 0;
+  margin: 0 10 10 10;
+}
+
+/*
  * ICONS
  */
 
@@ -68,10 +93,6 @@
   /*background-color: #232323;*/
   color: white;
 }
-
-.clear-background {
-  background-color: inherit;
-} 
 
 .light-background{
   /* background-color: #F3F3F3; */
@@ -102,4 +123,16 @@
   padding: 10;
   border-radius: 10;
   height: auto;
+}
+
+/*
+ * ListView
+ */
+
+.list-group-item {
+  padding: 18;
+}
+
+.list-group-item-heading {
+  font-size: 18;
 }

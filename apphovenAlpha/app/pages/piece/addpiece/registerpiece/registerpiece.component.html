@@ -1,0 +1,36 @@
+<ActionBar class="ah-action-bar">
+    <GridLayout columns="*">
+        <Label col="0" text="APPHOVEN" style="font-size: 20; vertical-align: center;"></Label>
+    </GridLayout>
+</ActionBar>
+<StackLayout class="ah-main-container" marginBottom="35">
+    <StackLayout style="margin-bottom: 10">
+        <Label text="Add piece from composer:"></Label>
+        <Label text="{{ composerName }}" fontWeight="bold"></Label>
+    </StackLayout>
+    <StackLayout class="input-field">
+        <TextField class="input input-border" id="workTitle" hint="Work Title" text=""></TextField>
+        <ScrollView orientation="horizontal" class="input-info-container"><Label text="Title of the piece as whole work, not specific movements!"></Label></ScrollView>
+        <TextField class="input" id="workNumber" hint="Work Number (ex. Op.1)" text=""></TextField>
+        <ScrollView orientation="horizontal" class="input-info-container"><Label text="Number of the piece as whole work, not specific movements (Don't: Op.1 Nr.1)"></Label></ScrollView>
+        <GridLayout rows="auto" columns="auto, *" marginTop="20">
+            <Label text="Does this work contain movements?"></Label>
+            <Switch checked="false" (checkedChange)="movementSwitch($event)" row="0" col="1"></Switch>
+        </GridLayout>
+        <ScrollView>
+        <StackLayout visibility="{{ movementSwitchState ? 'visible' : 'collapsed' }}">
+            <TextField *ngFor="let movement of movementArray" class="input" id="movement{{movement.id}}" hint="Movement Title {{ movement.id+1 }}" text=""></TextField>
+            <GridLayout rows="auto" columns="*,*">
+                <Label row="0" col="0" text="+1 Movement" class="button-add-movement" (tap)="addMovementTextField()"></Label>
+                <Label row="0" col="1" text="-1 Movement" (tap)="removeMovementTextField()" class="{{ movementCounter > 0 ? 'button-remove-movement' : 'button-remove-movement-disabled' }}"></Label>
+            </GridLayout>
+        </StackLayout>
+        </ScrollView>
+    </StackLayout>
+</StackLayout>
+
+<DockLayout>
+    <StackLayout dock="bottom" height="100" style="vertical-align: bottom">
+        <Button text="Add Piece" (tap)="addPiece()"></Button>
+    </StackLayout>
+</DockLayout>

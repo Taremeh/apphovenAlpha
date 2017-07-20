@@ -3,6 +3,7 @@
         <ScrollView #scrlView orientation="horizontal">
             <Label class="piece-heading" text="{{ pieceTitle }}"></Label>
         </ScrollView>
+        <Label class="piece-text" text="Composer: {{ pieceComposer }}"></Label>
         <Label class="piece-text" text="Work-Number: {{ pieceWorkNumber }}"></Label>
         <Label class="piece-text" text="Movements: {{ pieceMovementAmount }}" visibility="{{pieceMovementAmount ? 'visible' : 'collapsed' }}"></Label>
     </StackLayout>

@@ -6,6 +6,8 @@ const email = "email";
 const lastPracticeDuration  = "lastPracticeDuration";
 const tutorialTour = "tutorialTour";
 const toastLoaded = "toastLoaded";
+const practiceTimeBackup = "practiceTimeBackup";
+const practiceTimestampBackup = "practiceTimestampBackup";
 
 export class BackendService {
   
@@ -51,6 +53,26 @@ export class BackendService {
 
   static set toastLoaded(toastLoaded: number) {
     setNumber("toastLoaded", toastLoaded);
+  }
+
+  /*
+   *  Practice Time Recorder: Time Backup
+   */
+
+  static set practiceTimeBackup(practiceTimeBackup: number) {
+    setNumber("practiceTimeBackup", practiceTimeBackup);
+  }
+
+  static get practiceTimeBackup(): number {
+    return getNumber("practiceTimeBackup");
+  }
+
+  static set practiceTimestampBackup(practiceTimestampBackup: number) {
+    setNumber("practiceTimestampBackup", practiceTimestampBackup);
+  }
+
+  static get practiceTimestampBackup(): number {
+    return getNumber("practiceTimestampBackup");
   }
 
 }

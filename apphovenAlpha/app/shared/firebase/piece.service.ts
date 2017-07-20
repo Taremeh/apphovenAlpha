@@ -11,13 +11,18 @@ export class PieceService {
     }
 
 
-    addPiece(pieceId: any, pieceData: any, movementArray: any, pieceMovementArray: any): Promise<Response>{
+    addPiece(pieceId: any, composerId: number, pieceData: any, movementArray: any, pieceMovementArray: any): Promise<Response>{
         let i;
         let sP = pieceData;
         let piecePracticeArray;
         let piecePracticeMovements: any[];
         let piecePracticeMovementsAmount: number = 0;
         let dateToday = new Date().getTime();
+
+        // If piece created by used, add prefix "u"
+        if(sP.user_piece){
+            pieceId = "u" + pieceId;
+        }
 
         // Needed for BackendService: lastMovementId
         let firstMovementAdded = false
@@ -42,20 +47,22 @@ export class PieceService {
                 }
             }
             
-            piecePracticeArray = { pieceId: pieceId, pieceTitle: sP.piece_title, 
+            piecePracticeArray = { pieceId: pieceId, composerId: composerId, pieceTitle: sP.piece_title, 
                 pieceWorkNumber: sP.piece_work_number, 
                 movementItem: pieceMovementArray, 
                 movementItemAmount: piecePracticeMovementsAmount,
+                dateLastUsed: dateToday,
+                dateAdded: dateToday
             };
 
             console.log(piecePracticeArray.pieceTitle, piecePracticeArray.pieceWorkNumber);
         } else {
             // MOVEMENTS DO NOT EXIST
-            piecePracticeArray = { pieceId: pieceId, pieceTitle: sP.piece_title, 
+            piecePracticeArray = { pieceId: pieceId, composerId: composerId, pieceTitle: sP.piece_title, 
                 pieceWorkNumber: sP.piece_work_number, 
                 movementItemAmount: piecePracticeMovementsAmount,
-                lastUsed: dateToday,
-                added: dateToday
+                dateLastUsed: dateToday,
+                dateAdded: dateToday
             };
             console.log(piecePracticeArray.pieceTitle, piecePracticeArray.pieceWorkNumber);
         }

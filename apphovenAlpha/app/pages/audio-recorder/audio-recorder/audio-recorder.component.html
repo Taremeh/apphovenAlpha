@@ -12,7 +12,7 @@
                     <!--<Label text="{{ meter.meterValue }}"></Label>-->
                     <StackLayout orientation="vertical" width="100%">
                         <!-- <Label text="{{ meter.meterValue }}" style="background-color: black"></Label> -->
-                        <Label text=" " horizontalAlignment="center" width="{{ meter.meterValue / 32800 * 100 }}%" height="20" class="amplitude"></Label>
+                        <Label text="" horizontalAlignment="center" width="{{ meter.meterValue / 32800 * 100 }}%" height="20" class="amplitude"></Label>
                     </StackLayout>
                 </template>
             </ListView>
@@ -34,11 +34,11 @@
                 <SegmentedBar class="m-5" #sb [items]="sbBarPropsArray" (selectedIndexChange)="sbOnChange(sb.selectedIndex)"></SegmentedBar>
                 <StackLayout visibility="{{ sbVisibility1 ? 'visible' : 'collapsed' }}">
                     <Label text="Just a snippet recording of the piece" class="m-15 h3 p-5 text-center ah-text-secondary small-top-correction"></Label>
-                    <Label text="(Recording-Type)" class="m-15 h3 p-5 text-center ah-text-secondary top-correction"></Label>
+                    <Label text="(Recording-Type)" class="m-15 h3 p-5 text-center ah-text-secondary"></Label>
                 </StackLayout>
                 <StackLayout visibility="{{ sbVisibility2 ? 'visible' : 'collapsed' }}">
                     <Label text="Full, concert-like recording of the piece" class="m-15 h3 p-5 text-center ah-text-secondary small-top-correction"></Label>
-                    <Label text="(Recording-Type)" class="m-15 h3 p-5 text-center ah-text-secondary top-correction"></Label>
+                    <Label text="(Recording-Type)" class="m-15 h3 p-5 text-center ah-text-secondary"></Label>
                 </StackLayout>
             </StackLayout>
     </StackLayout>
