@@ -7,25 +7,25 @@
         <!-- Composer Dropdown List -->
         <StackLayout #searchComposerList class="search-composer-list">
             <ListView [items]="composerArray" class="list-group" (itemTap)="onComposerItemTap($event)">
-                <template let-composer="item" let-i="index" let-odd="odd" let-even="even">
+                <ng-template let-composer="item" let-i="index" let-odd="odd" let-even="even">
                     <GridLayout class="list-group-item">
                         <Label class="list-group-item-heading" [text]="composer.name"></Label>
                     </GridLayout>
-                </template>
+                </ng-template>
             </ListView>
         </StackLayout>
 
         <!-- Piece Dropdown List -->
         <StackLayout #searchPieceList class="search-piece-list">
             <ListView class="list-group" [items]="pieceArray" (itemTap)="onPieceItemTap($event)" separatorColor="black">
-                <template let-piece="item">
+                <ng-template let-piece="item">
                     <GridLayout rows="* auto" columns="*" style="border:1;"> 
                         <StackLayout row="1" col="0" class="list-group-item">
                             <Label class="list-group-item-heading" [text]="piece.piece_title"></Label>
                             <Label class="list-group-item-text" visibility="{{ piece.piece_movement_title ? 'visible' : 'collapsed' }}" [text]="piece.piece_movement_text"></Label>
                         </StackLayout>
                     </GridLayout>
-                </template>
+                </ng-template>
             </ListView>
         </StackLayout>
     </StackLayout>
@@ -42,13 +42,13 @@
             <Label class="piece-text" text="Movements: {{ pieceItemText.piece_movement_amount }}" visibility="{{ pieceItemText.piece_movement_amount ? 'visible' : 'collapsed' }}"></Label>
             <Label *ngIf="!pieceItemText.piece_movement_amount" text="This piece doesn't contain any movements" class="no-movements-info"></Label>
             <ListView [items]="pieceMovementArray" separatorColor="white">
-                <template let-movement="item">
+                <ng-template let-movement="item">
                     <GridLayout rows="* auto" columns="*"> 
                         <StackLayout row="1" col="0" class="list-group-item" orientation="horizontal" (tap)="onMovementItemTap(movement)">
                             <Image class="piece-checkbox" stretch="aspectFill" [src]="imageSource(movement)"></Image><Label class="piece-heading" style='{{ movement.disabled ? "color: #e0e0e0" : "color: black" }}' [text]="movement.title"></Label>  
                         </StackLayout>
                     </GridLayout>
-                </template>
+                </ng-template>
             </ListView>
         </StackLayout>
         <StackLayout row="1">

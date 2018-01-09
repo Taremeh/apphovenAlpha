@@ -249,7 +249,7 @@ export class HomeComponent implements OnInit, OnDestroy {
                         BackendService.tutorialTour++;
                         break;
                     case 9:
-                        this.beethovenMsg = "However, thats enough for now. Now it's on you. Explore Apphoven and have fun playing your instrument! I'm going to compose a new piece now.";
+                        this.beethovenMsg = "However, that's enough for now. Now it's on you. Explore Apphoven and have fun playing your instrument! I'm going to compose a new piece now.";
                         BackendService.tutorialTour++;
                         break;
                     case 10:

@@ -11,6 +11,7 @@
 /*
  * CONTAINER COLORS 
  */
+
 .ah-c-primary {
   background-color: #E53935;
 }
@@ -44,6 +45,10 @@
 /*
  * Font
  */
+
+Label {
+  font-family: "OpenSans-Regular";
+}
 
 .h1 {
   font-size: 25;
@@ -81,6 +86,7 @@
   /* background-image: url("res://bg"); #982528 */
   /* background-color: #FAFAFA; */
   padding: 20%;
+  font-family: 'Quicksand-Regular';
 }
 
 .ah-main-container-red {
