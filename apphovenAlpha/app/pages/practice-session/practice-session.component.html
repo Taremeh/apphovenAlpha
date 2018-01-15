@@ -5,7 +5,7 @@
             <GridLayout row="0" rows="115, auto" columns="auto, *, *, *, *, *, *, *" orientation="horizontal" (swipe)="onSwipe($event)">
                 <Label text="{{ leg1 }}" row="0" col="0" style="vertical-align: top;"></Label>
                 <Label text="{{ leg2 }}" row="0" col="0" style="vertical-align: center;"></Label>
-                <Label text="{{ longestPracticeDuration > 3600 ? '0h' : '0min' }}" row="0" col="0" style="vertical-align: bottom;"></Label>
+                <Label textWrap="true" text="{{ longestPracticeDuration > 3600 ? '0h' : '0min' }}" row="0" col="0" style="vertical-align: bottom;"></Label>
                 <StackLayout *ngFor="let day of week" col="{{ day.position+1 }}" height="{{ day.value }}" style="background-color: #f7f7f7; margin: 5; vertical-align: bottom;" row="0"></StackLayout>
                 <Label *ngFor="let day of week" col="{{ day.position+1 }}" text="{{ day.name }}" style="margin: 5; vertical-align: bottom; text-align: center;" row="1"></Label>
             </GridLayout> 
@@ -13,6 +13,8 @@
             <Label row="1" *ngIf="currentWeekName" text="{{ currentWeek < -1 ? 'Week of ' + (currentWeekName | date:'dd.MM') : (currentWeekName) }}" style="margin-bottom: 5; vertical-align: bottom; text-align: center;"></Label>
         </GridLayout>
     </StackLayout>
+
+    <!-- The basic UI ListView is being reused from pieceListComponent. Therefore, vars like "piece" should be "session" -->
     <StackLayout #pieceContainer class="piece-container">
             <StackLayout class="movement-container">
                 <StackLayout class="movement-list-current">

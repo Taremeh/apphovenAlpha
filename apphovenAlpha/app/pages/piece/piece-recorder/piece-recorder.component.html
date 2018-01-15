@@ -7,7 +7,7 @@
     <StackLayout *ngIf="!noPiecesFound">
     <StackLayout class="timer-container">
         <!-- Recording -->
-        <Label class="recording-time" text="{{ time | timerformat | date:'HH:mm:ss' }}"></Label> 
+        <Label class="recording-time" textwrap="true" text="{{ time | timerformat | date:'HH:mm:ss' }}"></Label> 
         <Button *ngIf="button1" [text]="recordingTimeButton" (tap)="toggleRecordingTime()"></Button>
         <GridLayout *ngIf="buttonContainer" rows="auto" columns="*,*">
             <Button [text]="recordingTimeButton" (tap)="start(3)" col="0"></Button>

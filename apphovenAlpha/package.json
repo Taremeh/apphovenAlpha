@@ -21,12 +21,12 @@
     "@angular/router": "4.0.0",
     "nativescript-angular": "3.0.0",
     "nativescript-audio": "^3.4.2",
-    "nativescript-plugin-firebase": "^3.12.0",
+    "nativescript-plugin-firebase": "^5.1.2",
     "nativescript-sound": "^1.0.4",
     "nativescript-theme-core": "1.0.4",
     "nativescript-toast": "^1.4.5",
     "reflect-metadata": "~0.1.8",
-    "rxjs": "5.2.0",
+    "rxjs": "5.4.2",
     "tns-core-modules": "^3.4.0"
   },
   "devDependencies": {

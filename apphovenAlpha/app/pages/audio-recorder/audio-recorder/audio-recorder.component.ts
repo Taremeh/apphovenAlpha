@@ -1,10 +1,12 @@
 import { Component, OnInit, OnDestroy, ViewChild, ElementRef, NgZone } from "@angular/core";
 import { View } from "ui/core/view";
 import { Color } from "color";
-import firebase = require("nativescript-plugin-firebase");
+import { firestore } from "nativescript-plugin-firebase";
+const firebase = require("nativescript-plugin-firebase/app");
 import { BackendService, PieceService } from "../../../shared";
 import { Observable as RxObservable } from 'rxjs/Observable';
 import * as fs from "file-system";
+import { TextField } from "ui/text-field";
 
 // Maybe not needed anymore?
 import { knownFolders, File } from 'file-system';
@@ -69,11 +71,11 @@ export class AudioRecorderComponent implements OnInit, OnDestroy {
     // OTHER UI
     private showPickerReplacement: boolean;
 
-    // UI DATA
-    private userRecordingTitle: string;
-
     // APP LOGIC
     private fileCreated: boolean;
+
+    // Observable
+    private listenerUnsubscribe: () => void;
 
     @ViewChild("ahMainContainer") ahMainContainer: ElementRef;
     @ViewChild("meterLineContainer") meterLineContainer: ElementRef;
@@ -83,7 +85,7 @@ export class AudioRecorderComponent implements OnInit, OnDestroy {
     @ViewChild("recordButton") recordButton: ElementRef;
 
 
-    constructor(private _ngZone: NgZone, private _routerExtensions: RouterExtensions) {
+    constructor(private _ngZone: NgZone, private _routerExtensions: RouterExtensions, private _page: Page) {
         this.player = new TNSPlayer();
         this.recorder = new TNSRecorder();
         //this.set('currentVolume', 1);
@@ -110,7 +112,8 @@ export class AudioRecorderComponent implements OnInit, OnDestroy {
 
 
         // Fetching Firebase Piece-Information
-        this.loadPieceInformation();
+        // this.loadPieceInformation();
+        this.firestoreListen();
     }
 
     ngOnInit(){
@@ -143,15 +146,6 @@ export class AudioRecorderComponent implements OnInit, OnDestroy {
             }
         });
     
-    }
-
-    ngOnDestroy(){
-        if(this.isRecording){
-            this.stopRecord();
-        }
-
-        application.android.off(AndroidApplication.activityBackPressedEvent);
-        console.log("AudioRecorder - ngOnDestroy()");
     }
 
     recordToggle(){
@@ -539,16 +533,13 @@ export class AudioRecorderComponent implements OnInit, OnDestroy {
         }
     }
 
-    txOnChange(value) {
-        this.userRecordingTitle = value;
-    }
-
     saveRecording() {
         let duration = this.recordingEnd - this.recordingStart;
         let pieceId;
         let movementId;
         let firebaseRecordingItem;
         let recordingDate = this.recordingStart;
+        let userRecordingTitle = this._page.getViewById<TextField>("userRecordingTitle").text;
 
         // Shrink MeterData if > 20  
         if(this.meterData.length > 20){
@@ -571,7 +562,7 @@ export class AudioRecorderComponent implements OnInit, OnDestroy {
             firebaseRecordingItem = {
                 // NO PIECE & NO MOVEMENTS EXIST
                 'duration': duration,
-                'recordingTitle': this.userRecordingTitle,
+                'recordingTitle': userRecordingTitle,
                 'recordingType': this.recordingType,
                 'fileName': this.fileName,
                 'audioMeterLine': this.meterData,
@@ -593,7 +584,7 @@ export class AudioRecorderComponent implements OnInit, OnDestroy {
                     // pieceTitle (including movement) only TEMPORARY
                     'pieceTitle': this.pieceNameArray[this.selectedIndex],
                     'movementId': movementId,
-                    'recordingTitle': this.userRecordingTitle,
+                    'recordingTitle': userRecordingTitle,
                     'recordingType': this.recordingType,
                     'fileName': this.fileName,
                     'audioMeterLine': this.meterData,
@@ -608,7 +599,7 @@ export class AudioRecorderComponent implements OnInit, OnDestroy {
                 'pieceId': pieceId,
                 // pieceTitle (including movement) only TEMPORARY
                 'pieceTitle': this.pieceNameArray[this.selectedIndex],
-                'recordingTitle': this.userRecordingTitle,
+                'recordingTitle': userRecordingTitle,
                 'recordingType': this.recordingType,
                 'fileName': this.fileName,
                 'audioMeterLine': this.meterData,
@@ -619,7 +610,24 @@ export class AudioRecorderComponent implements OnInit, OnDestroy {
         }
     
         let that = this;
-        firebase.setValue(
+        const recordingCollection = firebase.firestore()
+            .collection("user")
+            .doc(BackendService.token)
+            .collection("recording");
+
+        recordingCollection.doc(this.fileName)
+            .set(firebaseRecordingItem)
+            .then(
+                function (result) {
+                    console.log("SUCCESSFULLY SAVED META-DATA. REDERECTING TO ANALYZER...");
+                    // BackendService: Update lastPieceId & lastMovementId (DEL)
+                    // BackendService.lastPieceId = Number(that.routerParamIds['pieceId']);
+                    // BackendService.lastMovementId = Number(that.routerParamIds['movementId']);
+                    that._routerExtensions.navigate(["/audio-analyzer/"+that.fileName+"/backToHome"], { clearHistory: true });
+                }
+            );
+
+        /*firebase.setValue(
                 '/user/'+BackendService.token+'/recording/'+this.fileName,
                 firebaseRecordingItem
             ).then(
@@ -630,10 +638,116 @@ export class AudioRecorderComponent implements OnInit, OnDestroy {
                     that._routerExtensions.navigate(["/audio-analyzer/"+that.fileName+"/backToHome"], { clearHistory: true });
                 }
             );
+        */
     }
 
+    public firestoreListen(): void {
+        if (this.listenerUnsubscribe !== undefined) {
+          console.log("Already listening");
+          return;
+        }
+        
+        // Define Firestore Collection
+        let pieceCollection = firebase.firestore()
+            .collection("user")
+            .doc(BackendService.token)
+            .collection("piece");
 
-    loadPieceInformation() {
+        // Define Firestore Query
+        let query = pieceCollection
+            .orderBy("dateAdded", "desc");
+
+        this.listenerUnsubscribe = query.onSnapshot((snapshot: firestore.QuerySnapshot) => {
+            if (snapshot) {
+                console.log("Handling Snapshot");
+                this.handleSnapshot(snapshot);
+            } else {
+                console.log("No Pieces Found!");
+            }
+        });
+    }
+
+    public handleSnapshot(snapshot){
+        this.pieceArray = [];
+        this.pieceNameArray = [];
+        // Check if Snapshot contains Pieces (snapshot.docsSnapshots: [])
+        if(snapshot.docSnapshots.length !== 0){
+            this.noPiecesFound = false;
+            console.log("PIECE-ITEMS FOUND");
+            snapshot.forEach(piece => {
+                console.log("The Result: " + JSON.stringify(piece) + "\n\n");
+                console.log("> PIECE SUCCESSFULLY RETRIEVED.");
+                console.log(">> Analysing Data \n");
+                console.log(">>> Piece ID: " + piece.id);
+                console.log(">>> Piece Value: " + JSON.stringify(piece.data()));
+                piece.data().movementItem ? console.log(">>> Movements: " + JSON.stringify(piece.data().movementItem.length) + "\n\n") : console.log(">>> Movements: 0\n\n");
+            
+                if(piece.data().movementItem){
+                    // Piece contains Movements
+                    console.log("MOVEMENT-ITEMS FOUND");
+
+                    // Count Movements of Pieced
+                    let movementAmount = piece.data().movementItem.length;
+
+                    // Add each movement (with practice state = 1) of piece to selectionPieceArray
+                    for (let iMov = 0; iMov < movementAmount; iMov++) {
+                        if(piece.data().movementItem[iMov].state == 1){
+                            this._ngZone.run(() => {
+                                this.pieceArray.push({
+                                    pieceId: piece.id,
+                                    movementId: piece.data().movementItem[iMov].id,
+                                    pieceTitle: piece.data().pieceTitle,
+                                    movementTitle: piece.data().movementItem[iMov].title,
+                                    lastUsed: piece.data().movementItem[iMov].lastUsed,
+                                    iconCode: String.fromCharCode(0xf11a), 
+                                    iconState: -1,
+                                    iconColor: "#afafaf",
+                                    durationSliderValue: 0,
+                                    state: false
+                                });
+
+                                this.pieceNameArray.push(piece.data().pieceTitle + " | " + piece.data().movementItem[iMov].title);
+                            })
+                        }
+                    }
+                    
+                } else {
+                    // Piece does not contain movements
+                    // Add piece to selectionPieceArray
+                    this._ngZone.run(() => {
+                        this.pieceArray.push({
+                            pieceId: piece.id,
+                            pieceTitle: piece.data().pieceTitle,
+                            lastUsed: piece.data().lastUsed,
+                            iconCode: String.fromCharCode(0xf11a), 
+                            iconState: -1,
+                            iconColor: "#afafaf",
+                            durationSliderValue: 0,
+                            state: false
+                        });
+
+                        this.pieceNameArray.push(piece.data().pieceTitle);
+                    });
+                }
+            });
+
+            this._ngZone.run(() => {
+                // Sort array by lastUsed. Last Used at the top
+                this.pieceArray.sort(function(a, b) {
+                    return parseFloat(b.lastUsed) - parseFloat(a.lastUsed);
+                });
+            });
+
+        } else {
+            // No Pieces Found
+            this._ngZone.run(() => {
+                this.noPiecesFound = true;
+                console.log("NO PIECES FOUND");
+            });
+        }
+    }
+
+    /*loadPieceInformation() {
         // CLEARING
         this.pieceArray = [];
         this.pieceIdArray = [];
@@ -720,7 +834,7 @@ export class AudioRecorderComponent implements OnInit, OnDestroy {
                 }
             }
         );
-    }
+    }*/
 
     deleteRecording(){
         let audioFolder = this.audioPath // knownFolders.documents().getFolder("audio");
@@ -735,5 +849,24 @@ export class AudioRecorderComponent implements OnInit, OnDestroy {
                 console.log(err.stack);
             });
         }
+    }
+
+    public firestoreStopListening(): void {
+        if (this.listenerUnsubscribe === undefined) {
+          console.log("Please start listening first.");
+          return;
+        }
+    
+        this.listenerUnsubscribe();
+        this.listenerUnsubscribe = undefined;
+    }
+
+    ngOnDestroy(){
+        if(this.isRecording){
+            this.stopRecord();
+        }
+        this.firestoreStopListening();
+        application.android.off(AndroidApplication.activityBackPressedEvent);
+        console.log("AudioRecorder - ngOnDestroy()");
     }
 }

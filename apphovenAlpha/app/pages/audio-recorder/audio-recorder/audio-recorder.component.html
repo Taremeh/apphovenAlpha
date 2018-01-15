@@ -28,7 +28,7 @@
     <!-- Piece Select TOP -->
     <StackLayout #pieceSelectContainer class="piece-select-container">
             <StackLayout>
-                <TextField #txField [text]="userRecordingTitle" hint="Short Recording-Title" (textChange)="txOnChange(txField.text)"></TextField>
+                <TextField id="userRecordingTitle" text="" hint="Short Recording-Title"></TextField>
                 <!-- <Label text="Set a concise title, to find this recording quickly again" class="text-center"></Label> -->
 
                 <SegmentedBar class="m-5" #sb [items]="sbBarPropsArray" (selectedIndexChange)="sbOnChange(sb.selectedIndex)"></SegmentedBar>

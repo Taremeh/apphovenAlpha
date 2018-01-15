@@ -8,10 +8,10 @@ export function alert(message: string) {
   });
 }
 
-export function alertExt(title: string, message: string, okButtonText: string) {
+export function alertExt(title: string, message: string, okButtonText?: string) {
   return dialogsModule.alert({
     title: title,
-    okButtonText: okButtonText,
+    okButtonText: okButtonText || "OK",
     message: message
   });
 }

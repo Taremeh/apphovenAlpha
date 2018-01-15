@@ -4,7 +4,10 @@ import { PageRoute } from "nativescript-angular/router";
 import { View } from "ui/core/view";
 import { Color } from "color";
 import { Page } from "ui/page";
-import firebase = require("nativescript-plugin-firebase");
+
+const firebase = require("nativescript-plugin-firebase/app");
+import { firestore } from "nativescript-plugin-firebase";
+
 import { BackendService, TimerPipe, PieceService } from "../../../shared";
 import { Observable as RxObservable } from 'rxjs/Observable';
 import dialogs = require("ui/dialogs");
@@ -74,6 +77,9 @@ export class PieceRecorderComponent implements OnInit, OnDestroy {
 
     public currentView: number = 0;
 
+    // Observable
+    private listenerUnsubscribe: () => void;
+
     constructor(private _page: Page, private _ngZone: NgZone, private _pieceService: PieceService, 
     private _routerExtensions: RouterExtensions, private _router: Router){
 
@@ -116,7 +122,7 @@ export class PieceRecorderComponent implements OnInit, OnDestroy {
             }
         });
 
-        this.loadPieceInformation();
+        // this.loadPieceInformation();
 
         // CHANGE STATUS-BAR COLOR
         // let window = application.android.foregroundActivity.getWindow();
@@ -136,58 +142,15 @@ export class PieceRecorderComponent implements OnInit, OnDestroy {
             console.log("BACK BUTTON EVENT TRIGGERED");
             this.backEvent(data);
         });
-
-        /*
-        Practice-Time Retriever (Future Update)
-
-        if(BackendService.practiceTimeBackup != 0){
-            console.log("BP-TIME: " + BackendService.practiceTimeBackup);
-            console.log("BP-TIMESTAMP: " + BackendService.practiceTimestampBackup);
-
-            if(BackendService.practiceTimestampBackup != 0){
-                let date = new Date()
-                let dateNow = date.getTime();
-                let dateBackup = BackendService.practiceTimestampBackup;
-
-                console.log("DATE NOW: " + dateNow);
-                console.log("DATE BACKUP: " + dateBackup)
-
-                let dateDifference = (dateNow - dateBackup);
-                if(dateDifference > 3600000){
-                    console.log(dateNow + " - " + BackendService.practiceTimestampBackup + " = " + dateDifference);
-                    alert("Want to save?");
-                } else if (dateDifference > 0) {
-                    console.log(dateNow + " - " + BackendService.practiceTimestampBackup + " = " + dateDifference);
-                    this.time = (BackendService.practiceTimeBackup + dateDifference)/1000;
-                    console.log("TIME mit Timestamp: " + this.time);
-                    this.recordingAutoStart = true;
-                } else {
-                    this.time = BackendService.practiceTimeBackup/1000;
-                    this.recordingAutoStart = true;
-                }
-            } else {
-                this.time = BackendService.practiceTimeBackup/1000;
-                console.log("TIME ohne Timestamp: " + this.time);
-            }
-        }*/
     }
-
-    /*
-    Practice-Time Retriever (Future Update)
-
-    ngAfterViewInit(){
-        if(this.recordingAutoStart){
-            this.toggleRecordingTime();
-        }
-    }
-    */
 
     toggleRecordingTime(){
         let sessionRatingContainer = <View>this.sessionRatingContainer.nativeElement;
         let pieceSelectionContainer = <View>this.pieceSelectionContainer.nativeElement;
 
        if(this.recordingTimeState){
-            this.loadPieceInformation();
+           this.firestoreListen();
+            // this.loadPieceInformation();
             pieceSelectionContainer.style.visibility = "visible";
             this.button1 = false;
             this.buttonContainer = true;
@@ -315,15 +278,6 @@ export class PieceRecorderComponent implements OnInit, OnDestroy {
         }
     }
 
-    ngOnDestroy() {
-        // Remove BackPressedEvent Listener
-        application.android.off(AndroidApplication.activityBackPressedEvent);
-        console.log("PieceRecorder - ngOnDestroy()");
-
-        // Stop running recorder
-        this.stop();
-    }
-
     onRatingStarTap(starPosition) {
         // RESET ALL ICONS TO UNSELECTED;
         for (let i = 0; i < this.ratingIcons.length; i++){
@@ -443,130 +397,138 @@ export class PieceRecorderComponent implements OnInit, OnDestroy {
         this.selectPieceInfo = "Use the slider to define how much you practice each piece";
         console.log(this.selectMultiplePiecesState);
     }
-    
-    loadPieceInformation(){
-        // CLEARING
-        this.selectionPieceArray = [];
-        this.selectionPieceIds = [];
 
-        firebase.query(
-            (result) => {
-                if (result) {
-                    console.log("Event type: " + result.type);
-                    console.log("Key: " + result.key);
-                    console.log("Value: " + JSON.stringify(result.value));
+    public firestoreListen(): void {
+        if (this.listenerUnsubscribe !== undefined) {
+          console.log("Already listening");
+          return;
+        }
+        
+        // Define Firestore Collection
+        let pieceCollection = firebase.firestore()
+            .collection("user")
+            .doc(BackendService.token)
+            .collection("piece");
 
-                    if(result.value){
-                        this.noPiecesFound = false;
-                        console.log("PIECE-ITEMS FOUND");
-                        var lenPieces = Object.keys(result.value).length;
-                        for (let i = 0; i < lenPieces; i++) {
-                            this.selectionPieceIds.push(Object.keys(result.value)[i]);
-                        }
+        // Define Firestore Query
+        let query = pieceCollection
+            .orderBy("dateAdded", "desc");
 
-                        for (let i = 0; i < this.selectionPieceIds.length; i++) {
-                            if(result.value[this.selectionPieceIds[i]].movementItem){
-                                console.log("MOVEMENT-ITEMS FOUND");
-
-                                // CLEARING
-                                this.selectionPieceMovements = [];
-
-                                let lenMovements = result.value[this.selectionPieceIds[i]].movementItem.length;
-                                for (let iMov = 0; iMov < lenMovements; iMov++) {
-                                    if(result.value[this.selectionPieceIds[i]].movementItem[iMov].state == 1){
-
-                                        this._ngZone.run(() => {
-                                            this.selectionPieceArray.push({
-                                                pieceId: this.selectionPieceIds[i],
-                                                movementId: result.value[this.selectionPieceIds[i]].movementItem[iMov].id,
-                                                pieceTitle: result.value[this.selectionPieceIds[i]].pieceTitle,
-                                                movementTitle: result.value[this.selectionPieceIds[i]].movementItem[iMov].title,
-                                                lastUsed: result.value[this.selectionPieceIds[i]].movementItem[iMov].lastUsed,
-                                                iconCode: String.fromCharCode(0xf11a), 
-                                                iconState: -1,
-                                                iconColor: "#afafaf",
-                                                durationSliderValue: 0,
-                                                state: false
-                                            });
-                                        })
-                                    }
-                                }
-                            } else {
-                                this._ngZone.run(() => {
-                                    this.selectionPieceArray.push({
-                                        pieceId: this.selectionPieceIds[i],
-                                        pieceTitle: result.value[this.selectionPieceIds[i]].pieceTitle,
-                                        lastUsed: result.value[this.selectionPieceIds[i]].lastUsed,
-                                        iconCode: String.fromCharCode(0xf11a), 
-                                        iconState: -1,
-                                        iconColor: "#afafaf",
-                                        durationSliderValue: 0,
-                                        state: false
-                                    });
-                                });
-                            }
-                        }
-
-                        this._ngZone.run(() => {
-                            // Sort array by lastUsed. Last Used at the top
-                            this.selectionPieceArray.sort(function(a, b) {
-                                return parseFloat(b.lastUsed) - parseFloat(a.lastUsed);
-                            });
-                        });
-
-                    } else {
-                        //result.value.movementItem.length = 0;
-                        this._ngZone.run(() => {
-                            this.noPiecesFound = true;
-                            console.log("NO PIECES FOUND");
-                        });
-                        // this._routerExtensions.navigate(["/home"], { queryParams: { "noPieces": true }, clearHistory: true });
-                    }
-
-                } else {
-                    this._ngZone.run(() => {
-                        this.noPiecesFound = true;
-                        console.log("NO PIECES FOUND");
-                    });
-                    // this._routerExtensions.navigate(["/home"], { queryParams: { "noPieces": true }, clearHistory: true });
-                }
-            },
-            "/user/" + BackendService.token + "/piece",
-            {
-                singleEvent: true,
-                orderBy: {
-                    type: firebase.QueryOrderByType.CHILD,
-                    value: 'since' // mandatory when type is 'child'
-                }
+        this.listenerUnsubscribe = query.onSnapshot((snapshot: firestore.QuerySnapshot) => {
+            if (snapshot) {
+                console.log("Handling Snapshot");
+                this.handleSnapshot(snapshot);
+            } else {
+                console.log("No Pieces Found!");
             }
-        );
+        });
     }
 
+    public handleSnapshot(snapshot){
+        this.selectionPieceArray = [];
+        // Check if Snapshot contains Pieces (snapshot.docsSnapshots: [])
+        if(snapshot.docSnapshots.length !== 0){
+            this.noPiecesFound = false;
+            console.log("PIECE-ITEMS FOUND");
+            snapshot.forEach(piece => {
+                console.log("The Result: " + JSON.stringify(piece) + "\n\n");
+                console.log("> PIECE SUCCESSFULLY RETRIEVED.");
+                console.log(">> Analysing Data \n");
+                console.log(">>> Piece ID: " + piece.id);
+                console.log(">>> Piece Value: " + JSON.stringify(piece.data()));
+                piece.data().movementItem ? console.log(">>> Movements: " + JSON.stringify(piece.data().movementItem.length) + "\n\n") : console.log(">>> Movements: 0\n\n");
+            
+                // Maintenance: Implement function to directly retrieve composerName
+                // let composerName;
+            
+                if(piece.data().movementItem){
+                    // Piece contains Movements
+                    console.log("MOVEMENT-ITEMS FOUND");
+
+                    // Count Movements of Pieced
+                    let movementAmount = piece.data().movementItem.length;
+
+                    // Add each movement (with practice state = 1) of piece to selectionPieceArray
+                    for (let iMov = 0; iMov < movementAmount; iMov++) {
+                        if(piece.data().movementItem[iMov].state == 1){
+                            this._ngZone.run(() => {
+                                this.selectionPieceArray.push({
+                                    pieceId: piece.id,
+                                    movementId: piece.data().movementItem[iMov].id,
+                                    pieceTitle: piece.data().pieceTitle,
+                                    movementTitle: piece.data().movementItem[iMov].title,
+                                    lastUsed: piece.data().movementItem[iMov].lastUsed,
+                                    iconCode: String.fromCharCode(0xf11a), 
+                                    iconState: -1,
+                                    iconColor: "#afafaf",
+                                    durationSliderValue: 0,
+                                    state: false
+                                });
+                            })
+                        }
+                    }
+                    
+                } else {
+                    // Piece does not contain movements
+                    // Add piece to selectionPieceArray
+                    this._ngZone.run(() => {
+                        this.selectionPieceArray.push({
+                            pieceId: piece.id,
+                            pieceTitle: piece.data().pieceTitle,
+                            lastUsed: piece.data().lastUsed,
+                            iconCode: String.fromCharCode(0xf11a), 
+                            iconState: -1,
+                            iconColor: "#afafaf",
+                            durationSliderValue: 0,
+                            state: false
+                        });
+                    });
+                }
+            });
+
+            this._ngZone.run(() => {
+                // Sort array by lastUsed. Last Used at the top
+                this.selectionPieceArray.sort(function(a, b) {
+                    return parseFloat(b.lastUsed) - parseFloat(a.lastUsed);
+                });
+            });
+
+        } else {
+            // No Pieces Found
+            this._ngZone.run(() => {
+                this.noPiecesFound = true;
+                console.log("NO PIECES FOUND");
+            });
+        }
+    }
+    
     saveSession(){
         if(this.time > 0) {
-
-            //this._pieceService.recordedPiece(1,1,1,1);
-
             let that = this;
-            firebase.setValue(
-                '/user/'+BackendService.token+"/practice-session/"+this.sessionStartedDate,
-                {
-                    'duration': this.time,
-                    'pieceMovementTitle': this.selectedPieceMovementTitle,
-                    'pieceId': this.selectedPieceId, // this.routerParamIds['pieceId'],
-                    'movementId': this.selectedMovementId, // this.routerParamIds['movementId'],
-                    'userProgressRating': this.sessionProgressRating,
-                    'userHappinessRating': this.sessionHappinessRating,
-                    'userNotes': this.userSessionNotes,
-                    'date': this.sessionStartedDate,
-                    'id': this.sessionStartedDate
-                }
-            ).then(
+
+            // Define Firestore Collection
+            const practiceSessionCollection = firebase.firestore()
+                .collection("user")
+                .doc(BackendService.token)
+                .collection("practice-session");
+            
+            // Save Practice Session
+            practiceSessionCollection.doc(String(this.sessionStartedDate)).set({
+                'duration': this.time,
+                'pieceMovementTitle': this.selectedPieceMovementTitle,
+                'pieceId': this.selectedPieceId, // this.routerParamIds['pieceId'],
+                'movementId': this.selectedMovementId, // this.routerParamIds['movementId'],
+                'userProgressRating': this.sessionProgressRating,
+                'userHappinessRating': this.sessionHappinessRating,
+                'userNotes': this.userSessionNotes,
+                'date': this.sessionStartedDate,
+                'id': this.sessionStartedDate
+            }).then(
                 function (result) {
                     // BackendService: Update lastPieceId & lastMovementId (DEL)
                     // BackendService.lastPieceId = Number(that.routerParamIds['pieceId']);
                     // BackendService.lastMovementId = Number(that.routerParamIds['movementId']);
-                    
+
                     // REDIRECTION 
                     if(BackendService.tutorialTour > 1){
                         // Tutorial Tour
@@ -593,9 +555,12 @@ export class PieceRecorderComponent implements OnInit, OnDestroy {
         }
         console.log("SLIDER TOTAL: " + sliderValueTotal);
         if(sliderValueTotal > 0){
+
+            // Counter needed to append to session id (date-id)
+            let iSavedSession = -1;
+
             for (let i = 0; i < this.selectionPieceArray.length; i++) {
                 if(this.selectionPieceArray[i].durationSliderValue > 0) {
-
                     let duration = Math.round(this.time / sliderValueTotal * this.selectionPieceArray[i].durationSliderValue);
                     let userHappiness = this.selectionPieceArray[i].iconState == -1 ? null : this.selectionPieceArray[i].iconState+1;
                     let pieceMovementTitle;
@@ -607,23 +572,30 @@ export class PieceRecorderComponent implements OnInit, OnDestroy {
                     }
 
                     if(duration != 0){
-                        firebase.setValue(
-                            '/user/'+BackendService.token+"/practice-session/"+this.sessionStartedDate+"-"+i,
-                            {
-                                'duration': duration,
-                                'pieceMovementTitle': pieceMovementTitle,
-                                'pieceId': this.selectionPieceArray[i].pieceId, // this.routerParamIds['pieceId'],
-                                'movementId': this.selectionPieceArray[i].movementId, // this.routerParamIds['movementId'],
-                                'userProgressRating': null,
-                                'userHappinessRating': userHappiness,
-                                'userNotes': null,
-                                'date': this.sessionStartedDate,
-                                'id': this.sessionStartedDate+"-"+i
-                            }
-                        ).then(
+                        // Practice-Session will definitely be stored, therefore +iSavedSession 
+                        ++iSavedSession;
+
+                        // Define Firestore Collection
+                        const practiceSessionCollection = firebase.firestore()
+                            .collection("user")
+                            .doc(BackendService.token)
+                            .collection("practice-session");
+                        
+                        // Save Practice Session
+                        practiceSessionCollection.doc(String(this.sessionStartedDate)+"-"+iSavedSession).set({
+                            'duration': duration,
+                            'pieceMovementTitle': pieceMovementTitle,
+                            'pieceId': this.selectionPieceArray[i].pieceId, // this.routerParamIds['pieceId'],
+                            'movementId': this.selectionPieceArray[i].movementId, // this.routerParamIds['movementId'],
+                            'userProgressRating': null,
+                            'userHappinessRating': userHappiness,
+                            'userNotes': null,
+                            'date': this.sessionStartedDate,
+                            'id': this.sessionStartedDate+"-"+iSavedSession
+                        }).then(
                             function (result) {
                                 // BackendService: Update lastPieceId & lastMovementId
-                                console.log("TEST: " + i);
+                                console.log("Session " + iSavedSession + " saved");
                             }
                         );
                     } else {
@@ -694,5 +666,27 @@ export class PieceRecorderComponent implements OnInit, OnDestroy {
 
     public showToast(message: string) {
         Toast.makeText(message).show();
+    }
+
+    public firestoreStopListening(): void {
+        if (this.listenerUnsubscribe === undefined) {
+          console.log("Please start listening first.");
+          return;
+        }
+    
+        this.listenerUnsubscribe();
+        this.listenerUnsubscribe = undefined;
+    }
+
+    ngOnDestroy() {
+        // Stop Firestore Listening
+        this.firestoreStopListening();
+
+        // Remove BackPressedEvent Listener
+        application.android.off(AndroidApplication.activityBackPressedEvent);
+        console.log("PieceRecorder - ngOnDestroy()");
+
+        // Stop running recorder
+        this.stop();
     }
 }

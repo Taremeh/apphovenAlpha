@@ -1,6 +1,12 @@
 import { Injectable, Inject } from "@angular/core";
 import { BackendService } from "./backend.service";
+
+// Deprecated Import
 import firebase = require("nativescript-plugin-firebase");
+
+// New Firebase Firestore Import
+const firebasef = require("nativescript-plugin-firebase/app");
+
 import { Observable } from "rxjs/Rx";
 
 @Injectable()
@@ -27,6 +33,7 @@ export class PieceService {
         // Needed for BackendService: lastMovementId
         let firstMovementAdded = false
         let movementId = -2;
+
 
         if(movementArray != null) {
             // MOVEMENTS EXIST
@@ -68,78 +75,57 @@ export class PieceService {
         }
 
         let that = this;
+
+        let pieceCollection = firebasef.firestore()
+            .collection("user")
+            .doc(BackendService.token)
+            .collection("piece");
+        console.log("BACKEND ID: " + BackendService.token);
+        return pieceCollection.doc(pieceId).set(piecePracticeArray);
+        /* 
+        Depracated Method Firebase
+        
         return firebase.setValue(
             '/user/'+BackendService.token+'/piece/'+pieceId,
             piecePracticeArray
-        );
+        );*/
     }
 
-    removePiece(pieceId: number, movementId: number) {
-        // if piece contains no movements, declare -1
-        return firebase.query(
-            (result) => {
-                if (result.value) {
-                    
-                    // Reset Practice Session Data Array:
-                    let deleteSessionArray = [];
-                    let sessionIdArray = [];
+    removePiece(pieceId) {
+        let pieceDocument = firebasef.firestore()
+            .collection("user")
+            .doc(BackendService.token)
+            .collection("piece")
+            .doc(String(pieceId));
 
-                    var lenSessions = Object.keys(result.value).length;
-                    console.log("RESULT LENGTH: " + lenSessions);
-
-                    // Get Keys of all Practice Sessions
-                    for (let i = 0; i < lenSessions; i++) {
-                        console.log("SESSION ID(s): "+ Object.keys(result.value)[i]);
-                        sessionIdArray.push(Object.keys(result.value)[i]);
-                    }
-
-                    // Find Practice Sessions, thats Piece will be deleted
-                    for (let i = 0; i < sessionIdArray.length; i++) {
-                        if(movementId != -1) {
-                            // Delete only the movement sessions
-                            if(result.value[sessionIdArray[i]].pieceId == pieceId &&
-                                result.value[sessionIdArray[i]].movementId == movementId){
-                                    deleteSessionArray.push(sessionIdArray[i]);
-                            }
-                        } else {
-                            // Delete whole piece sessions (all movements)
-                            if(result.value[sessionIdArray[i]].pieceId == pieceId){
-                                deleteSessionArray.push(sessionIdArray[i]);
-                            }
-                        }
-                    }
-
-                    
-
-                    // Remove Practice Sessions
-                    /* 
-                     * DISABLED!
-                     * 
-                    
-                    for (let i = 0; i < deleteSessionArray.length; i++) {
-                        firebase.remove("/user/" + BackendService.token + "/practice-session/" + deleteSessionArray[i]);
-                    } 
-                    
-                    */
-                }
-            },
-            "/user/" + BackendService.token + "/practice-session",
-            {
-                singleEvent: true,
-                orderBy: {
-                    type: firebase.QueryOrderByType.CHILD,
-                    value: 'since' // mandatory when type is 'child'
-                }
-            }
-        ).then(() => {
-            if(movementId == -1) {
-                firebase.remove("/user/" + BackendService.token + "/piece/" + pieceId);
-            }
-        }
-        );        
+        return pieceDocument.delete().then(() => {
+             console.log("Piece with ID ->" + pieceId + "<- has been deleted.");
+        });        
     }
 
-    removeSession(pieceId: number) {
-        return firebase.remove("/user/" + BackendService.token + "/practice-session/" + pieceId);
+    updateMovement(pieceId: number, movementPackage){
+        let pieceDocument = firebasef.firestore()
+        .collection("user")
+        .doc(BackendService.token)
+        .collection("piece")
+        .doc(String(pieceId));
+
+        pieceDocument.update({
+            movementItem: movementPackage
+        }).then(() => {
+            console.log("Movements of piece -> " + pieceId + " <- updated.");
+          });
+    }
+
+    removeSession(sessionId: number) {
+        let pieceDocument = firebasef.firestore()
+            .collection("user")
+            .doc(BackendService.token)
+            .collection("practice-session")
+            .doc(String(sessionId));
+
+        return pieceDocument.delete().then(() => {
+            console.log("Session with ID ->" + sessionId + "<- has been deleted.");
+        });       
     }
 }

@@ -10,6 +10,7 @@ import { RouterExtensions } from "nativescript-angular/router";
 import * as Toast from "nativescript-toast";
 import { connectionType, getConnectionType } from "connectivity";
 import dialogs = require("ui/dialogs");
+import { alertExt } from "../../../shared";
 
 
 @Component({
@@ -206,11 +207,16 @@ export class AddPieceComponent implements OnInit, OnDestroy {
         sbPiece.focus();
     }
 
+    /*
+     * Maintenance: Work needed showPieceItem
+     * (Currently using old Firebase Query + Unclarity in terms of movements )
+     */
+
     showPieceItem(indexNumber: number) {
         this.pieceMovementArray = [];
 
 
-        if(this.movementArray != null) {
+        if(this.movementArray[indexNumber]) {
             // IF MOVEMENTS EXIST
             firebase.query(
                 (result) => {
@@ -218,7 +224,7 @@ export class AddPieceComponent implements OnInit, OnDestroy {
                         console.log("Event type: " + result.type);
                         console.log("Key: " + result.key);
                         console.log("Value: " + JSON.stringify(result.value));
-                        if(this.movementArray[indexNumber]){
+                        if(this.movementArray[indexNumber] != null){
                             var len = this.movementArray[indexNumber].length;
                             if(result.value){
                                 for (let i = 0; i < len; i++) {
@@ -273,6 +279,19 @@ export class AddPieceComponent implements OnInit, OnDestroy {
         } else {
             // IF NO MOVEMENTS EXIST
             console.log("!!! !!! !!! NO MOVEMENTS FOUND !!! !!! !!!");
+
+            // Resetting movementArray
+            this.movementArray = null;
+
+            let searchContainer = <View>this.searchContainer.nativeElement;
+            let pieceContainer = <View>this.pieceContainer.nativeElement;
+            let scrollview = <View>this.scrlView.nativeElement;
+
+            this.currentView = 2;
+            
+            scrollview.style.borderBottomColor = new Color("#00ffed");
+            searchContainer.style.visibility = "collapse";
+            pieceContainer.style.visibility = "visible";
         }
     }
 
@@ -310,7 +329,7 @@ export class AddPieceComponent implements OnInit, OnDestroy {
             this.showToast("Select a movement");
             console.log("SELECT MOVEMENT! " + JSON.stringify(this.pieceMovementArray));
         } else {
-            this._pieceService.addPiece(this.pieceId, this.composerId, this.pieceData[this.pieceDataId], this.movementArray, this.pieceMovementArray)
+            this._pieceService.addPiece(this.pieceId, this.composerId, this.pieceData[this.pieceDataId], this.movementArray || null, this.pieceMovementArray)
             .then(
                 function () {
                     console.log("SUCCESS"); 
@@ -330,6 +349,8 @@ export class AddPieceComponent implements OnInit, OnDestroy {
                     // Navigate to Home
                 },
                 function (error) {
+                    // If Backend.token is not userID
+                    alertExt("Error: Permission Interference", "Something went wrong. You don't have sufficient permissions. Please Log-In again to reauthenticate.");
                     console.log("ERROR: " + error);
                 }
             );

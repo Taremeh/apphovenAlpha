@@ -1,7 +1,8 @@
-import { Component, OnInit, ViewChild, ElementRef, NgZone } from "@angular/core";
+import { Component, OnInit, OnDestroy, ViewChild, ElementRef, NgZone } from "@angular/core";
 import { View } from "ui/core/view";
 import { Color } from "color";
-import firebase = require("nativescript-plugin-firebase");
+import { firestore } from "nativescript-plugin-firebase";
+const firebase = require("nativescript-plugin-firebase/app");
 import { BackendService, PieceService } from "../../../shared";
 import { Observable as RxObservable } from 'rxjs/Observable';
 import { knownFolders, File } from 'file-system';
@@ -23,7 +24,7 @@ import { Router } from "@angular/router";
     styleUrls: ["pages/audio-recorder/audio-list/audio-list-common.css"]
 })
 
-export class AudioListComponent {
+export class AudioListComponent implements OnDestroy {
 
     private fbRecordingArray: Array<any>;
     private fbRecordingIdArray: Array<any>;
@@ -32,11 +33,14 @@ export class AudioListComponent {
     // Icons
     public iconSettings = String.fromCharCode(0xf1f8);
 
+    // Observable
+    private listenerUnsubscribe: () => void;
+
     constructor(private _router: Router, private _ngZone: NgZone){
         this.fbRecordingIdArray = [];
         this.fbRecordingArray = [];
 
-        this.loadPieceInformation();
+        this.firestoreListen();
     }
 
     onRecordingTap(args){
@@ -76,16 +80,103 @@ export class AudioListComponent {
                 }
 
                 // DELTE METAINFO FROM FIREBASE
-                firebase.remove("/user/" + BackendService.token + "/recording/" + filename).then( (r) => {
-                      that.loadPieceInformation();
-                });;
+                let recordingDocument = firebase.firestore()
+                    .collection("user")
+                    .doc(BackendService.token)
+                    .collection("recording")
+                    .doc(filename);
+
+                recordingDocument.delete();
+
+                /*firebase.remove("/user/" + BackendService.token + "/recording/" + filename).then( (r) => {
+                      //that.loadPieceInformation();
+                });;*/
             } else {
                 // ERROR
             }
         });
     }
 
-    loadPieceInformation() {
+    public firestoreListen(): void {
+        if (this.listenerUnsubscribe !== undefined) {
+          console.log("Already listening");
+          return;
+        }
+        
+        // Define Firestore Collection
+        let recordingCollection = firebase.firestore()
+            .collection("user")
+            .doc(BackendService.token)
+            .collection("recording");
+
+        this.listenerUnsubscribe = recordingCollection.onSnapshot((snapshot: firestore.QuerySnapshot) => {
+            if (snapshot) {
+                console.log("Handling Snapshot");
+                this.handleSnapshot(snapshot);
+            } else {
+                console.log("No Pieces Found!");
+            }
+        });
+    }
+
+    handleSnapshot(snapshot) {
+        // CLEARING
+        this.fbRecordingIdArray = [];
+        this.fbRecordingArray = [];
+    
+        if(snapshot.docSnapshots.length !== 0){
+            this.noRecordingsFound = false;
+            let recordingAmount = snapshot.docSnapshots.length;
+            snapshot.forEach(recording => {
+                this._ngZone.run(() => {
+
+                    let displayTitle;
+                    // for (let i = 0; i < recordingAmount; i++) {
+                        if(recording.data().recordingTitle != ""){
+                            console.log("RECORDING TITLE FOUND");
+                            displayTitle = recording.data().recordingTitle;
+                        } else if(recording.data().pieceTitle != null){
+                            console.log("pieceTitle found");
+                            displayTitle = recording.data().pieceTitle;
+                        } else {
+                            displayTitle = "Recording (no title)"; 
+                        }
+                        
+                        this.fbRecordingArray.push({
+                            duration: recording.data().duration,
+                            pieceTitle: recording.data().pieceTitle,
+                            fileName: recording.data().fileName,
+                            fileLocation: recording.data().fileLocation,
+                            recordingTitle: recording.data().recordingTitle,
+                            recordingType:recording.data().recordingType,
+                            audioMeterLine: recording.data().audioMeterLine,
+                            recordingDate: recording.data().recordingDate,
+                            displayTitle: displayTitle
+                            // lastUsed: result.value[this.pieceIdArray[i]].lastUsed,
+                            // iconCode: String.fromCharCode(0xf11a), 
+                            // iconState: -1,
+                            // iconColor: "#afafaf",
+                            // durationSliderValue: 0,
+                            // state: false
+                        });
+                    // }
+                    this._ngZone.run(() => {
+                        // Sort Recordings
+                        this.fbRecordingArray.sort(function(a, b) {
+                                return parseFloat(b.recordingDate) - parseFloat(a.recordingDate);
+                        });
+                    });
+                });
+            });
+        } else {
+            this._ngZone.run(() => {
+                this.noRecordingsFound = true;
+                console.log("NO RECORDINGS FOUND");
+            });
+        }
+    }
+
+    /*loadPieceInformation() {
         // CLEARING
         this.fbRecordingIdArray = [];
         this.fbRecordingArray = [];
@@ -164,5 +255,19 @@ export class AudioListComponent {
                 }
             }
         );
+    }*/
+
+    public firestoreStopListening(): void {
+        if (this.listenerUnsubscribe === undefined) {
+          console.log("Please start listening first.");
+          return;
+        }
+    
+        this.listenerUnsubscribe();
+        this.listenerUnsubscribe = undefined;
+    }
+
+    ngOnDestroy(){
+        this.firestoreStopListening();
     }
 }

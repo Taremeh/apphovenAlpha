@@ -19,8 +19,8 @@
                                         <Label class="piece-heading" text="{{ movement.title }}" row="0" col="0"></Label>
                                         <!-- <Label text="{{ showRemainingMovements ? (movement.state ? 'delete' : 'ADD TO LIST') : (movement.state ? 'CLICK TO RECORD' : 'ADD TO LIST') }}" row="1" col="0"></Label>-->
                                         
-                                        <StackLayout *ngIf="showRemainingMovements" row="0" col="0" class="icon-font">
-                                            <Label text="{{ movement.state ? iconRemove : iconAdd }}"></Label>
+                                        <StackLayout *ngIf="showRemainingMovements" row="0" col="0">
+                                            <Label class="icon-font" text="{{ movement.state ? iconRemove : iconAdd }}"></Label>
                                         </StackLayout>                           
                                     </GridLayout>
                                 </GridLayout>

@@ -2,10 +2,11 @@
 import { platformNativeScriptDynamic } from "nativescript-angular/platform";
 import { NativeScriptModule } from "nativescript-angular/nativescript.module";
 import { AppModule } from "./app.module";
-import firebase = require("nativescript-plugin-firebase");
+//import firebase = require("nativescript-plugin-firebase/app");
+const firebase = require("nativescript-plugin-firebase/app");
 import { BackendService } from "./shared";
 
-firebase.init({
+firebase.initializeApp({
   onMessageReceivedCallback: function(message) {
       console.log(`Title: ${message.title}`);
       console.log(`Body: ${message.body}`);
@@ -13,14 +14,6 @@ firebase.init({
       // console.log(`Value of 'foo': ${message.data.foo}`);
   },
    persist: true
-          }).then(
-              function (instance) {
-                firebase.subscribeToTopic("allDevices");
-                console.log("firebase.init done (123)");
-              },
-              function (error) {
-                console.log("firebase.init error: " + error);
-              }
-          );
+});
 
 platformNativeScriptDynamic().bootstrapModule(AppModule);

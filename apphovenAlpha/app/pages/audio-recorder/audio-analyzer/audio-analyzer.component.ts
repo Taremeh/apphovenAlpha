@@ -2,7 +2,8 @@ import { Component, OnInit, OnDestroy, ViewChild, ElementRef, NgZone } from "@an
 import { View } from "ui/core/view";
 import { Color } from "color";
 import { PageRoute } from "nativescript-angular/router";
-import firebase = require("nativescript-plugin-firebase");
+const firebase = require("nativescript-plugin-firebase/app")
+import { firestore } from "nativescript-plugin-firebase";
 import { BackendService, PieceService, MillisecondTransformerPipe } from "../../../shared";
 import { Observable as RxObservable } from 'rxjs/Observable';
 import * as fs from "file-system";
@@ -69,6 +70,9 @@ export class AudioAnalyzerComponent implements OnInit, OnDestroy {
     private lastSetTime;
     private seekTimeout;
 
+    // Observable
+    private listenerUnsubscribe: () => void;
+    private listenerUnsubscribeMarks: () => void;
 
     constructor(private _pageRoute: PageRoute, private _ngZone: NgZone, private _page: Page, private _msTransform: MillisecondTransformerPipe, private _routerExtensions: RouterExtensions){
         this.fbRecordingIdArray = [];
@@ -112,7 +116,8 @@ export class AudioAnalyzerComponent implements OnInit, OnDestroy {
         });
 
         // 1 => Init
-        this.loadPieceInformation(1);
+        // this.loadPieceInformation(1);
+        this.firestoreListen();
     }
 
     ngOnInit() {
@@ -128,15 +133,6 @@ export class AudioAnalyzerComponent implements OnInit, OnDestroy {
                 data.cancel = false;
             }
         });
-    }
-
-    ngOnDestroy(){
-        // STOP PLAYER IF IS AUDIO PLAYING
-        if(this.player.isAudioPlaying()){
-            this.player.dispose();
-        }
-        application.android.off(AndroidApplication.activityBackPressedEvent);
-        console.log("AudioAnalyzer - ngOnDestroy()");
     }
 
     public togglePlay() {
@@ -192,6 +188,14 @@ export class AudioAnalyzerComponent implements OnInit, OnDestroy {
         if(!this.noRecordingFound) {
             let that = this;
             let tappedTime = this.audioTime;
+            console.log("tapped time: " + tappedTime + "   /    this.audioTime: " + this.audioTime);
+            let recordingMarkCollection = firebase.firestore()
+                .collection("user")
+                .doc(BackendService.token)
+                .collection("recording")
+                .doc(this.routerParamId['recordingFileName'])
+                .collection("mark");
+
             dialogs.prompt({
                 title: "Add recording Mark",
                 message: 'e.g. "Too fast", "Louder!" ...',
@@ -200,15 +204,22 @@ export class AudioAnalyzerComponent implements OnInit, OnDestroy {
                 inputType: dialogs.inputType.text
             }).then(function (r) {
                 if(r.result) {
-                    firebase.push(
+                    recordingMarkCollection.add({
+                        time: tappedTime || 0,
+                        text: r.text
+                    }).then(() => {
+                        console.log("MARK ADDED");
+                    });
+                    
+                    /*firebase.push(
                         "/user/" + BackendService.token + "/recording/" + that.routerParamId['recordingFileName'] + "/mark",
                         {
                             time: tappedTime,
                             text: r.text
                         }
                     ).then((result) => {
-                        that.loadPieceInformation(0);
-                    });
+                        // that.loadPieceInformation(0);
+                    });*/
                 }
                 console.log("Dialog result: " + r.result + ", text: " + r.text);
             }, function(e) {
@@ -220,6 +231,15 @@ export class AudioAnalyzerComponent implements OnInit, OnDestroy {
     }
 
     onMarkTap(position: number) {
+        let recordingMarkDocument = firebase.firestore()
+            .collection("user")
+            .doc(BackendService.token)
+            .collection("recording")
+            .doc(this.routerParamId['recordingFileName'])
+            .collection("mark")
+            .doc(this.fbRecordingMarks[position].id);
+        
+
         dialogs.confirm({
             title: "Mark " + this._msTransform.transform(this.fbRecordingMarks[position].time),
             message: this.fbRecordingMarks[position].text,
@@ -231,9 +251,13 @@ export class AudioAnalyzerComponent implements OnInit, OnDestroy {
             if(result === undefined){
                 console.log("DELETE MARK");
 
-                firebase.remove("/user/" + BackendService.token + "/recording/" + this.routerParamId['recordingFileName'] + "/mark/" + this.fbRecordingMarks[position].id).then( (r) => {
-                    this.loadPieceInformation(0);
+                recordingMarkDocument.delete().then(() => {
+                    console.log("MARK DELETED");
                 });
+
+                /*firebase.remove("/user/" + BackendService.token + "/recording/" + this.routerParamId['recordingFileName'] + "/mark/" + this.fbRecordingMarks[position].id).then( (r) => {
+                    // this.loadPieceInformation(0);
+                });*/
             }
             console.log("Dialog result: " + result);
         });
@@ -484,6 +508,131 @@ export class AudioAnalyzerComponent implements OnInit, OnDestroy {
     }
 
 
+    public firestoreListen(): void {
+        if (this.listenerUnsubscribe !== undefined) {
+          console.log("Already listening");
+          return;
+        }
+        
+        // Define Firestore Recording Document
+        let recordingDocument = firebase.firestore()
+            .collection("user")
+            .doc(BackendService.token)
+            .collection("recording")
+            .doc(this.routerParamId['recordingFileName']);
+        
+        // Define Firestore Mark Collection
+        let recordingMarkCollection = recordingDocument.collection("mark")
+            .orderBy("time", "asc");
+
+        // Firestore Recording Listener
+        this.listenerUnsubscribe = recordingDocument.onSnapshot(doc => {
+            if (doc.exists) {
+                console.log("Handling Snapshot");
+                console.log(`Document data: ${JSON.stringify(doc.data())}`);
+                
+                this.handleSnapshot(doc);
+            } else {
+                console.log("No such document!");
+            }
+        });
+
+        // Firestore Mark Listener (of Recording)
+        this.listenerUnsubscribeMarks = recordingMarkCollection.onSnapshot((snapshot: firestore.QuerySnapshot) => {
+            if (snapshot.docSnapshots.length != 0) {
+                console.log("Handling Snapshot (Marks)");
+                this.handleSnapshotMarks(snapshot);
+            } else {
+                this._ngZone.run(() => {
+                    // CLEARING
+                    this.fbRecordingMarks = [];
+                    this.fbRecordingMarkIds = [];
+                    this.noMarks = true;
+                    console.log("No Marks Found!");
+                });
+            }
+        });
+
+
+    }
+
+    handleSnapshot(recording) {
+        // CLEARING
+        this.fbRecordingMarks = [];
+        this.fbRecordingMarkIds = [];
+
+        console.log("RECORDING ITEM FOUND");
+        this._ngZone.run(() => {
+            if(recording.data().recordingTitle != ""){
+                console.log("RECORDING TITLE FOUND");
+                this.displayTitle = recording.data().recordingTitle;
+            } else if(recording.data().pieceTitle != ""){
+                this.displayTitle = recording.data().pieceTitle;
+            } else {
+                this.displayTitle = "Recording (no title)"; 
+            }
+
+            // RETRIEVING ACTUAL AUDIO FILE LENGTH
+            // this.duration = result.value.duration;
+            this.pieceTitle = recording.data().pieceTitle != "" ? recording.data().pieceTitle : false;
+            this.fileName = recording.data().fileName;
+            this.fileLocation = recording.data().fileLocation;
+            this.recordingTitle = recording.data().recordingTitle != "" ? recording.data().recordingTitle : false;
+            this.recordingType = recording.data().recordingType;
+            this.recordingDate = recording.data().recordingDate;
+            
+            for (let i = 0; i < recording.data().audioMeterLine.length; i++) {
+                // Define audioMeterColumns
+                if(i != 0){ this.audioMeterColumns += ","; }
+                this.audioMeterColumns += "*";
+
+                // Define audioMeterMaxValue
+                if(recording.data().audioMeterLine[i] > this.audioMeterMaxValue) {
+                    this.audioMeterMaxValue = recording.data().audioMeterLine[i];
+                }
+                
+                this.audioMeterLine.push({
+                    value: recording.data().audioMeterLine[i],
+                    color: "#f7f7f7",
+                    position: i
+                });
+            }
+        });
+    }
+
+    handleSnapshotMarks(recordingMarks) {
+
+        // CLEARING
+        this.fbRecordingMarks = [];
+        this.fbRecordingMarkIds = [];
+        console.log("MARKS: " + JSON.stringify(recordingMarks));
+
+        if(recordingMarks.docSnapshots.length !== 0){
+            console.log("MARK-ITEMS FOUND");
+            recordingMarks.forEach(mark => {
+                this.fbRecordingMarks.push({
+                    time: mark.data().time,
+                    text: mark.data().text,
+                    id: mark.id,
+                    class: "mark-label"
+                });
+            });
+
+            this._ngZone.run(() => {
+                // Marks Found
+                this.noMarks = false;
+                // Define position
+                for (let i = 0; i < this.fbRecordingMarks.length; i++) {
+                    this.fbRecordingMarks[i].position = i;
+                }
+            });
+        } else {
+            this._ngZone.run(() => {
+                // No Marks Found
+                this.noMarks = true;
+            });
+        }
+    }
 
 
 
@@ -491,7 +640,7 @@ export class AudioAnalyzerComponent implements OnInit, OnDestroy {
      * FIREBASE LOADING
      */
 
-    loadPieceInformation(type: number) {
+    /*loadPieceInformation(type: number) {
         // CLEARING
         this.fbRecordingMarks = [];
         this.fbRecordingMarkIds = [];
@@ -604,6 +753,31 @@ export class AudioAnalyzerComponent implements OnInit, OnDestroy {
                 }
             }
         );
+    }*/
+
+    public firestoreStopListening(): void {
+        if (this.listenerUnsubscribe === undefined) {
+          console.log("Please start listening first.");
+          return;
+        }
+    
+        this.listenerUnsubscribeMarks();
+        this.listenerUnsubscribeMarks = undefined;
+
+        this.listenerUnsubscribe();        
+        this.listenerUnsubscribe = undefined;
+    }
+
+    ngOnDestroy(){
+        // STOP PLAYER IF IS AUDIO PLAYING
+        if(this.player.isAudioPlaying()){
+            this.player.dispose();
+        }
+
+        this.firestoreStopListening();
+
+        application.android.off(AndroidApplication.activityBackPressedEvent);
+        console.log("AudioAnalyzer - ngOnDestroy()");
     }
 
 }
