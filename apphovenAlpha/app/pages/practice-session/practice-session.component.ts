@@ -283,6 +283,7 @@ export class PracticeSessionComponent implements OnInit, OnDestroy {
                     this.leg1 = 0;
                     this.leg2 = 0;
                     this.legtop = 0;
+                    this.week = null;
                     this.graphValue = false;
                 }
             }
@@ -292,6 +293,7 @@ export class PracticeSessionComponent implements OnInit, OnDestroy {
                 this.leg1 = 0;
                 this.leg2 = 0;
                 this.legtop = 0;
+                this.week = null;
                 this.sessionArray = null;
             });
             console.log("No Practice-Sessions found");
@@ -420,7 +422,7 @@ export class PracticeSessionComponent implements OnInit, OnDestroy {
                          * 
                          * Under Review...
                          */
-                        
+
                         /*that.prepareWeekArray(true);
                         that.firestoreStopListening();
                         that.firestoreListen();*/

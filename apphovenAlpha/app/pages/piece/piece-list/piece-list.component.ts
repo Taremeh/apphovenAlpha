@@ -8,7 +8,7 @@ import { firestore } from "nativescript-plugin-firebase";
 
 import { PageRoute } from "nativescript-angular/router";
 import { Observable as RxObservable } from 'rxjs/Observable';
-import { HttpService, BackendService, PieceService, Piece } from "../../../shared";
+import { HttpService, BackendService, PieceService, Piece, ComposerNamePipe } from "../../../shared";
 import { Page } from "ui/page";
 import * as application from "application";
 import { AndroidApplication, AndroidActivityBackPressedEventData } from "application";
@@ -33,6 +33,7 @@ export class PieceListComponent implements OnInit, OnDestroy {
 
     // Icons
     public iconSettings = String.fromCharCode(0xf1f8);
+    public iconAdd = String.fromCharCode(0xf067);
 
     // Nativescript doesn't allow an easy way to render an object, 
     // which is created while loading the values from firebase. Therefore: Each value gets an own var
@@ -42,6 +43,12 @@ export class PieceListComponent implements OnInit, OnDestroy {
 
     // UI
     private noPiecesFound: boolean;
+    public pieceComposer: string;
+    /* public pieceBoxBgImages = [
+        {"1708": "https://firebasestorage.googleapis.com/v0/b/apphoven.appspot.com/o/piece-box-graphics%2Fbg-1.png?alt=media&token=9f33614e-1dc1-4aa0-9226-5addba53f2eb"},
+        {"3864": "https://firebasestorage.googleapis.com/v0/b/apphoven.appspot.com/o/piece-box-graphics%2Fbg-2.png?alt=media&token=a880dec0-830c-45ba-9757-b05bb432b071"},
+        {"288": "https://firebasestorage.googleapis.com/v0/b/apphoven.appspot.com/o/piece-box-graphics%2Fbg-3.png?alt=media&token=db2ccb32-db4d-4fad-b3cb-90dc2dcb33b6"}
+    ]; */
 
     // Observables
     private listenerUnsubscribe: () => void;
@@ -65,7 +72,6 @@ export class PieceListComponent implements OnInit, OnDestroy {
 
     ngOnInit() {
         this.firestoreListen();
-
         // Hide Action-Bar
         //this._page.actionBarHidden = true;
 
@@ -93,7 +99,7 @@ export class PieceListComponent implements OnInit, OnDestroy {
 
         // Define Firestore Query
         let query = pieceCollection
-            .orderBy("dateAdded", "desc");
+            .orderBy("dateLastUsed", "desc");
 
         this.listenerUnsubscribe = query.onSnapshot((snapshot: firestore.QuerySnapshot) => {
             if (snapshot) {
@@ -107,6 +113,24 @@ export class PieceListComponent implements OnInit, OnDestroy {
         
     public handleSnapshot(snapshot){
         this.pieceArray = [];
+
+        let composers = ["Haydn","Mozart","Beethoven","Mozart","Schubert","Beethoven","Schubert","Scarlatti","Haydn","Scarlatti"];
+        let randomComposerId = Math.floor((Math.random() * 9) + 0);
+        let randomComposer = composers[randomComposerId];
+
+        // Add New Piece Option as Piece-Box-Item
+        this.pieceArray.push({
+            id: -1,
+            title: "Add new Piece",
+            composerId: null,
+            composerName: "Maybe " + randomComposer + "?",
+            workNumber: null,
+            dateAdded: null,
+            dateLastUsed: 1,
+            movements: null,
+            pos: -1
+        });
+
         // Check if Snapshot contains Pieces (snapshot.docsSnapshots: [])
         if(snapshot.docSnapshots.length !== 0){
             snapshot.forEach(piece => {
@@ -119,7 +143,6 @@ export class PieceListComponent implements OnInit, OnDestroy {
             
                 // Maintenance: Implement function to directly retrieve composerName
                 let composerName;
-            
                 if(piece.data().movementItem){
                     // Piece contains Movements
                     console.log("MOVEMENT-ITEMS FOUND");
@@ -135,31 +158,64 @@ export class PieceListComponent implements OnInit, OnDestroy {
                     }
             
                     // Join pieceMovementArray to String
-                    let pieceMovementArrayString = this.pieceMovementArray.join(", ");
+                    let pieceMovementArrayString = "\n" + this.pieceMovementArray.join("\n");
                     
-                    // Push Piece (with Movements)
-                    this._ngZone.run(() => {
-                        this.pieceArray.push({
-                            id: Number(piece.id),
-                            title: piece.data().pieceTitle,
-                            composerName: composerName,
-                            dateAdded: piece.data().dateAdded,
-                            movements: pieceMovementArrayString,
+
+                    /* 
+                     * MAINTENANCE:
+                     * Is it possible to exclude the http.get.composer step and therefore
+                     * minimize loading time? Already tried to implement it as a
+                     * Pipe, however, did not work out. Maybe need to construct a complicated
+                     * Observable complex to make it work... :/
+                     */
+
+                    // Get Composer Name
+                    this._httpService.getComposerName(piece.data().composerId)
+                        .subscribe((res) => {
+                            composerName = res[0].name;
+
+                            // Push Piece (with Movements)
+                            this._ngZone.run(() => {
+                                this.pieceArray.push({
+                                    id: Number(piece.id),
+                                    title: piece.data().pieceTitle,
+                                    composerName: composerName,
+                                    composerId: piece.data().composerId,
+                                    workNumber: piece.data().pieceWorkNumber,
+                                    dateAdded: piece.data().dateAdded,
+                                    dateLastUsed: piece.data().dateLastUsed,
+                                    movements: pieceMovementArrayString,
+                                });
+                            });
+                            this.sortPieceArray();
                         });
-                    });
+
+                    
                     
                 } else {
-                    // Push Piece (without Movements)
-                    this._ngZone.run(() => {
-                        this.pieceArray.push({
-                            id: Number(piece.id),
-                            title: piece.data().pieceTitle,
-                            composerName: composerName,
-                            dateAdded: piece.data().dateAdded,
-                            movements: null
+                    // Get Composer Name
+                    this._httpService.getComposerName(piece.data().composerId)
+                    .subscribe((res) => {
+                        composerName = res[0].name;
+
+                        // Push Piece (without Movements)
+                        this._ngZone.run(() => {
+                            this.pieceArray.push({
+                                id: Number(piece.id),
+                                title: piece.data().pieceTitle,
+                                composerId: piece.data().composerId,
+                                composerName: composerName,
+                                workNumber: piece.data().pieceWorkNumber,
+                                dateAdded: piece.data().dateAdded,
+                                dateLastUsed: piece.data().dateLastUsed,
+                                movements: null,
+                            });
+                            
                         });
+                        // INSIST ON ORDER: PIECE RECENTLY USED > OLD PIECE > ADD NEW PIECE
+                        this.sortPieceArray();
+
                     });
-                
                 }
             });
         } else {
@@ -168,7 +224,16 @@ export class PieceListComponent implements OnInit, OnDestroy {
                 this.noPiecesFound = true;
                 console.log("NO PIECES FOUND");
             });
-        }
+        }        
+    }
+
+    sortPieceArray() {
+        this._ngZone.run(() => {
+            // Sort array by lastUsed. Last Used at the top
+            this.pieceArray.sort(function(a, b) {
+                return parseFloat(String(b.dateLastUsed)) - parseFloat(String(a.dateLastUsed));
+            });
+        });
     }
 
     public firestoreStopListening(): void {
@@ -181,9 +246,12 @@ export class PieceListComponent implements OnInit, OnDestroy {
         this.listenerUnsubscribe = undefined;
     }
 
-    onPieceTap(args){
-        if(this.pieceArray[args.index].movements) {
-            let pieceId = this.pieceArray[args.index].id;
+    onPieceTap(piece){
+        if(piece.id == -1){
+            // Tapped "Add a new piece"
+            this._router.navigate(['/addpiece']);
+        } else if(piece.movements) {
+            let pieceId = piece.id;
             console.log("PIECE ID TAPPED: "+pieceId);
             this._router.navigate(['/piece-db/'+pieceId+"/0"]);
         } else {
@@ -213,7 +281,27 @@ export class PieceListComponent implements OnInit, OnDestroy {
             }
         });
     }
-    
+
+    /*
+     * MAINTENANCE:
+     * Random pieceBoxBgImages in work
+     * (Future update)
+     */
+    public pieceBoxImageLoaded(pieceId) {
+        //console.log("BG-IMAGE LOADED " + pieceId);
+    }
+    public pieceBoxBgImage() {
+        let pieceBoxBgImages = [
+            "https://firebasestorage.googleapis.com/v0/b/apphoven.appspot.com/o/piece-box-graphics%2Fbg-1.png?alt=media&token=9f33614e-1dc1-4aa0-9226-5addba53f2eb",
+            "https://firebasestorage.googleapis.com/v0/b/apphoven.appspot.com/o/piece-box-graphics%2Fbg-2.png?alt=media&token=a880dec0-830c-45ba-9757-b05bb432b071",
+            "https://firebasestorage.googleapis.com/v0/b/apphoven.appspot.com/o/piece-box-graphics%2Fbg-3.png?alt=media&token=db2ccb32-db4d-4fad-b3cb-90dc2dcb33b6"
+        ];
+        let randomImage = Math.floor((Math.random() * 2) + 0);
+        console.log("RANDOM NUbeMER: " + randomImage)
+        console.log("string: " + pieceBoxBgImages[randomImage]);
+        return String(pieceBoxBgImages[randomImage]);
+    }
+
     public showToast(message: string) {
         Toast.makeText(message).show();
     }

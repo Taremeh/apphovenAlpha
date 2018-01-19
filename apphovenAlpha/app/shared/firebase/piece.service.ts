@@ -104,6 +104,7 @@ export class PieceService {
     }
 
     updateMovement(pieceId: number, movementPackage){
+        let dateToday = new Date().getTime();
         let pieceDocument = firebasef.firestore()
         .collection("user")
         .doc(BackendService.token)
@@ -111,6 +112,7 @@ export class PieceService {
         .doc(String(pieceId));
 
         pieceDocument.update({
+            dateLastUsed: dateToday,
             movementItem: movementPackage
         }).then(() => {
             console.log("Movements of piece -> " + pieceId + " <- updated.");

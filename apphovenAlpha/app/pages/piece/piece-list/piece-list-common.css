@@ -29,3 +29,47 @@
 .icon-container {
     padding: 0 10 10 10;
 }
+
+/*
+ * Containers
+ */
+ .piece-box {
+    opacity: 0;
+    height: 250;
+    width: 200;
+    margin: 10;
+    border-radius: 10;
+    animation-name: fadeInImage;
+    animation-duration: 2s;
+    animation-fill-mode: forwards;
+ }
+
+ .piece-add-box {
+     background-color: #6B6B6B;
+ }
+
+.piece-text-container {
+    color: white;
+    padding: 20;    
+   
+}
+
+.bg-image {
+    opacity: 1;
+    border-radius: 10;
+    height: 250;
+    width: 200;
+    /*animation-name: fadeInImage;
+    animation-duration: 4s;
+    animation-fill-mode: forwards;*/
+}
+
+
+/*
+ * Keyframes
+ */
+
+@keyframes fadeInImage {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}

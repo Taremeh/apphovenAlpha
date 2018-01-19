@@ -142,3 +142,29 @@ Label {
 .list-group-item-heading {
   font-size: 18;
 }
+
+
+/*
+ * Fonts
+ */
+.title-thin {
+  font-family: 'Lato-Hairline';
+}
+
+.title-italic {
+  font-family: 'Lato-Italic';
+}
+
+.title-regular {
+  font-size: 18;
+  font-family: 'Lato-Regular';
+}
+
+.title-bold {
+  font-size: 18;
+  font-family: 'Lato-Bold';
+}
+
+.subtitle {
+  font-size: 12;
+}

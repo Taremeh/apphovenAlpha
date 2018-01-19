@@ -7,6 +7,6 @@ export class ComposerNamePipe implements PipeTransform {
 
     }
     transform(composerId: number): any {
-        return this.httpService.getComposerName(composerId);
+        return "t: " + JSON.stringify(this.httpService.getComposerName(composerId));
     }
 }

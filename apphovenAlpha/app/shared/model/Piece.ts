@@ -1,10 +1,13 @@
 export interface Piece {
     id: number;
     title: string;
-    composerName: string;
+    composerId: any;
+    workNumber: string;
     movements: string;
-    // composerId: string;
+    composerName: string;
     dateAdded: number;
+    dateLastUsed: number;
+    pos?: number;
     // dateLastUsed: number;
     // movementItem: Array<Object>;
     // movementItemAmount: number;

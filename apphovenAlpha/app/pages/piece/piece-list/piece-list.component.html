@@ -1,27 +1,34 @@
 <ActionBar title="Apphoven" class="ah-action-bar"></ActionBar>
-<StackLayout class="ah-main-container">
+<StackLayout>
+<StackLayout *ngIf="noPiecesFound" class="ah-main-container">
     <StackLayout class="piece-container">
             <StackLayout class="movement-container">
                 <!-- <Label class="piece-text" text="Your current pieces:"></Label> -->
                 <!-- <StackLayout class="movement-list-current">-->
                 <StackLayout>
-                    <GridLayout *ngIf="noPiecesFound" rows="*, auto" class="p-20">
+                    <GridLayout rows="*, auto" class="p-20">
                         <Image row="0" src="res://empty_shelf_red" stretch="aspectFill"></Image>
                         <Label row="1" text="No pieces found" class="text-center p-5 m-10"></Label>
                     </GridLayout>
-                    <ListView class="list-group" [items]="pieceArray" (itemTap)="onPieceTap($event)">
-                        <template let-piece="item">
-                            <StackLayout class="list-group-item"> 
-                                <GridLayout rows="auto, auto, auto"columns="*, auto">
-                                    <Label row="0" col="0" class="list-group-item-heading" [text]="piece.title"></Label>
-                                    <Label row="1" col="0" class="list-group-item-text" textWrap="true" [text]="piece.movements" visibility="{{piece.movements ? 'visible' : 'collapsed' }}"></Label>
-                                    <!-- <Label row="2" col="0" class="list-group-item-text" textWrap="true" fontStyle="italic" fontWeight="bold" paddingTop="5" [text]="piece.composerName"></Label>-->
-                                    <Label row="0" col="1" class="icon-font icon-container" [text]="iconSettings" (tap)="showPieceOptions(piece.id)"></Label>                            
-                                </GridLayout>
-                            </StackLayout>
-                        </template>
-                    </ListView>
                 </StackLayout>
             </StackLayout>
     </StackLayout>
+</StackLayout>
+<StackLayout class="ah-main-container">
+        <Label class="title-regular" text="YOUR PRACTICE-LIST"></Label>
+</StackLayout>
+<ScrollView orientation="horizontal">
+    <StackLayout orientation="horizontal">
+        <GridLayout columns="*" rows="*" *ngFor="let piece of pieceArray" class="piece-box {{ (piece.id==-1) ? 'piece-add-box' : 'ah-c-primary' }}">
+            <Image col="0" row="0" (loaded)="pieceBoxImageLoaded(1)" class="bg-image" src="{{ (piece.id==-1) ? 'res://bg_add_piece' : 'res://bg_1' }}"></Image>                
+            <GridLayout col="0" row="0" columns="*" rows="auto,*,auto" height="250" width="200" class="piece-text-container" (longPress)="showPieceOptions(piece.id)" (tap)="onPieceTap(piece)">
+                    <Label col="0" row="0" class="title-bold" textWrap="true" text="{{ piece.title }}"></Label>
+                    <Label col="0" row="1" class="title-italic subtitle" textWrap="true" [text]="piece.movements" visibility="{{piece.movements ? 'visible' : 'collapsed' }}"></Label> 
+                    <Label col="0" row="2" textWrap="true" text="{{ piece.composerName }}"></Label>
+            </GridLayout>
+        </GridLayout>
+    <!--<Label *ngIf="noMarks" text="Tap on the pin to add a marker"></Label>-->
+    </StackLayout>
+</ScrollView>    
+
 </StackLayout>
