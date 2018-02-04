@@ -14,20 +14,27 @@
       class="initial-logo"></Image>
     <Label
       text="APPHOVEN"
-      class="initial-label"></Label>
+      class="initial-label title-regular"></Label>
     <StackLayout
       (tap)="showMainContent()"
-      class="initial-button">
+      class="initial-button title-thin">
       <Label
-        text="Login"
+        text="LOGIN"
         class="initial-button-label"></Label>
     </StackLayout>
+    <StackLayout
+    (tap)="loginGoogle()"
+    class="initial-button title-thin">
+    <Label
+      text="GOOGLE LOGIN"
+      class="initial-button-label"></Label>
+  </StackLayout>
   </StackLayout>
 
   <StackLayout #mainContainer
     class="main-container">
     <Label
-      class="main-label"
+      class="main-label title-regular"
       text="APPHOVEN"
       [color]="isLoggingIn? 'black' : 'white'"></Label>
 
@@ -76,7 +83,7 @@
       (tap)="toggleDisplay()"
       translateY="50">
       <Label verticalAlign="center";
-        [text]="isLoggingIn ? 'Sign up here' : 'Back to login'" style="width:150; text-align: center"></Label>
+        [text]="isLoggingIn ? 'Sign up here' : 'Back to login'" style="width:150; text-align: center" class="title-regular"></Label>
     </StackLayout>
   </StackLayout>
 

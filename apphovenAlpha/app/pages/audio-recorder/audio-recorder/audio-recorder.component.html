@@ -1,59 +1,54 @@
-<ActionBar class="ah-action-bar">
-    <GridLayout columns="*">
-        <Label col="0" text="APPHOVEN" style="font-size: 20; vertical-align: center;"></Label>
+<StackLayout #ahMainContainer class="ah-main-container audiometer-container secondary-color" marginTop="0">
+    
+    <!-- Audiometer Component -->
+    <GridLayout #audioMeterComponent horizontalAlignment="center" rows="*,*,*,*,*,*,*,*,*,*,*,*,3*" columns="*" marginTop="0">
+        <GridLayout verticalAlignement="center" row="0" col="0" rows="auto" columns="*,auto,auto">
+            <StackLayout row="0" col="0"></StackLayout>
+            <Label row="0" col="1" text="{{ isRecording ? 'ON  ' : 'OFF ' }}" class="title-regular" style="font-size: 13"></Label>
+            <Label row="0" col="2" text="{{ isRecording ? isRecordingIcon : isNotRecordingIcon }}" class="icon-font"></Label>
+        </GridLayout>
+        <StackLayout row="1" col="0" backgroundColor="{{ signalColor[5] ? '#FF0000' : '#8B3333' }}" class="audiometer-signal {{ signalColor[5] ? 'signal-start-glowing' : ''  }}"></StackLayout>
+        <StackLayout row="2" col="0" class="audiometer-divider"></StackLayout>
+        <StackLayout row="3" col="0" backgroundColor="{{ signalColor[4] ? '#FF6161' : '#8B3333'  }}" class="audiometer-signal {{ signalColor[4] ? 'signal-start-glowing' : ''  }}"></StackLayout>
+        <StackLayout row="4" col="0" class="audiometer-divider"></StackLayout>
+        <StackLayout row="5" col="0" backgroundColor="{{ signalColor[3] ? '#EEF12C' : '#8B3333'  }}" class="audiometer-signal {{ signalColor[3] ? 'signal-start-glowing' : ''  }}"></StackLayout>
+        <StackLayout row="6" col="0" class="audiometer-divider"></StackLayout>
+        <StackLayout row="7" col="0" backgroundColor="{{ signalColor[2] ? '#4DC749' : '#8B3333'  }}" class="audiometer-signal {{ signalColor[2] ? 'signal-start-glowing' : ''  }}"></StackLayout>
+        <StackLayout row="8" col="0" class="audiometer-divider"></StackLayout>
+        <StackLayout row="9" col="0" backgroundColor="{{ signalColor[1] ? '#4DC749' : '#8B3333'  }}" class="audiometer-signal {{ signalColor[1] ? 'signal-start-glowing' : ''  }}"></StackLayout>
+        <StackLayout row="10" col="0" class="audiometer-divider"></StackLayout>
+        <StackLayout row="11" col="0" backgroundColor="{{ signalColor[0] ? '#4DC749' : '#8B3333'  }}" class="audiometer-signal {{ signalColor[0] ? 'signal-start-glowing' : ''  }}"></StackLayout>
+        <GridLayout row="12" rows="*,auto">
+            <StackLayout row="0"></StackLayout>
+            <Button row="1" #recordButton [text]="recordButtonText" (tap)="recordToggle()" margin="20"></Button>
+        </GridLayout>    
     </GridLayout>
-</ActionBar>
-<StackLayout #ahMainContainer class="ah-main-container">
-    <GridLayout  #meterLineContainer rows="*, auto">
-        <!-- MeterLine -->
-        <StackLayout (tap)="meterLineTap()" row="0">
-            <ListView #meterLineListView [items]="meterLine" separatorColor="transparent" isUserInteractionEnabled="false" class="meterLineListView">
-                <template let-meter="item">
-                    <!--<Label text="{{ meter.meterValue }}"></Label>-->
-                    <StackLayout orientation="vertical" width="100%">
-                        <!-- <Label text="{{ meter.meterValue }}" style="background-color: black"></Label> -->
-                        <Label text="" horizontalAlignment="center" width="{{ meter.meterValue / 32800 * 100 }}%" height="20" class="amplitude"></Label>
-                    </StackLayout>
-                </template>
-            </ListView>
-        </StackLayout>
 
-        <!-- Dynamic Record / Save Button -->
-        <StackLayout class="recordButtonContainer" row="1">
-                <Button #recordButton [text]="recordButtonText" (tap)="recordToggle()"></Button>
-                <!-- <Button (tap)="practiceNow()" dock="bottom" [text]="actionButtonText" style="background-color: white; margin: -5;"></Button> -->
-        </StackLayout>
-    </GridLayout>
 
-    <!-- Piece Select TOP -->
-    <StackLayout #pieceSelectContainer class="piece-select-container">
+    <!-- Recording Information Input TOP -->
+    <StackLayout #pieceSelectContainer class="recording-select-container">
             <StackLayout>
-                <TextField id="userRecordingTitle" text="" hint="Short Recording-Title"></TextField>
+                <TextField id="userRecordingTitle" text="" hint="Short Recording Title" style.placeholderColor="#D1D1D1" style="font-family:'OpenSans-Regular'; font-size:19"></TextField>
                 <!-- <Label text="Set a concise title, to find this recording quickly again" class="text-center"></Label> -->
 
-                <SegmentedBar class="m-5" #sb [items]="sbBarPropsArray" (selectedIndexChange)="sbOnChange(sb.selectedIndex)"></SegmentedBar>
-                <StackLayout visibility="{{ sbVisibility1 ? 'visible' : 'collapsed' }}">
-                    <Label text="Just a snippet recording of the piece" class="m-15 h3 p-5 text-center ah-text-secondary small-top-correction"></Label>
-                    <Label text="(Recording-Type)" class="m-15 h3 p-5 text-center ah-text-secondary"></Label>
-                </StackLayout>
-                <StackLayout visibility="{{ sbVisibility2 ? 'visible' : 'collapsed' }}">
-                    <Label text="Full, concert-like recording of the piece" class="m-15 h3 p-5 text-center ah-text-secondary small-top-correction"></Label>
-                    <Label text="(Recording-Type)" class="m-15 h3 p-5 text-center ah-text-secondary"></Label>
-                </StackLayout>
+                <GridLayout rows="auto" columns="auto, auto" marginTop="10">
+                    <Label col="0" text="PRACTICE" class="tag-item-light title-regular secondary-color-light {{ tag[0] ? 'tag-activated' : '' }}" (tap)="tapTag('practice')" (longPress)="showToast('Just a snippet recording of the piece')"></Label>
+                    <Label col="1" text="CONCERT" class="tag-item-light title-regular secondary-color-light {{ tag[1] ? 'tag-activated' : '' }}" (tap)="tapTag('concert')" (longPress)="showToast('Full, concert-like recording of the piece')"></Label>
+                </GridLayout>
             </StackLayout>
     </StackLayout>
 
 </StackLayout>
 
-<!-- Piece Select BOTTOM (DOCK) -->
+<!-- Recording Select BOTTOM (DOCK) -->
 <DockLayout>
-    <StackLayout dock="bottom" height="400" #pieceSelectContainerBottom class="piece-select-container" style="vertical-align: bottom;">
+    <StackLayout dock="bottom" height="400" #pieceSelectContainerBottom class="recording-select-container" style="vertical-align: bottom;">
         <ListPicker *ngIf="showPicker" #picker class="piece-list-picker"
                 [items]="pieceNameArray" [selectedIndex]="selectedIndex" 
-                (selectedIndexChange)="selectedIndexChanged(picker)">
+                (selectedIndexChange)="selectedIndexChanged(picker)" style="color: white">
         </ListPicker>
 
-        <Label *ngIf="showPickerReplacement" text="No pieces to select" class="m-15 h3 p-5 text-center ah-text-secondary"></Label>
+        <Label *ngIf="showPickerReplacement" text="There are no pieces in your library" class="text-center title-regular font-light" marginBottom="20"></Label>
 
         <Button [text]="recordButtonText" (tap)="saveRecording()" class="save-button"></Button>
     </StackLayout>

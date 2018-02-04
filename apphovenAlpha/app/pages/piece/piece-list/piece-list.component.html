@@ -1,10 +1,8 @@
-<ActionBar title="Apphoven" class="ah-action-bar"></ActionBar>
+<!-- <ActionBar title="Apphoven" class="ah-action-bar"></ActionBar> -->
 <StackLayout>
-<StackLayout *ngIf="noPiecesFound" class="ah-main-container">
+<!-- <StackLayout *ngIf="noPiecesFound" class="ah-main-container">
     <StackLayout class="piece-container">
             <StackLayout class="movement-container">
-                <!-- <Label class="piece-text" text="Your current pieces:"></Label> -->
-                <!-- <StackLayout class="movement-list-current">-->
                 <StackLayout>
                     <GridLayout rows="*, auto" class="p-20">
                         <Image row="0" src="res://empty_shelf_red" stretch="aspectFill"></Image>
@@ -13,13 +11,13 @@
                 </StackLayout>
             </StackLayout>
     </StackLayout>
-</StackLayout>
+</StackLayout> -->
 <StackLayout class="ah-main-container">
         <Label class="title-regular" text="YOUR PRACTICE-LIST"></Label>
 </StackLayout>
-<ScrollView orientation="horizontal">
-    <StackLayout orientation="horizontal">
-        <GridLayout columns="*" rows="*" *ngFor="let piece of pieceArray" class="piece-box {{ (piece.id==-1) ? 'piece-add-box' : 'ah-c-primary' }}">
+<ScrollView #pieceListScrollView orientation="horizontal">
+    <StackLayout height="250" orientation="horizontal">
+        <GridLayout columns="*" rows="*" *ngFor="let piece of pieceArray" class="piece-box {{ (piece.id==-1) ? 'secondary-color-light' : 'primary-color' }} {{ noPiecesFound ? 'glow-box' : null }}">
             <Image col="0" row="0" (loaded)="pieceBoxImageLoaded(1)" class="bg-image" src="{{ (piece.id==-1) ? 'res://bg_add_piece' : 'res://bg_1' }}"></Image>                
             <GridLayout col="0" row="0" columns="*" rows="auto,*,auto" height="250" width="200" class="piece-text-container" (longPress)="showPieceOptions(piece.id)" (tap)="onPieceTap(piece)">
                     <Label col="0" row="0" class="title-bold" textWrap="true" text="{{ piece.title }}"></Label>
@@ -30,5 +28,22 @@
     <!--<Label *ngIf="noMarks" text="Tap on the pin to add a marker"></Label>-->
     </StackLayout>
 </ScrollView>    
-
+<StackLayout class="ah-main-container">
+        <Label class="title-regular" text="YOUR ARCHIVED PIECES"></Label>
+</StackLayout>
+<ScrollView orientation="horizontal">
+        <StackLayout orientation="horizontal">
+            <GridLayout columns="*" rows="*" *ngFor="let piece of archivedPieceArray" class="archive-piece-box secondary-color-light">
+                <!-- <Image col="0" row="0" class="bg-image" src="{{ (piece.id==-1) ? 'res://bg_add_piece' : 'res://bg_1' }}"></Image> -->               
+                <GridLayout col="0" row="0" columns="*" rows="auto,*,auto" height="100" width="200" class="piece-text-container-dimmed" (longPress)="showArchiveOptions(piece.id)" (tap)="archiveDateToggle(piece)">
+                    <StackLayout *ngIf="!piece.showArchiveDate">
+                        <Label col="0" row="0" class="title-bold" textWrap="true" text="{{ piece.title }}"></Label>
+                        <Label col="0" row="2" textWrap="true" text="{{ piece.composerName }}"></Label>
+                    </StackLayout>
+                    <Label *ngIf="piece.showArchiveDate" verticalAlignment="center" class="title-bold archive-date-display" text="{{ piece.archivedDate | date | uppercase }}"></Label>
+                </GridLayout>
+            </GridLayout>
+        <!--<Label *ngIf="noMarks" text="Tap on the pin to add a marker"></Label>-->
+        </StackLayout>
+    </ScrollView>
 </StackLayout>

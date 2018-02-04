@@ -8,7 +8,7 @@ import { Page } from "ui/page";
 const firebase = require("nativescript-plugin-firebase/app");
 import { firestore } from "nativescript-plugin-firebase";
 
-import { BackendService, TimerPipe, PieceService } from "../../../shared";
+import { BackendService, TimerPipe, PieceService, LevelService } from "../../../shared";
 import { Observable as RxObservable } from 'rxjs/Observable';
 import dialogs = require("ui/dialogs");
 import { AndroidApplication, AndroidActivityBackPressedEventData } from "application";
@@ -16,9 +16,10 @@ import * as application from "application";
 import { RouterExtensions } from "nativescript-angular/router";
 import { Router } from "@angular/router";
 import * as Toast from "nativescript-toast";
-
-declare var android;
-
+// Animation
+import { AnimationCurve } from "ui/enums";
+// UI Plugin
+import { SwissArmyKnife } from "nativescript-swiss-army-knife";
 
 @Component({
     selector: "ah-piece-recorder",
@@ -33,17 +34,23 @@ export class PieceRecorderComponent implements OnInit, OnDestroy {
     public timer: number; // Timeout Var
     public time: number = 0; // Passed Time in sec
 
+
+    // Icons
+    public continueIcon = String.fromCharCode(0xf04b);
     public ratingIcons: Array<any>; // Rating-Star-Icons
     public smileIcons: Array<any>; // Smile-Icons
 
     // Recording-Time Button Text & State
-    public recordingTimeButton: string = "Record Session";
+    // Start Practicing Button
+    public recordingTimeButton: string = String.fromCharCode(0xf250);
+    public restartIcon = String.fromCharCode(0xf01e);
+
     public recordingTimeState: boolean = false;
     public recordingAutoStart: boolean = false;
 
-    // Button & Button-Container States
-    public button1: boolean = true;
+    // Button-Text & Button-Container State
     public buttonContainer: boolean = false;
+    public button1Text: string = "START PRACTICING";
 
     public userSessionNotes: string; // User Notes
 
@@ -81,7 +88,7 @@ export class PieceRecorderComponent implements OnInit, OnDestroy {
     private listenerUnsubscribe: () => void;
 
     constructor(private _page: Page, private _ngZone: NgZone, private _pieceService: PieceService, 
-    private _routerExtensions: RouterExtensions, private _router: Router){
+    private _routerExtensions: RouterExtensions, private _router: Router, private _lvlService: LevelService){
 
         console.log("CONSTRUCTOR");
         // this.routerParamIds = [];
@@ -113,7 +120,7 @@ export class PieceRecorderComponent implements OnInit, OnDestroy {
         this.pieceMovementArray = [];
         this.pieceMovementArrayNotSelected = [];
         var items = [];
-        var subscr
+        var subscr;
         this.myItems = RxObservable.create(subscriber => {
             subscr = subscriber;
             subscriber.next(items);
@@ -127,18 +134,30 @@ export class PieceRecorderComponent implements OnInit, OnDestroy {
         // CHANGE STATUS-BAR COLOR
         // let window = application.android.foregroundActivity.getWindow();
         // window.setStatusBarColor(new Color("#1c1c1c").android);
+
+        this.firestoreListen();
     }
 
     @ViewChild("sessionRatingContainer") sessionRatingContainer: ElementRef;
     @ViewChild("pieceSelectionContainer") pieceSelectionContainer: ElementRef;
     @ViewChild("pieceSelectionCheckbox") pieceSelectionCheckbox: ElementRef;
-
+    @ViewChild("recordingStartButton") recordingStartButton: ElementRef;
+    
 
     ngOnInit() {
+
+        // Simulate Transition-Delay
+        setTimeout(() => {
+            // Set StatusBarColor
+            SwissArmyKnife.setAndroidStatusBarColor("#303030");
+        }, 100);
+
+        // Hide ActionBar
         this._page.actionBarHidden = true;
 
         // Create onBackButtonPressed-Listener
         application.android.on(AndroidApplication.activityBackPressedEvent, (data: AndroidActivityBackPressedEventData) => {
+            
             console.log("BACK BUTTON EVENT TRIGGERED");
             this.backEvent(data);
         });
@@ -149,21 +168,24 @@ export class PieceRecorderComponent implements OnInit, OnDestroy {
         let pieceSelectionContainer = <View>this.pieceSelectionContainer.nativeElement;
 
        if(this.recordingTimeState){
-           this.firestoreListen();
-            // this.loadPieceInformation();
             pieceSelectionContainer.style.visibility = "visible";
-            this.button1 = false;
             this.buttonContainer = true;
+            this.button1Text = null;
 
             this.recordingTimeState = false;
-            this.recordingTimeButton = "Restart";
+
+            // Restart Icon
+            // this.restartIcon = String.fromCharCode(0xf01e);
+
             this.stop();
             BackendService.practiceTimestampBackup = 0;
         } else {
-            pieceSelectionContainer.style.visibility = "collapse";
 
+            pieceSelectionContainer.style.visibility = "collapse";
             this.recordingTimeState = true;
-            this.recordingTimeButton = "Stop Recording";
+            // let recordingStartButton = <View>this.recordingStartButton.nativeElement;
+
+            // this.recordingTimeButton = String.fromCharCode(0xf04d);
             /*
 
             Practice-Time Retriever (Future Update)
@@ -200,18 +222,57 @@ export class PieceRecorderComponent implements OnInit, OnDestroy {
         let pieceSelectionContainer = <View>this.pieceSelectionContainer.nativeElement;
         let restart = false;
 
-        if(type == 3){
-            let that = this;
+        /*
+         * Recording Start Animation
+         */
+        
+        /*
+         * - - -
+         */
+
+        let that = this;
+
+        if(type == 1) {
+            
+            // Start Recording
+            // this.recordStartAnimation();
+
+            this.button1Text = "STOP PRACTICING";
+            this.buttonContainer = false;
+            this.recordingTimeState = true;
+            // Stop Recording Button
+            this.recordingTimeButton = String.fromCharCode(0xf04d);
+            pieceSelectionContainer.style.visibility = "collapse";
+            this.tick(type);
+
+        } else if(type == 2){
+            
+            // Continue Recording
+            that.button1Text = "STOP PRACTICING";
+            that.buttonContainer = false;
+            that.recordingTimeState = true;
+            // Stop Recording Button
+            that.recordingTimeButton = String.fromCharCode(0xf04d);
+            pieceSelectionContainer.style.visibility = "collapse";
+            sessionRatingContainer.style.visibility = "collapse";
+
+            that.tick(2);
+            that.selectMultiplePiecesState = false;
+
+        } else if(type == 3){
+
+            // Reset Recording 
             dialogs.confirm({
                 message: "Reset Timer?",
                 okButtonText: "Yes, reset please",
                 cancelButtonText: "No!",
             }).then(function (result) {
                 if(result){
-                    that.button1 = true;
+                    that.button1Text = "STOP PRACTICING";
                     that.buttonContainer = false;
                     that.recordingTimeState = true;
-                    that.recordingTimeButton = "Stop Recording";
+                    // Stop Recording Button
+                    that.recordingTimeButton = String.fromCharCode(0xf04d);
                     pieceSelectionContainer.style.visibility = "collapse";
                     sessionRatingContainer.style.visibility = "collapse";
 
@@ -220,15 +281,63 @@ export class PieceRecorderComponent implements OnInit, OnDestroy {
                 }
             });
         } else {
-            this.button1 = true;
-            this.buttonContainer = false;
-            this.recordingTimeState = true;
-            this.recordingTimeButton = "Stop Recording";
-            pieceSelectionContainer.style.visibility = "collapse";
             
             this.tick(type);
         }
+    
     }
+
+    /*recordStartAnimation() {
+        let pieceSelectionContainer = <View>this.pieceSelectionContainer.nativeElement;
+        let recordingStartButton = <View>this.recordingStartButton.nativeElement;
+        let that = this;
+        let timeoutSeconds = 300;
+        recordStartAnimation(0);
+
+        function recordStartAnimation(i: number) {
+
+            setTimeout(() => {
+                if(that.recordingTimeButton == String.fromCharCode(0xf250)) {
+                    that.recordingTimeButton = String.fromCharCode(0xf251);
+                } else if(that.recordingTimeButton == String.fromCharCode(0xf251)){
+                    that.recordingTimeButton = String.fromCharCode(0xf252);
+                } else if(that.recordingTimeButton == String.fromCharCode(0xf252)) {
+                    that.recordingTimeButton = String.fromCharCode(0xf253);
+                } else {
+                    that.recordingTimeButton = String.fromCharCode(0xf251);
+                }
+
+                if(i == 10) {
+                    // Start Hiding Hourglass
+                    recordingStartButton.animate({
+                        opacity: 0,
+                        duration: 500
+                    });
+                    recordingStartButton.animate({
+                        translate: { x: 0, y: -1000 },
+                        duration: 2000,
+                        curve: AnimationCurve.cubicBezier(.42,0,.58,1)
+                    });
+                    timeoutSeconds = timeoutSeconds * 0.9;
+                    recordStartAnimation(++i);
+                } else if (i == 20) {
+                    // Hide Hourglass
+                    console.log("DONE TIMEOUT REPEAT");
+                    that.button1 = false;
+                    that.buttonContainer = false;
+                    that.recordingTimeState = true;
+                    // Stop Recording Button
+                    that.recordingTimeButton = String.fromCharCode(0xf04d);
+                    pieceSelectionContainer.style.visibility = "collapse";
+                } else {
+                    // Animate Hourglass
+                    timeoutSeconds = timeoutSeconds * 0.9;
+                    recordStartAnimation(++i);
+                }
+                
+            }, timeoutSeconds);
+        }
+    }*/
 
     stop() {
         clearTimeout(this.timer);       
@@ -394,7 +503,7 @@ export class PieceRecorderComponent implements OnInit, OnDestroy {
         this.buttonContainer = false;
         this.currentView = 1;
         this.selectMultiplePiecesState = true;
-        this.selectPieceInfo = "Use the slider to define how much you practice each piece";
+        this.selectPieceInfo = "Dedicate the practice-time to each piece you've practiced using the slider";
         console.log(this.selectMultiplePiecesState);
     }
 
@@ -440,49 +549,51 @@ export class PieceRecorderComponent implements OnInit, OnDestroy {
             
                 // Maintenance: Implement function to directly retrieve composerName
                 // let composerName;
-            
-                if(piece.data().movementItem){
-                    // Piece contains Movements
-                    console.log("MOVEMENT-ITEMS FOUND");
+                
+                if(!piece.data().archived){
+                    if(piece.data().movementItem){
+                        // Piece contains Movements
+                        console.log("MOVEMENT-ITEMS FOUND");
 
-                    // Count Movements of Pieced
-                    let movementAmount = piece.data().movementItem.length;
+                        // Count Movements of Pieced
+                        let movementAmount = piece.data().movementItem.length;
 
-                    // Add each movement (with practice state = 1) of piece to selectionPieceArray
-                    for (let iMov = 0; iMov < movementAmount; iMov++) {
-                        if(piece.data().movementItem[iMov].state == 1){
-                            this._ngZone.run(() => {
-                                this.selectionPieceArray.push({
-                                    pieceId: piece.id,
-                                    movementId: piece.data().movementItem[iMov].id,
-                                    pieceTitle: piece.data().pieceTitle,
-                                    movementTitle: piece.data().movementItem[iMov].title,
-                                    lastUsed: piece.data().movementItem[iMov].lastUsed,
-                                    iconCode: String.fromCharCode(0xf11a), 
-                                    iconState: -1,
-                                    iconColor: "#afafaf",
-                                    durationSliderValue: 0,
-                                    state: false
-                                });
-                            })
+                        // Add each movement (with practice state = 1) of piece to selectionPieceArray
+                        for (let iMov = 0; iMov < movementAmount; iMov++) {
+                            if(piece.data().movementItem[iMov].state == 1){
+                                this._ngZone.run(() => {
+                                    this.selectionPieceArray.push({
+                                        pieceId: piece.id,
+                                        movementId: piece.data().movementItem[iMov].id,
+                                        pieceTitle: piece.data().pieceTitle,
+                                        movementTitle: piece.data().movementItem[iMov].title,
+                                        lastUsed: piece.data().movementItem[iMov].lastUsed,
+                                        iconCode: String.fromCharCode(0xf11a), 
+                                        iconState: -1,
+                                        iconColor: "#afafaf",
+                                        durationSliderValue: 0,
+                                        state: false
+                                    });
+                                })
+                            }
                         }
-                    }
-                    
-                } else {
-                    // Piece does not contain movements
-                    // Add piece to selectionPieceArray
-                    this._ngZone.run(() => {
-                        this.selectionPieceArray.push({
-                            pieceId: piece.id,
-                            pieceTitle: piece.data().pieceTitle,
-                            lastUsed: piece.data().lastUsed,
-                            iconCode: String.fromCharCode(0xf11a), 
-                            iconState: -1,
-                            iconColor: "#afafaf",
-                            durationSliderValue: 0,
-                            state: false
+                        
+                    } else {
+                        // Piece does not contain movements
+                        // Add piece to selectionPieceArray
+                        this._ngZone.run(() => {
+                            this.selectionPieceArray.push({
+                                pieceId: piece.id,
+                                pieceTitle: piece.data().pieceTitle,
+                                lastUsed: piece.data().lastUsed,
+                                iconCode: String.fromCharCode(0xf11a), 
+                                iconState: -1,
+                                iconColor: "#afafaf",
+                                durationSliderValue: 0,
+                                state: false
+                            });
                         });
-                    });
+                    }
                 }
             });
 
@@ -504,6 +615,10 @@ export class PieceRecorderComponent implements OnInit, OnDestroy {
     
     saveSession(){
         if(this.time > 0) {
+
+            // Loading Indicator
+            // this.showToast("Loading...");
+
             let that = this;
 
             // Define Firestore Collection
@@ -528,19 +643,23 @@ export class PieceRecorderComponent implements OnInit, OnDestroy {
                     // BackendService: Update lastPieceId & lastMovementId (DEL)
                     // BackendService.lastPieceId = Number(that.routerParamIds['pieceId']);
                     // BackendService.lastMovementId = Number(that.routerParamIds['movementId']);
-
-                    // REDIRECTION 
-                    if(BackendService.tutorialTour > 1){
-                        // Tutorial Tour
-                        BackendService.toastLoaded = 1;
-                        that._routerExtensions.navigate(["/home/tcc-recorder-suc"], { clearHistory: true });
-                    } else {
-                        // Regular
-                        BackendService.toastLoaded = 1;
-                        that._routerExtensions.navigate(["/home/tos-recorder-suc"], { clearHistory: true });
-                    }
                 }
             );
+
+            // REDIRECTION 
+            if(BackendService.tutorialTour > 1){
+                // Tutorial Tour
+                that._lvlService.practiceXp(that.time);
+
+                BackendService.toastLoaded = 1;
+                that._routerExtensions.navigate(["/home/tcc-recorder-suc"], { clearHistory: true });
+            } else {
+                // Regular
+                that._lvlService.practiceXp(that.time);
+
+                BackendService.toastLoaded = 1;
+                that._routerExtensions.navigate(["/home/tos-recorder-suc"], { clearHistory: true });
+            }
         } else {
             this.showToast("Please practice more than 0 seconds");
         }
@@ -554,67 +673,78 @@ export class PieceRecorderComponent implements OnInit, OnDestroy {
             }
         }
         console.log("SLIDER TOTAL: " + sliderValueTotal);
-        if(sliderValueTotal > 0){
+        if(this.time > 0) {
 
-            // Counter needed to append to session id (date-id)
-            let iSavedSession = -1;
+            // Loading Indicator
+            // this.showToast("Loading...");
 
-            for (let i = 0; i < this.selectionPieceArray.length; i++) {
-                if(this.selectionPieceArray[i].durationSliderValue > 0) {
-                    let duration = Math.round(this.time / sliderValueTotal * this.selectionPieceArray[i].durationSliderValue);
-                    let userHappiness = this.selectionPieceArray[i].iconState == -1 ? null : this.selectionPieceArray[i].iconState+1;
-                    let pieceMovementTitle;
+            let that = this;
 
-                    if(this.selectionPieceArray[i].movementId != null) {
-                        pieceMovementTitle = this.selectionPieceArray[i].movementTitle + " | " + this.selectionPieceArray[i].pieceTitle;
-                    } else {
-                        pieceMovementTitle = this.selectionPieceArray[i].pieceTitle;
-                    }
+            if(sliderValueTotal > 0){
 
-                    if(duration != 0){
-                        // Practice-Session will definitely be stored, therefore +iSavedSession 
-                        ++iSavedSession;
+                // Counter needed to append to session id (date-id)
+                let iSavedSession = -1;
 
-                        // Define Firestore Collection
-                        const practiceSessionCollection = firebase.firestore()
-                            .collection("user")
-                            .doc(BackendService.token)
-                            .collection("practice-session");
-                        
-                        // Save Practice Session
-                        practiceSessionCollection.doc(String(this.sessionStartedDate)+"-"+iSavedSession).set({
-                            'duration': duration,
-                            'pieceMovementTitle': pieceMovementTitle,
-                            'pieceId': this.selectionPieceArray[i].pieceId, // this.routerParamIds['pieceId'],
-                            'movementId': this.selectionPieceArray[i].movementId, // this.routerParamIds['movementId'],
-                            'userProgressRating': null,
-                            'userHappinessRating': userHappiness,
-                            'userNotes': null,
-                            'date': this.sessionStartedDate,
-                            'id': this.sessionStartedDate+"-"+iSavedSession
-                        }).then(
-                            function (result) {
-                                // BackendService: Update lastPieceId & lastMovementId
-                                console.log("Session " + iSavedSession + " saved");
-                            }
-                        );
-                    } else {
-                        this.showToast("Please practice more than 0 seconds");
+                for (let i = 0; i < this.selectionPieceArray.length; i++) {
+                    if(this.selectionPieceArray[i].durationSliderValue > 0) {
+                        let duration = Math.round(this.time / sliderValueTotal * this.selectionPieceArray[i].durationSliderValue);
+                        let userHappiness = this.selectionPieceArray[i].iconState == -1 ? null : this.selectionPieceArray[i].iconState+1;
+                        let pieceMovementTitle;
+
+                        if(this.selectionPieceArray[i].movementId != null) {
+                            pieceMovementTitle = this.selectionPieceArray[i].movementTitle + " | " + this.selectionPieceArray[i].pieceTitle;
+                        } else {
+                            pieceMovementTitle = this.selectionPieceArray[i].pieceTitle;
+                        }
+
+                        if(duration != 0){
+                            // Practice-Session will definitely be stored, therefore +iSavedSession 
+                            ++iSavedSession;
+
+                            // Define Firestore Collection
+                            const practiceSessionCollection = firebase.firestore()
+                                .collection("user")
+                                .doc(BackendService.token)
+                                .collection("practice-session");
+
+                            // Save Practice Session
+                            practiceSessionCollection.doc(String(this.sessionStartedDate)+"-"+iSavedSession).set({
+                                'duration': duration,
+                                'pieceMovementTitle': pieceMovementTitle,
+                                'pieceId': this.selectionPieceArray[i].pieceId, // this.routerParamIds['pieceId'],
+                                'movementId': this.selectionPieceArray[i].movementId, // this.routerParamIds['movementId'],
+                                'userProgressRating': null,
+                                'userHappinessRating': userHappiness,
+                                'userNotes': null,
+                                'date': this.sessionStartedDate,
+                                'id': this.sessionStartedDate+"-"+iSavedSession
+                            }).then(
+                                function (result) {
+                                    that._lvlService.practiceXp(that.time);
+                                    // BackendService: Update lastPieceId & lastMovementId
+                                    console.log("Session " + iSavedSession + " saved");
+                                }
+                            );
+                        } else {
+                            this.showToast("Please practice more than 0 seconds");
+                        }
                     }
                 }
-            }
-            // REDIRECTION
-            if(BackendService.tutorialTour > 1){
-                // Tutorial Tour
-                BackendService.toastLoaded = 1;
-                this._routerExtensions.navigate(["/home/tcc-recorder-suc"], { clearHistory: true });
+                // REDIRECTION
+                if(BackendService.tutorialTour > 1){
+                    // Tutorial Tour
+                    BackendService.toastLoaded = 1;
+                    this._routerExtensions.navigate(["/home/tcc-recorder-suc"], { clearHistory: true });
+                } else {
+                    // Regular
+                    BackendService.toastLoaded = 1;
+                    this._routerExtensions.navigate(["/home/tos-recorder-suc"], { clearHistory: true });
+                }
             } else {
-                // Regular
-                BackendService.toastLoaded = 1;
-                this._routerExtensions.navigate(["/home/tos-recorder-suc"], { clearHistory: true });
+                this.showToast("Please use the sliders to distribute your pracitce time");
             }
         } else {
-            this.showToast("Please use the sliders to distribute your pracitce time");
+            this.showToast("Please practice more than 0 seconds");
         }
     }
 
@@ -633,6 +763,10 @@ export class PieceRecorderComponent implements OnInit, OnDestroy {
             }
 
             */
+            
+            // Reset Statusbar
+            SwissArmyKnife.setAndroidStatusBarColor("#D04F4F");
+            
             return;
         } else {
             args.cancel = true;
@@ -679,6 +813,9 @@ export class PieceRecorderComponent implements OnInit, OnDestroy {
     }
 
     ngOnDestroy() {
+        // Reset Statusbar
+        SwissArmyKnife.setAndroidStatusBarColor("#D04F4F");
+        
         // Stop Firestore Listening
         this.firestoreStopListening();
 
@@ -689,4 +826,5 @@ export class PieceRecorderComponent implements OnInit, OnDestroy {
         // Stop running recorder
         this.stop();
     }
+
 }

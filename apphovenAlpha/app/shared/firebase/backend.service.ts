@@ -8,6 +8,7 @@ const tutorialTour = "tutorialTour";
 const toastLoaded = "toastLoaded";
 const practiceTimeBackup = "practiceTimeBackup";
 const practiceTimestampBackup = "practiceTimestampBackup";
+const userName = "userName";
 
 export class BackendService {
   
@@ -29,6 +30,14 @@ export class BackendService {
 
   static set email(email: string) {
     setString("email", email);
+  }
+
+  static get userName(): string {
+    return getString("userName");
+  }
+
+  static set userName(userName: string) {
+    setString("userName", userName);
   }
 
   static get lastPracticeDuration(): number {

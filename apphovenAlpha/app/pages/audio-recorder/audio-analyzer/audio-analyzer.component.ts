@@ -159,8 +159,10 @@ export class AudioAnalyzerComponent implements OnInit, OnDestroy {
         // Set MeterLine Color (RED if played / WHITE if not played)
         for (let i = 0; i < this.audioMeterLine.length; i++) {
             if(time > (this.duration / this.audioMeterLine.length * i)){
-                this.audioMeterLine[i].color = "#d33b30";
+                // Played
+                this.audioMeterLine[i].color = "#D04F4F";
             } else {
+                // Ahead
                 this.audioMeterLine[i].color = "#f7f7f7";
             }
         }

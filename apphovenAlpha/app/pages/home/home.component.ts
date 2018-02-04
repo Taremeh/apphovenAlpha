@@ -4,13 +4,18 @@ import { Page } from "ui/page";
 import { Router } from "@angular/router";
 import { AndroidApplication, AndroidActivityBackPressedEventData } from "application";
 import * as application from "application";
-import { BackendService } from "../../shared";
+import { BackendService, LoginService } from "../../shared";
 import { PageRoute } from "nativescript-angular/router";
 import "rxjs/add/operator/switchMap";
 import * as Toast from "nativescript-toast";
 import { Color } from "color";
 import * as dialogs from 'ui/dialogs';
 import { ActivatedRoute } from '@angular/router';
+// Prompt
+import { prompt, PromptResult, inputType } from "ui/dialogs";
+
+const firebase = require("nativescript-plugin-firebase/app");
+import { firestore } from "nativescript-plugin-firebase";
 
 @Component({
     selector: "ah-home",
@@ -36,6 +41,16 @@ export class HomeComponent implements OnInit, OnDestroy {
     private isAnimating: boolean;
     private beethovenContainerHide: boolean;
     private tutorialTour;
+    private username: string;
+    private showSettings: boolean;
+    private listenerUnsubscribe: () => void;
+
+
+    // UI LVL (Default: LVL 1)
+    private userLvl = 1;
+    private xpCurrent = 0;
+    private xpCurrentDisplayBar = 4;
+    private xpMax = 50;
 
     @ViewChild("addPieceItem") addPieceItem: ElementRef;
     @ViewChild("pieceListItem") pieceListItem: ElementRef;
@@ -43,9 +58,21 @@ export class HomeComponent implements OnInit, OnDestroy {
     @ViewChild("practiceSessionItem") practiceSessionItem: ElementRef;
     @ViewChild("beethovenContainer") beethovenContainer: ElementRef;
     @ViewChild("mainContainer") mainContainer: ElementRef;
+    @ViewChild("profileContainer") profileContainer: ElementRef;
+    @ViewChild("xpProgressBar") xpProgressBar: ElementRef;
+
 
     // Deprecated: private _pageRoute: PageRoute
-    constructor(private _pageRoute: PageRoute, private _router: Router, private page: Page, private _ngZone: NgZone) {
+    constructor(private _pageRoute: PageRoute, private _router: Router, private page: Page, 
+        private _ngZone: NgZone, private _loginService: LoginService) {
+        
+        // Show Username (or Email)
+        this.username = BackendService.userName || BackendService.email;
+
+        // Listen to Firebase Firestore
+        // Load User Info: userLvl: lvl, xpCurrent, xpMax
+        this.firestoreListen();
+
         this.routerParamId = [];
         this.tutorialTour = (BackendService.tutorialTour > 0) ? BackendService.tutorialTour : false;
 
@@ -81,13 +108,17 @@ export class HomeComponent implements OnInit, OnDestroy {
             } else if(BackendService.tutorialTour > 0) {
                 this.beethoven("inherit");
             }
-        });
+        });  
+        
+        
     }
 
     ngOnInit() {
         console.log("Home: OnInit! Tut: " + BackendService.tutorialTour);
         this.isAndroid = !!this.page.android;
-        this.page.actionBarHidden = false;
+
+        // Hide ActionBar
+        this.page.actionBarHidden = true;
 
 
         application.android.on(AndroidApplication.activityBackPressedEvent, (data: AndroidActivityBackPressedEventData) => {
@@ -95,10 +126,52 @@ export class HomeComponent implements OnInit, OnDestroy {
         });
     }
 
-    ngOnDestroy() {
-        // Remove BackPressedEvent Listener
-        application.android.off(AndroidApplication.activityBackPressedEvent);
-        console.log("Home - ngOnDestroy()");
+    public firestoreListen(): void {
+        console.log("FIRESTORE LISTENS: " + BackendService.token);
+        if (this.listenerUnsubscribe !== undefined) {
+          console.log("Already listening");
+          return;
+        }
+        
+        // Define Firestore Piece Document
+        let statsCollection = firebase.firestore()
+            .collection("user")
+            .doc(BackendService.token)
+            .collection("stats")
+            .orderBy("dateStarted", "desc")
+            .limit(1);;
+
+        this.listenerUnsubscribe = statsCollection.onSnapshot((snapshot: firestore.QuerySnapshot) => {
+            snapshot.forEach(user => this.handleSnapshot(user));
+        });
+    }
+
+    public handleSnapshot(user){
+        let xpProgressBar = <View>this.xpProgressBar.nativeElement;
+        this._ngZone.run(() => {
+            if(this.xpCurrent != user.data().xpCurrent) {
+                xpProgressBar.animate({
+                    opacity: 0,
+                    duration: 500
+                }).then(() => {
+                    this.userLvl = user.data().lvl;
+                    this.xpCurrent = user.data().xpCurrent;
+                    this.xpMax = user.data().xpMax;
+
+                    // Correcting xpCurrentDisplayBar if xpCurrent Value too low
+                    if(this.xpCurrent/this.xpMax < 0.08) {
+                        this.xpCurrentDisplayBar = this.xpMax * 0.08;
+                    } else {
+                        this.xpCurrentDisplayBar = this.xpCurrent;
+                    }
+                    
+                    xpProgressBar.animate({
+                        opacity: 1,
+                        duration: 500
+                    })
+                })
+            }
+        });
     }
 
     navigateTo(page: string){
@@ -112,6 +185,32 @@ export class HomeComponent implements OnInit, OnDestroy {
 
             this._router.navigate(["/piece-recorder"]);
         // }
+    }
+
+    updateUserName() {
+        console.log("UPDATE NAME");
+        let options = {
+            title: "Edit your Username",
+            defaultText: "",
+            inputType: inputType.text,
+            okButtonText: "Ok",
+            cancelButtonText: "Cancel"
+        };
+        
+        prompt(options).then((r: PromptResult) => {
+            if(r.result){
+                this._loginService.updateName(r.text).then(
+                    (result) => {
+                        this.username = BackendService.userName;
+                        this.showToast("Username successfully changed!");
+                    },
+                    (error) => {
+                        this.showToast("Error while changing username :(");
+                    }
+                );
+            }
+        });
+        
     }
 
     toastManager(toastId: string){
@@ -169,6 +268,10 @@ export class HomeComponent implements OnInit, OnDestroy {
                             opacity: 0,
                             duration: 500
                         }).then(() => {
+                            <View>this.profileContainer.nativeElement.animate({
+                                opacity: 1,
+                                duration: 200
+                            });
                             <View>this.mainContainer.nativeElement.animate({
                                 opacity: 1,
                                 duration: 200
@@ -266,12 +369,15 @@ export class HomeComponent implements OnInit, OnDestroy {
                             opacity: 0,
                             duration: 500
                         }).then(() => {
+                            <View>this.profileContainer.nativeElement.animate({
+                                opacity: 1,
+                                duration: 200
+                            });
                             <View>this.mainContainer.nativeElement.animate({
                                 opacity: 1,
                                 duration: 200
                             });
                         });
-                        break;
                 }
             });
         }
@@ -315,5 +421,23 @@ export class HomeComponent implements OnInit, OnDestroy {
                 });
             });
         }
+    }
+
+    public firestoreStopListening(): void {
+        if (this.listenerUnsubscribe === undefined) {
+          console.log("Please start listening first ;)");
+          return;
+        }
+    
+        this.listenerUnsubscribe();
+        this.listenerUnsubscribe = undefined;
+    }
+
+    ngOnDestroy() {
+        this.firestoreStopListening();
+
+        // Remove BackPressedEvent Listener
+        application.android.off(AndroidApplication.activityBackPressedEvent);
+        console.log("Home - ngOnDestroy()");
     }
 }

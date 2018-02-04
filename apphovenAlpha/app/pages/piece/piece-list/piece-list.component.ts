@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, NgZone } from "@angular/core";
+import { Component, OnInit, OnDestroy, AfterViewInit, NgZone, ViewChild, ElementRef } from "@angular/core";
 
 // Deprecated Firebase Import
 // import firebased = require("nativescript-plugin-firebase");
@@ -13,16 +13,24 @@ import { Page } from "ui/page";
 import * as application from "application";
 import { AndroidApplication, AndroidActivityBackPressedEventData } from "application";
 import { Router } from "@angular/router";
+import { RouterExtensions } from "nativescript-angular/router";
 import dialogs = require("ui/dialogs");
 import * as Toast from "nativescript-toast";
 import { Observable } from "rxjs/Observable";
+
+// UI
+import { View } from "ui/core/view";
+import { ScrollView } from "ui/scroll-view";
+
+// UI Plugin
+import { SwissArmyKnife } from "nativescript-swiss-army-knife";
 
 @Component({
     selector: "ah-piece-list",
     templateUrl: "pages/piece/piece-list/piece-list.component.html",
     styleUrls: ["pages/piece/piece-list/piece-list-common.css"]
 })
-export class PieceListComponent implements OnInit, OnDestroy {
+export class PieceListComponent implements OnInit, AfterViewInit, OnDestroy {
     public routerParamId: number;
     public myItems: RxObservable<Array<any>>;
 
@@ -30,6 +38,8 @@ export class PieceListComponent implements OnInit, OnDestroy {
     public pieceMovementIdArray: Array<any>;
     public pieceMovementArray: Array<any>;
     public pieceMovementArrayNotSelected: Array<any>;
+
+    public archivedPieceArray: Array<any>;
 
     // Icons
     public iconSettings = String.fromCharCode(0xf1f8);
@@ -44,6 +54,7 @@ export class PieceListComponent implements OnInit, OnDestroy {
     // UI
     private noPiecesFound: boolean;
     public pieceComposer: string;
+
     /* public pieceBoxBgImages = [
         {"1708": "https://firebasestorage.googleapis.com/v0/b/apphoven.appspot.com/o/piece-box-graphics%2Fbg-1.png?alt=media&token=9f33614e-1dc1-4aa0-9226-5addba53f2eb"},
         {"3864": "https://firebasestorage.googleapis.com/v0/b/apphoven.appspot.com/o/piece-box-graphics%2Fbg-2.png?alt=media&token=a880dec0-830c-45ba-9757-b05bb432b071"},
@@ -53,7 +64,9 @@ export class PieceListComponent implements OnInit, OnDestroy {
     // Observables
     private listenerUnsubscribe: () => void;
 
-    constructor(private _pageRoute: PageRoute, private _page: Page, private _router: Router,
+    @ViewChild("pieceListScrollView") pieceListScrollView: ElementRef;
+
+    constructor(private _pageRoute: PageRoute, private _page: Page, private _router: RouterExtensions,
                 private _ngZone: NgZone, private _pieceService: PieceService, private _httpService: HttpService) {
         this.pieceArray = [];
         this.pieceMovementArray = [];
@@ -68,17 +81,32 @@ export class PieceListComponent implements OnInit, OnDestroy {
         // Fetch User-Data from Firebase (true, because of first initialization)
         // this.firestoreListen();
 
+        // pLsV.android.setVerticalScrollBarEnabled(false);
+
     }
+
 
     ngOnInit() {
         this.firestoreListen();
+
         // Hide Action-Bar
-        //this._page.actionBarHidden = true;
+        this._page.actionBarHidden = true;
 
         /*application.android.on(AndroidApplication.activityBackPressedEvent, (data: AndroidActivityBackPressedEventData) => {
             console.log("BACK BUTTON EVENT TRIGGERED");
             //this._router.navigate(['/addpiece']);
         });*/
+    }
+
+    ngAfterViewInit() {
+        
+        // Timeout required to sneak in to Life-Cycle in the right moment.
+        // Value 1ms just symbolic.
+        setTimeout(() => {
+            let pLsV = <ScrollView>this.pieceListScrollView.nativeElement;
+            SwissArmyKnife.removeHorizontalScrollBars(pLsV);
+        }, 1);
+        
     }
 
     public firestoreListen(): void {
@@ -90,6 +118,7 @@ export class PieceListComponent implements OnInit, OnDestroy {
         // CLEARING
         this.pieceArray = [];
         this.pieceMovementIdArray = [];
+        this.archivedPieceArray = [];
         
         // Define Firestore Collection
         let pieceCollection = firebase.firestore()
@@ -113,6 +142,7 @@ export class PieceListComponent implements OnInit, OnDestroy {
         
     public handleSnapshot(snapshot){
         this.pieceArray = [];
+        this.archivedPieceArray = [];
 
         let composers = ["Haydn","Mozart","Beethoven","Mozart","Schubert","Beethoven","Schubert","Scarlatti","Haydn","Scarlatti"];
         let randomComposerId = Math.floor((Math.random() * 9) + 0);
@@ -167,54 +197,76 @@ export class PieceListComponent implements OnInit, OnDestroy {
                      * minimize loading time? Already tried to implement it as a
                      * Pipe, however, did not work out. Maybe need to construct a complicated
                      * Observable complex to make it work... :/
+                     * 
+                     * UPDATE:
+                     * Deleted the http.get.composer part completely and relocated composer-
+                     * name directly into Firestore Piece Entry
                      */
 
-                    // Get Composer Name
-                    this._httpService.getComposerName(piece.data().composerId)
-                        .subscribe((res) => {
-                            composerName = res[0].name;
-
-                            // Push Piece (with Movements)
-                            this._ngZone.run(() => {
-                                this.pieceArray.push({
-                                    id: Number(piece.id),
-                                    title: piece.data().pieceTitle,
-                                    composerName: composerName,
-                                    composerId: piece.data().composerId,
-                                    workNumber: piece.data().pieceWorkNumber,
-                                    dateAdded: piece.data().dateAdded,
-                                    dateLastUsed: piece.data().dateLastUsed,
-                                    movements: pieceMovementArrayString,
-                                });
+                    // Push Piece (with Movements)
+                    this._ngZone.run(() => {
+                        if(piece.data().archived){
+                            console.log("ADDED TO ARCHIVE");
+                            // Add to Archived List
+                            this.archivedPieceArray.push({
+                                id: piece.id,
+                                title: piece.data().pieceTitle,
+                                composerName: piece.data().composer,
+                                composerId: piece.data().composerId,
+                                workNumber: piece.data().pieceWorkNumber,
+                                dateAdded: piece.data().dateAdded,
+                                dateLastUsed: piece.data().dateLastUsed,
+                                movements: pieceMovementArrayString,
+                                archivedDate: piece.data().archivedDate,
+                                showArchiveDate: false
                             });
-                            this.sortPieceArray();
-                        });
-
-                    
-                    
-                } else {
-                    // Get Composer Name
-                    this._httpService.getComposerName(piece.data().composerId)
-                    .subscribe((res) => {
-                        composerName = res[0].name;
-
-                        // Push Piece (without Movements)
-                        this._ngZone.run(() => {
+                        } else {
+                            // Add to Practice List
                             this.pieceArray.push({
-                                id: Number(piece.id),
+                                id: piece.id,
+                                title: piece.data().pieceTitle,
+                                composerName: piece.data().composer,
+                                composerId: piece.data().composerId,
+                                workNumber: piece.data().pieceWorkNumber,
+                                dateAdded: piece.data().dateAdded,
+                                dateLastUsed: piece.data().dateLastUsed,
+                                movements: pieceMovementArrayString,
+                            });
+                        }
+                        this.sortPieceArray();
+                    });
+                } else {
+                    // Push Piece (without Movements)
+                    this._ngZone.run(() => {
+                        if(piece.data().archived){
+                            // Add to Archvied List
+                            this.archivedPieceArray.push({
+                                id: piece.id,
                                 title: piece.data().pieceTitle,
                                 composerId: piece.data().composerId,
-                                composerName: composerName,
+                                composerName: piece.data().composer,
                                 workNumber: piece.data().pieceWorkNumber,
                                 dateAdded: piece.data().dateAdded,
                                 dateLastUsed: piece.data().dateLastUsed,
                                 movements: null,
-                            });
-                            
-                        });
+                                archivedDate: piece.data().archivedDate,
+                                showArchiveDate: false
+                            }); 
+                        } else {
+                            // Add to Practice List
+                            this.pieceArray.push({
+                                id: piece.id,
+                                title: piece.data().pieceTitle,
+                                composerId: piece.data().composerId,
+                                composerName: piece.data().composer,
+                                workNumber: piece.data().pieceWorkNumber,
+                                dateAdded: piece.data().dateAdded,
+                                dateLastUsed: piece.data().dateLastUsed,
+                                movements: null,
+                            });    
+                        }
                         // INSIST ON ORDER: PIECE RECENTLY USED > OLD PIECE > ADD NEW PIECE
                         this.sortPieceArray();
-
                     });
                 }
             });
@@ -253,23 +305,27 @@ export class PieceListComponent implements OnInit, OnDestroy {
         } else if(piece.movements) {
             let pieceId = piece.id;
             console.log("PIECE ID TAPPED: "+pieceId);
-            this._router.navigate(['/piece-db/'+pieceId+"/0"]);
+            this._router.navigate(['/piece-db/'+pieceId+"/0"], {
+                transition: {
+                    name: "slideLeft",
+                    duration: 100,
+                    curve: "easeIn"
+                }
+            });
         } else {
             this.showToast("This piece doesn't contain any movements");
         }
     }
 
     showPieceOptions(pieceId: number){
-        console.log("üBERMITTELTE PIECE ID: ->" + pieceId + "<-");
-        let that = this;
         dialogs.confirm({
-            title: "Delete piece from Practice-List?",
-            message: "Do you want to remove this piece (and all its movements) from your Practice-List? \n\nYour Practice-Progress (Practice-Sessions) won't be deleted.",
-            okButtonText: "Yes, remove please",
+            title: "Archive Piece?",
+            message: "Do you want to archive your piece (and all the movements)? If so, you won't be able to record audio for this piece or dedicate practice time to it.",
+            okButtonText: "Archive",
             cancelButtonText: "No!",
-        }).then(function (result) {
+        }).then((result) => {
             if(result){
-                that._pieceService.removePiece(pieceId).then(
+                this._pieceService.archivePiece(pieceId, 0).then(
                     function () {
                         console.log("success REMOVING");
                         //that.loadFirebaseData();
@@ -279,6 +335,32 @@ export class PieceListComponent implements OnInit, OnDestroy {
                 }
                 );
             }
+        });
+    }
+
+    showArchiveOptions(pieceId: number){
+        dialogs.confirm({
+            title: "Manage archived piece",
+            message: "You can either add this piece back to your Practice-List or remove it entirely. \n\nYour Practice-Progress (Practice-Sessions) won't be deleted.",
+            okButtonText: "Add back to Practice-List",
+            neutralButtonText: "Remove please",
+        }).then((result) => {
+            if(result === true){
+                // Add Piece back to Practice-List
+                this._pieceService.archivePiece(pieceId, 1);
+            } else if (result === false) {
+                // Cancel
+                return
+            } else if (result === undefined) {
+                // Remove Piece
+                this._pieceService.removePiece(pieceId)
+            }
+        });
+    }
+
+    archiveDateToggle(piece) {
+        this._ngZone.run(() => {
+            piece.showArchiveDate = !piece.showArchiveDate;
         });
     }
 

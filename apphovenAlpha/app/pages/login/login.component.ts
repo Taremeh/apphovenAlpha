@@ -57,6 +57,34 @@ export class LoginComponent implements OnInit {
             this.signUp();
         }
     }
+    
+    loginGoogle() {
+        if (getConnectionType() == connectionType.none) {
+            this.isAuthenticating = false;
+            alertExt("No Internet Connection", "You require an internet connection to log in.", "Cancel");
+            return;
+        }
+
+        this.userService.loginGoogle()
+        .then((data) => {
+            this.isAuthenticating = false;
+            if(BackendService.tutorialTour == 1){
+                this._routerExtensions.navigate(["/home/con-first-welcome"], { clearHistory: true });
+            } else {
+                this._routerExtensions.navigate(["/home/con-welcome-back"], { clearHistory: true });
+            }
+        })
+        .catch((err) => {
+            this.isAuthenticating = false;
+            if (err.match(/FirebaseAuthInvalidCredentialsException/)) {
+                alertExt("Password Wrong", "Unfortunately, the password isn't correct.", "Try Again");
+            } else if (err.match(/FirebaseAuthInvalidUserException/)) {
+                alertExt("Invalid User", "Unfortunately, we couln't find this email address.", "Try Again");
+            } else {
+                alertExt("Invalid Login", "Unfortunately, we couln't find your account.", "Try Again");
+            }
+        });
+    }
 
     login() {
         if (getConnectionType() == connectionType.none) {
@@ -95,8 +123,7 @@ export class LoginComponent implements OnInit {
 
         this.userService.register(this.user)
         .then(() => {
-            console.log("AAA");
-                alert("Your account was successfully created.");
+            alert("Your account was successfully created.");
             this.isAuthenticating = false;
             this.toggleDisplay();
         })

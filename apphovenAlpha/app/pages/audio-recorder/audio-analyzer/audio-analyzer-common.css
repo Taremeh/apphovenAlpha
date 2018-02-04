@@ -10,7 +10,6 @@ button {
 
 .meta-info-container {
     padding: 20%;
-    background-color: #F44336;
     color: white;
 }
 
@@ -26,8 +25,8 @@ button {
 
 .time-slider-container {
     background-color: #FAFAFA;
+    color: #D04F4F;
     padding: 10;
-    color: #F44336;
 }
 
 .add-marker-icon {
@@ -38,6 +37,7 @@ button {
 }
 
 .mark-label {
+    border-radius: 4;
     padding: 3;
     margin: 0 3 0 3;
     background-color: #BDBDBD;
@@ -46,7 +46,7 @@ button {
 
 .mark-label-highlight {
     color: white;
-    background-color: #F44336;
+    background-color: #D04F4F;
 }
 
 .mark-info-label {

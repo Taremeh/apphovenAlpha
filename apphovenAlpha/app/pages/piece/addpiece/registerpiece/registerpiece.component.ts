@@ -45,6 +45,21 @@ export class RegisterPieceComponent implements OnInit, OnDestroy {
         });
     }
 
+    ngOnInit(){
+        application.android.on(AndroidApplication.activityBackPressedEvent, (data: AndroidActivityBackPressedEventData) => {
+            console.log("BACK BUTTON EVENT TRIGGERED");
+            this.backEvent(data);
+        });
+
+        // Hide ActionBar
+        this._page.actionBarHidden = true;
+
+        this.movementArray.push({
+            id: this.movementCounter,
+            title: ""
+        });
+    }
+
     movementSwitch(args){
         let switchInstance = <Switch>args.object;
 
@@ -136,7 +151,7 @@ export class RegisterPieceComponent implements OnInit, OnDestroy {
 
     saveToFirebase(pieceId, workTitle, workNumber, movementArray){
         let that = this;
-        this._pieceService.addPiece(pieceId, this.composerId, {piece_title: workTitle, piece_work_number: workNumber, user_piece: true}, movementArray, movementArray)
+        this._pieceService.addPiece(pieceId, this.composerId, this.composerName, {piece_title: workTitle, piece_work_number: workNumber, user_piece: true}, movementArray, movementArray)
             .then(
                 function () {
                     console.log("SUCCESS"); 
@@ -157,19 +172,6 @@ export class RegisterPieceComponent implements OnInit, OnDestroy {
                     console.log("ERROR: " + error);
                 }
             );
-    }
-
-
-    ngOnInit(){
-        application.android.on(AndroidApplication.activityBackPressedEvent, (data: AndroidActivityBackPressedEventData) => {
-            console.log("BACK BUTTON EVENT TRIGGERED");
-            this.backEvent(data);
-        });
-
-        this.movementArray.push({
-            id: this.movementCounter,
-            title: ""
-        });
     }
 
     ngOnDestroy(){

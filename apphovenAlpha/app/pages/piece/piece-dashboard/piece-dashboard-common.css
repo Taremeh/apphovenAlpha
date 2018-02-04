@@ -17,17 +17,18 @@
 
 .list-record-item {
     margin: 10 0 10 0;
-    padding: 10%;
-    border-color: #808080;
+    padding: 22%;
+    color: white;
+    border-color: transparent;
     border-width: 1;
     border-radius: 4;
 }
 
 .list-record-item-add {
     margin: 10 0 10 0;
-    padding: 10%;
-    color: #39bc32;
-    border-color: #39bc32;
+    padding: 22%;
+    color: white;
+    border-color: transparent;
     border-width: 2;
     border-radius: 4;
 }
@@ -39,9 +40,12 @@
 }
 
 .heading-container {
-    padding: 20%;
-    color: white;
-    background-color: #E53935;
+    /* color: white;
+    background-color: #E95D59;*/
+}
+
+.heading-content {
+    padding: 30% 20% 30% 20%;
 }
 
 .bottom-button {
@@ -50,4 +54,20 @@
 
 .container-correction{
     padding-bottom: 7;
+}
+
+.bgi1 {
+    background-image: url("res://bg_landscape_3");
+}
+.bgi2 {
+    background-image: url("res://bg_landscape_2");
+}
+.bgi3 {
+    background-image: url("res://bg_landscape_3");
+}
+.background-image {
+    /*background-image: url("https://firebasestorage.googleapis.com/v0/b/apphoven.appspot.com/o/piece-box-graphics%2Fbg_landscape-2.png?alt=media&token=4f3e8b63-835d-4705-bf7d-e0a6ff22a78d");*/
+    background-position: center;
+    background-size: cover;
+    background-repeat: no-repeat;
 }

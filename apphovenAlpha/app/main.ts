@@ -13,7 +13,7 @@ firebase.initializeApp({
       // if your server passed a custom property called 'foo', then do this:
       // console.log(`Value of 'foo': ${message.data.foo}`);
   },
-   persist: true
+  persist: true
 });
 
 platformNativeScriptDynamic().bootstrapModule(AppModule);

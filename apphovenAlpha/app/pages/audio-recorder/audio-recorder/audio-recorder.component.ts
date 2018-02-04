@@ -25,6 +25,9 @@ import { SegmentedBarItem } from "ui/segmented-bar";
 import { TNSRecorder, TNSPlayer, AudioPlayerOptions, AudioRecorderOptions } from 'nativescript-audio';
 import { RouterExtensions } from "nativescript-angular/router";
 import { android as android } from "application";
+// UI Plugin
+import { SwissArmyKnife } from "nativescript-swiss-army-knife";
+import * as Toast from "nativescript-toast";
 
 @Component({
     selector: "ah-audio-recorder",
@@ -62,54 +65,50 @@ export class AudioRecorderComponent implements OnInit, OnDestroy {
     private pieceNameArray: Array<any>;
     private noPiecesFound: boolean;
 
-    // SEGMENTED BAR PROPERTIES
-    private recordingType;
-    private sbBarPropsArray: Array<SegmentedBarItem>;
-    public sbVisibility1 = true;
-    public sbVisibility2 = false;
-
-    // OTHER UI
-    private showPickerReplacement: boolean;
-
     // APP LOGIC
     private fileCreated: boolean;
 
     // Observable
     private listenerUnsubscribe: () => void;
 
-    @ViewChild("ahMainContainer") ahMainContainer: ElementRef;
-    @ViewChild("meterLineContainer") meterLineContainer: ElementRef;
-    @ViewChild("meterLineListView") meterLineListView: ElementRef;
+    // Icons
+    private isRecordingIcon = String.fromCharCode(0xf111);
+    private isNotRecordingIcon = String.fromCharCode(0xf10c);
+
+    // OTHER UI
+    private showPickerReplacement: boolean;
+
+    // Audiometer UI Component
+    private signalColor: Array<any>;
+
+    // Tags
+    private tag: Array<boolean>;
+    
+
+    // @ViewChild("ahMainContainer") ahMainContainer: ElementRef;
+    // @ViewChild("meterLineContainer") meterLineContainer: ElementRef;
+    // @ViewChild("meterLineListView") meterLineListView: ElementRef;
+    @ViewChild("audioMeterComponent") audioMeterComponent: ElementRef;
     @ViewChild("pieceSelectContainer") pieceSelectContainer: ElementRef;
     @ViewChild("pieceSelectContainerBottom") pieceSelectContainerBottom: ElementRef;
     @ViewChild("recordButton") recordButton: ElementRef;
 
 
     constructor(private _ngZone: NgZone, private _routerExtensions: RouterExtensions, private _page: Page) {
+        // Audiometer UI Component 8B3333
+        this.signalColor = [false,false,false,false,false,false];
+
+        // Tags: "PRACTICE": false | "CONCERT": false
+        this.tag = [false, false];
+
         this.player = new TNSPlayer();
         this.recorder = new TNSRecorder();
         //this.set('currentVolume', 1);
         this.audioEntities = [];
         this.meterLine = [];
-        this.sbBarPropsArray = [];
         this.audioPath = fs.knownFolders.documents().getFolder("audio");
         console.log("P1: " + fs.path.normalize(this.audioPath.path));
         console.log("PATH: "+this.audioPath);
-
-
-        // SEGMENTED BAR
-        for (let i = 0; i < 2; i++) {
-        let tmpSegmentedBar: SegmentedBarItem = <SegmentedBarItem>new SegmentedBarItem();
-            if(i == 0){
-                // First Segmented Bar Item
-                tmpSegmentedBar.title = "Practice";
-            } else {
-                // Second Segmented Bar Item
-                tmpSegmentedBar.title = "Concert";
-            }
-            this.sbBarPropsArray.push(tmpSegmentedBar);
-        }
-
 
         // Fetching Firebase Piece-Information
         // this.loadPieceInformation();
@@ -117,6 +116,16 @@ export class AudioRecorderComponent implements OnInit, OnDestroy {
     }
 
     ngOnInit(){
+
+        // Simulate Transition-Delay
+        setTimeout(() => {
+            // Set StatusBarColor
+            SwissArmyKnife.setAndroidStatusBarColor("#303030");
+        }, 100);
+
+        // Hide Action-Bar
+        this._page.actionBarHidden = true;
+
         application.android.on(AndroidApplication.activityBackPressedEvent, (data: AndroidActivityBackPressedEventData) => {
             console.log("BACK BUTTON EVENT TRIGGERED");
             if(this.isRecording || this.fileCreated){
@@ -131,6 +140,9 @@ export class AudioRecorderComponent implements OnInit, OnDestroy {
                     if(result){
                         // Remove & go back
 
+                        // Reset StatusBar Color
+                        SwissArmyKnife.setAndroidStatusBarColor("#D04F4F");
+
                         // Stop Recording
                         if(this.isRecording) {
                             this.stopRecord();
@@ -143,14 +155,18 @@ export class AudioRecorderComponent implements OnInit, OnDestroy {
                         // Stay
                     }
                 });
+            } else {
+                // Reset StatusBar Color
+                SwissArmyKnife.setAndroidStatusBarColor("#D04F4F");
             }
         });
     
     }
 
     recordToggle(){
-        let ahMainContainer = <View>this.ahMainContainer.nativeElement;
-        let meterLineContainer = <View>this.meterLineContainer.nativeElement;
+        // let ahMainContainer = <View>this.ahMainContainer.nativeElement;
+        // let meterLineContainer = <View>this.meterLineContainer.nativeElement;
+        let audioMeterComponent = <View>this.audioMeterComponent.nativeElement;
         let pieceSelectContainer = <View>this.pieceSelectContainer.nativeElement;
         let pieceSelectContainerBottom = <View>this.pieceSelectContainerBottom.nativeElement;
         let recordButton = <View>this.recordButton.nativeElement;
@@ -170,9 +186,10 @@ export class AudioRecorderComponent implements OnInit, OnDestroy {
                 this.showPicker = true;
             }
             
-            ahMainContainer.style.backgroundColor = regularBackgroundColor;
+            // ahMainContainer.style.backgroundColor = regularBackgroundColor;
             recordButton.style.backgroundColor = recordingButtonColor;
-            meterLineContainer.style.visibility = "collapse";
+            // meterLineContainer.style.visibility = "collapse";
+            audioMeterComponent.style.visibility = "collapse";
             pieceSelectContainer.style.visibility = "visible";
             pieceSelectContainerBottom.style.visibility = "visible";
             this.stopRecord();
@@ -184,7 +201,7 @@ export class AudioRecorderComponent implements OnInit, OnDestroy {
             this.recordButtonText = "Save Recording";
         } else if(!this.isRecording) {
             // Start Recording
-            ahMainContainer.style.backgroundColor = recordingBackgroundColor;
+            // ahMainContainer.style.backgroundColor = recordingBackgroundColor;
             this.startRecord();
 
             // Start Timer
@@ -294,10 +311,10 @@ export class AudioRecorderComponent implements OnInit, OnDestroy {
 
     private initMeter() {
         this.resetMeter();
-        let meterLineListView = <View>this.meterLineListView.nativeElement;
+        // let meterLineListView = <View>this.meterLineListView.nativeElement;
         let i: number = 1;
-        meterLineListView.android.setVerticalScrollBarEnabled(false);
-        meterLineListView.android.setTranscriptMode(2);
+        // meterLineListView.android.setVerticalScrollBarEnabled(false);
+        // meterLineListView.android.setTranscriptMode(2);
 
         this.meterInterval = setInterval(() => {
             let currentMeter = this.recorder.getMeters();
@@ -308,6 +325,43 @@ export class AudioRecorderComponent implements OnInit, OnDestroy {
 
             // Push new value to MeterData (data)
             this.meterData.push(currentMeter);
+
+            this.signalColor = [false,false,false,false,false,false];
+            let meterMaxValue = 32800;
+
+            switch(true) { 
+                case (currentMeter > (10/12*meterMaxValue)) : { 
+                    console.log("SWITCH 1");
+                    this.signalColor = [true,true,true,true,true,true];
+                    break;
+                }
+                case (currentMeter > (9/12*meterMaxValue)) : { 
+                    this.signalColor = [true,true,true,true,true,false];
+                    console.log("SWITCH 2");
+                    break;
+                }
+                case (currentMeter > (4/6*meterMaxValue)) : { 
+                    this.signalColor = [true,true,true,true,false,false];
+                    console.log("SWITCH 3");
+                    break;
+                }
+                case (currentMeter > (3/6*meterMaxValue)) : { 
+                    this.signalColor = [true,true,true,false,false,false];
+                    console.log("SWITCH 4");
+                    break;
+                }
+                case (currentMeter > (2/6*meterMaxValue)) : { 
+                    this.signalColor = [true,true,false,false,false,false];
+                    console.log("SWITCH 5");
+                    break;
+                }
+                case (currentMeter > (1/12*meterMaxValue)) : { 
+                    this.signalColor = [true,false,false,false,false,false];
+                    console.log("SWITCH 6");
+                    break; 
+                }
+             } 
+
 
             // Push new value to MeterLine (display)
             this.meterLine.push({meterValue: currentMeter});
@@ -517,19 +571,25 @@ export class AudioRecorderComponent implements OnInit, OnDestroy {
         console.log("MeterLine Tapped");
     }
 
-    public sbOnChange(value) {
-        this.recordingType = value;
-        switch (value) {
-            case 0:
-                this.sbVisibility1 = true;
-                this.sbVisibility2 = false;
-                break;
-            case 1:
-                this.sbVisibility1 = false;
-                this.sbVisibility2 = true;
-                break;
-            default:
-                break;
+    public tapTag(type: string){
+        if(type == "practice"){
+            // Check if Tag already selected
+            if(this.tag[0] == true) {
+                // Tags: Reset
+                this.tag = [false, false];
+            } else {
+                // Tags: "PRACTICE": true | "CONCERT": false
+                this.tag = [true, false];
+            }
+        } else if(type == "concert") {
+            // Check if Tag already selected
+            if(this.tag[1] == true) {
+                // Tags: Reset
+                this.tag = [false, false];
+            } else {
+                // Tags: "PRACTICE": false | "CONCERT": true
+                this.tag = [false, true];
+            }
         }
     }
 
@@ -540,6 +600,14 @@ export class AudioRecorderComponent implements OnInit, OnDestroy {
         let firebaseRecordingItem;
         let recordingDate = this.recordingStart;
         let userRecordingTitle = this._page.getViewById<TextField>("userRecordingTitle").text;
+        let recordingType;
+        if(this.tag[0] == true){
+            recordingType = "practice";
+        } else if (this.tag[1] == true){
+            recordingType = "concert";
+        } else {
+            recordingType = undefined;
+        }
 
         // Shrink MeterData if > 20  
         if(this.meterData.length > 20){
@@ -563,7 +631,7 @@ export class AudioRecorderComponent implements OnInit, OnDestroy {
                 // NO PIECE & NO MOVEMENTS EXIST
                 'duration': duration,
                 'recordingTitle': userRecordingTitle,
-                'recordingType': this.recordingType,
+                'recordingType': recordingType,
                 'fileName': this.fileName,
                 'audioMeterLine': this.meterData,
                 'fileLocation': 0,
@@ -585,7 +653,7 @@ export class AudioRecorderComponent implements OnInit, OnDestroy {
                     'pieceTitle': this.pieceNameArray[this.selectedIndex],
                     'movementId': movementId,
                     'recordingTitle': userRecordingTitle,
-                    'recordingType': this.recordingType,
+                    'recordingType': recordingType,
                     'fileName': this.fileName,
                     'audioMeterLine': this.meterData,
                     'fileLocation': 0,
@@ -600,7 +668,7 @@ export class AudioRecorderComponent implements OnInit, OnDestroy {
                 // pieceTitle (including movement) only TEMPORARY
                 'pieceTitle': this.pieceNameArray[this.selectedIndex],
                 'recordingTitle': userRecordingTitle,
-                'recordingType': this.recordingType,
+                'recordingType': recordingType,
                 'fileName': this.fileName,
                 'audioMeterLine': this.meterData,
                 'fileLocation': 0,
@@ -670,10 +738,11 @@ export class AudioRecorderComponent implements OnInit, OnDestroy {
     public handleSnapshot(snapshot){
         this.pieceArray = [];
         this.pieceNameArray = [];
+        this.noPiecesFound = true;
+
         // Check if Snapshot contains Pieces (snapshot.docsSnapshots: [])
         if(snapshot.docSnapshots.length !== 0){
-            this.noPiecesFound = false;
-            console.log("PIECE-ITEMS FOUND");
+
             snapshot.forEach(piece => {
                 console.log("The Result: " + JSON.stringify(piece) + "\n\n");
                 console.log("> PIECE SUCCESSFULLY RETRIEVED.");
@@ -682,52 +751,57 @@ export class AudioRecorderComponent implements OnInit, OnDestroy {
                 console.log(">>> Piece Value: " + JSON.stringify(piece.data()));
                 piece.data().movementItem ? console.log(">>> Movements: " + JSON.stringify(piece.data().movementItem.length) + "\n\n") : console.log(">>> Movements: 0\n\n");
             
-                if(piece.data().movementItem){
-                    // Piece contains Movements
-                    console.log("MOVEMENT-ITEMS FOUND");
+                // Check if Piece is actually available to select (!= archived)
+                if(!piece.data().archived) {
+                    this.noPiecesFound = false;
 
-                    // Count Movements of Pieced
-                    let movementAmount = piece.data().movementItem.length;
+                    if(piece.data().movementItem){
+                        // Piece contains Movements
+                        console.log("MOVEMENT-ITEMS FOUND");
 
-                    // Add each movement (with practice state = 1) of piece to selectionPieceArray
-                    for (let iMov = 0; iMov < movementAmount; iMov++) {
-                        if(piece.data().movementItem[iMov].state == 1){
-                            this._ngZone.run(() => {
-                                this.pieceArray.push({
-                                    pieceId: piece.id,
-                                    movementId: piece.data().movementItem[iMov].id,
-                                    pieceTitle: piece.data().pieceTitle,
-                                    movementTitle: piece.data().movementItem[iMov].title,
-                                    lastUsed: piece.data().movementItem[iMov].lastUsed,
-                                    iconCode: String.fromCharCode(0xf11a), 
-                                    iconState: -1,
-                                    iconColor: "#afafaf",
-                                    durationSliderValue: 0,
-                                    state: false
-                                });
+                        // Count Movements of Pieced
+                        let movementAmount = piece.data().movementItem.length;
 
-                                this.pieceNameArray.push(piece.data().pieceTitle + " | " + piece.data().movementItem[iMov].title);
-                            })
+                        // Add each movement (with practice state = 1) of piece to selectionPieceArray
+                        for (let iMov = 0; iMov < movementAmount; iMov++) {
+                            if(piece.data().movementItem[iMov].state == 1){
+                                this._ngZone.run(() => {
+                                    this.pieceArray.push({
+                                        pieceId: piece.id,
+                                        movementId: piece.data().movementItem[iMov].id,
+                                        pieceTitle: piece.data().pieceTitle,
+                                        movementTitle: piece.data().movementItem[iMov].title,
+                                        lastUsed: piece.data().movementItem[iMov].lastUsed,
+                                        iconCode: String.fromCharCode(0xf11a), 
+                                        iconState: -1,
+                                        iconColor: "#afafaf",
+                                        durationSliderValue: 0,
+                                        state: false
+                                    });
+
+                                    this.pieceNameArray.push(piece.data().pieceTitle + " | " + piece.data().movementItem[iMov].title);
+                                })
+                            }
                         }
-                    }
-                    
-                } else {
-                    // Piece does not contain movements
-                    // Add piece to selectionPieceArray
-                    this._ngZone.run(() => {
-                        this.pieceArray.push({
-                            pieceId: piece.id,
-                            pieceTitle: piece.data().pieceTitle,
-                            lastUsed: piece.data().lastUsed,
-                            iconCode: String.fromCharCode(0xf11a), 
-                            iconState: -1,
-                            iconColor: "#afafaf",
-                            durationSliderValue: 0,
-                            state: false
-                        });
+                        
+                    } else {
+                        // Piece does not contain movements
+                        // Add piece to selectionPieceArray
+                        this._ngZone.run(() => {
+                            this.pieceArray.push({
+                                pieceId: piece.id,
+                                pieceTitle: piece.data().pieceTitle,
+                                lastUsed: piece.data().lastUsed,
+                                iconCode: String.fromCharCode(0xf11a), 
+                                iconState: -1,
+                                iconColor: "#afafaf",
+                                durationSliderValue: 0,
+                                state: false
+                            });
 
-                        this.pieceNameArray.push(piece.data().pieceTitle);
-                    });
+                            this.pieceNameArray.push(piece.data().pieceTitle);
+                        });
+                    }
                 }
             });
 
@@ -738,12 +812,6 @@ export class AudioRecorderComponent implements OnInit, OnDestroy {
                 });
             });
 
-        } else {
-            // No Pieces Found
-            this._ngZone.run(() => {
-                this.noPiecesFound = true;
-                console.log("NO PIECES FOUND");
-            });
         }
     }
 
@@ -851,6 +919,10 @@ export class AudioRecorderComponent implements OnInit, OnDestroy {
         }
     }
 
+    public showToast(message: string) {
+        Toast.makeText(message).show();
+    }
+
     public firestoreStopListening(): void {
         if (this.listenerUnsubscribe === undefined) {
           console.log("Please start listening first.");
@@ -862,9 +934,13 @@ export class AudioRecorderComponent implements OnInit, OnDestroy {
     }
 
     ngOnDestroy(){
+        // Reset StatusBar Color
+        SwissArmyKnife.setAndroidStatusBarColor("#D04F4F");
+
         if(this.isRecording){
             this.stopRecord();
         }
+
         this.firestoreStopListening();
         application.android.off(AndroidApplication.activityBackPressedEvent);
         console.log("AudioRecorder - ngOnDestroy()");

@@ -1,5 +1,5 @@
 .practice-button {
-    background-color: #F44336;
+    /* background-color: #F44336;*/
     margin: -6;
     height: 70;
     font-size: 19;
@@ -49,4 +49,16 @@
   /* background-color: #FAFAFA; */
   padding: 0 20 0 20;
   margin-bottom: 60;
+}
+
+.profile-heading {
+    padding: 20%;
+}
+
+#userNameInput {
+    margin: 0 0 -1 0;
+    padding: 0;
+    border-width: 5;
+    border-color: transparent;
+    color: white;
 }

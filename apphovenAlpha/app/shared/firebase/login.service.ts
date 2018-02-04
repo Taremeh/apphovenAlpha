@@ -3,6 +3,9 @@ import { User } from "./user.model";
 import { BackendService } from "./backend.service";
 import firebase = require("nativescript-plugin-firebase");
 
+const firestorebase = require("nativescript-plugin-firebase/app");
+// import { firestore } from "nativescript-plugin-firebase";
+
 @Injectable()
 export class LoginService {
   register(user: User) {
@@ -13,7 +16,7 @@ export class LoginService {
       password: user.password
     }).then(
         function (result) {
-          console.log("FALSCHER SUCCESS");
+          
           return JSON.stringify(result);
         }
     ).catch(this.handleErrors);
@@ -22,27 +25,69 @@ export class LoginService {
   login(user: User) {
     return firebase.login({
       type: firebase.LoginType.PASSWORD,
-      email: user.email,
-      password: user.password
+      passwordOptions: { 
+        email: user.email,
+        password: user.password
+      }
     }).then(
         function (result) {
           BackendService.token = result.uid;
           BackendService.email = result.email;
-          firebase.keepInSync(
-              "/user/"+BackendService.token, // which path in your Firebase needs to be kept in sync?
-              true      // set to false to disable this feature again
-          ).then(
-              function () {
-              console.log("firebase.keepInSync is ON for ../piece");
-              },
-              function (error) {
-              console.log("firebase.keepInSync error: " + error);
-              }
-          );
-          console.log("LOGIN SUCCESS - SERVICE");
+          if(result.name) {
+            BackendService.userName = result.name;
+          }
+          console.log("LOGIN SUCCESS (email) - SERVICE");
           return JSON.stringify(result);
         },
     ).catch(this.handleErrors);
+  }
+
+  loginGoogle(){
+    return firebase.login({
+      type: firebase.LoginType.GOOGLE
+    }).then(
+        function (result) {
+          BackendService.token = result.uid;
+          BackendService.email = result.email;
+          BackendService.userName = result.name;
+          let date = Date.now();
+
+          const lvl1Doc = firestorebase.firestore()
+            .collection("user")
+            .doc(result.uid)
+            .collection("stats")
+            .doc("1");
+        
+          lvl1Doc.get().then(doc => {
+            if (doc.exists) {
+              // LOGIN
+              console.log("LOGGING IN GOOGLE USER.");
+              return JSON.stringify(result);
+            } else {
+              // First Time Login -> Create LVL 1 Entry
+              console.log("LOGGING IN NEW GOOGLE USER. CREATING LVL 1 ENTRY");
+              const statsCollection = firestorebase.firestore()
+                .collection("user")
+                .doc(result.uid)
+                .collection("stats");
+              
+              statsCollection.doc("1").set({
+                 lvl: 1,
+                 xpCurrent: 0,
+                 xpMax: 50,
+                 dateStarted: date,
+                 lastTouched: date
+              }).then(() => {
+                console.log("FIRST TIME LOGIN SUCCESS (google) - SERVICE");
+                return JSON.stringify(result);
+              });
+            }
+          });
+        },
+        function (errorMessage) {
+          console.log(errorMessage);
+        }
+    );
   }
   
   resetPassword(email) {
@@ -54,6 +99,20 @@ export class LoginService {
           // you could now prompt the user to check his email
         }
     ).catch(this.handleErrors);
+  }
+
+  updateName(username) {
+    return firebase.updateProfile({
+        displayName: username,
+        // photoURL: ''
+    }).then(
+        () => {
+            BackendService.userName = String(username);
+        },
+        (errorMessage) => {
+            console.log(errorMessage);
+        }
+    );
   }
 
   handleErrors(error) {

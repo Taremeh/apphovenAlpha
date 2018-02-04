@@ -44,14 +44,14 @@
     animation-fill-mode: forwards;
  }
 
- .piece-add-box {
-     background-color: #6B6B6B;
- }
-
 .piece-text-container {
     color: white;
-    padding: 20;    
-   
+    padding: 20;     
+}
+
+.piece-text-container-dimmed {
+    color: #F5F5F5;
+    padding: 20;     
 }
 
 .bg-image {
@@ -64,6 +64,29 @@
     animation-fill-mode: forwards;*/
 }
 
+.archive-piece-box {
+    opacity: 0;
+    height: 100;
+    width: 200;
+    margin: 10;
+    border-radius: 10;
+    animation-name: fadeInImage;
+    animation-delay: 1s;
+    animation-duration: 1s;
+    animation-fill-mode: forwards;
+ }
+
+ .archive-date-display {
+     text-align: center;
+     margin-top: 21%;
+ }
+
+ .glow-box {
+    animation-delay: 5s;
+    animation-duration: 1;
+    animation-iteration-count:infinite;
+    animation-name: backgroundColor;
+ }
 
 /*
  * Keyframes
@@ -72,4 +95,8 @@
 @keyframes fadeInImage {
     from { opacity: 0; }
     to { opacity: 1; }
+}
+@keyframes backgroundColor {
+    from { background-color: #858585; }
+    to { background-color: #E95D59; }
 }

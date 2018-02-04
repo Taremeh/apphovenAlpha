@@ -329,7 +329,8 @@ export class AddPieceComponent implements OnInit, OnDestroy {
             this.showToast("Select a movement");
             console.log("SELECT MOVEMENT! " + JSON.stringify(this.pieceMovementArray));
         } else {
-            this._pieceService.addPiece(this.pieceId, this.composerId, this.pieceData[this.pieceDataId], this.movementArray || null, this.pieceMovementArray)
+            this.showToast("Loading...");
+            this._pieceService.addPiece(this.pieceId, this.composerId, this.composerName, this.pieceData[this.pieceDataId], this.movementArray || null, this.pieceMovementArray)
             .then(
                 function () {
                     console.log("SUCCESS"); 

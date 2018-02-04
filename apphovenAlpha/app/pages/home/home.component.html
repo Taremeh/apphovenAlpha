@@ -1,13 +1,24 @@
-<ActionBar class="ah-action-bar">
-    <GridLayout columns="*, auto">
-        <Label col="0" text="APPHOVEN" style="font-size: 20; vertical-align: center;"></Label>
-        <Label col="1" text="{{ settingsIcon }}" class="icon-font icon-settings"  (tap)="navigateTo('/settings')"></Label>
-    </GridLayout>
-</ActionBar>
-
 <StackLayout>
 
-<GridLayout #beethovenContainer *ngIf="tutorialTour > 0" columns="auto, *" height="160" class="beethoven-container" (tap)='beethoven("inherit")' (longPress)='beethoven("kill")'>
+<GridLayout #profileContainer [visibility]="!tutorialTour ? 'visible' : 'collapsed'" rows="auto" columns="auto,*" class="profile-heading primary-color" (tap)="showSettings=!showSettings">
+    <GridLayout row="0" col="0" rows="auto, auto" columns="auto" marginRight="14">
+        <Image row="0" col="0" src="res://beethoven_profile" height="60"></Image>
+        <Label row="1" col="0" text="LVL {{ userLvl }}" class="text-center title-regular" fontSize="15"></Label>        
+    </GridLayout>
+    <GridLayout row="0" col="1" rows="auto, auto, auto" columns="*" marginTop="8">
+        <Label row="0" col="1" text="{{ username }}" (longPress)="updateUserName()" (tap)="showToast('Press long to change Username')" class="title-regular huge-title"></Label>
+        <GridLayout row="1" col="1" rows="auto,auto" columns="auto,auto"  backgroundColor="#FFF0D6" style="border-radius: 50">
+            <StackLayout #xpProgressBar height="20" row="0" col="0" width="{{ xpCurrentDisplayBar / xpMax * 100 }}%" minWidth="80%" backgroundColor="#FFD151" style="border-radius: 50"></StackLayout>s
+        </GridLayout>
+        <Label row="2" col="1" text="{{ xpCurrent }} / {{ xpMax }} XP" class="title-regular" fontSize="15" marginTop="2"></Label>
+    </GridLayout>
+</GridLayout>
+<StackLayout *ngIf="showSettings" class="hr-dark"></StackLayout>
+<StackLayout *ngIf="showSettings" class="settings-container profile-heading primary-color">
+    <Label text="SHOW SETTINGS" class="title-regular text-center" (tap)="navigateTo('/settings')"></Label>
+</StackLayout>
+
+<GridLayout #beethovenContainer *ngIf="tutorialTour > 0" columns="auto, *" height="160" class="beethoven-container primary-color" (tap)='beethoven("inherit")' (longPress)='beethoven("kill")'>
     <StackLayout width="100" height="100" col="0" class="m-r-5">
         <Image src="res://beethoven_profile" stretch="aspectFill"></Image>
     </StackLayout>
@@ -66,5 +77,12 @@
 </StackLayout>
 
 <DockLayout stretchLastChild="false">
-    <Button #practiceNowButton (tap)="practiceNow()" dock="bottom" text="PRACTICE NOW" class="practice-button" ></Button>
+    <Button #practiceNowButton (tap)="practiceNow()" dock="bottom" text="PRACTICE NOW" class="practice-button primary-color" ></Button>
 </DockLayout>
+
+<!-- Achievement UI Element
+<DockLayout stretchLastChild="false">
+        <StackLayout dock="bottom" class="achievement">
+            <Label text="LEVEL UP" class="title-regular font-light"></Label>
+        </StackLayout>
+</DockLayout> -->

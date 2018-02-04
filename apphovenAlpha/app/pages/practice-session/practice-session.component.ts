@@ -283,7 +283,10 @@ export class PracticeSessionComponent implements OnInit, OnDestroy {
                     this.leg1 = 0;
                     this.leg2 = 0;
                     this.legtop = 0;
-                    this.week = null;
+                    // Reset Week Practice Values
+                    for(let i=0; i <= 6; i++){
+                        this.week[i].value = 0;
+                    }
                     this.graphValue = false;
                 }
             }
@@ -293,7 +296,10 @@ export class PracticeSessionComponent implements OnInit, OnDestroy {
                 this.leg1 = 0;
                 this.leg2 = 0;
                 this.legtop = 0;
-                this.week = null;
+                // Reset Week Practice Values
+                for(let i=0; i <= 6; i++){
+                    this.week[i].value = 0;
+                }
                 this.sessionArray = null;
             });
             console.log("No Practice-Sessions found");

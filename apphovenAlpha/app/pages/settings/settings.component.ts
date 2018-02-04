@@ -1,9 +1,14 @@
 import { Component, OnInit, OnDestroy } from "@angular/core";
 import { Router } from "@angular/router";
 import { Page } from "ui/page";
-import { BackendService } from "../../shared";
+import { BackendService, LevelService } from "../../shared";
 import { RouterExtensions } from "nativescript-angular/router";
 let utilityModule = require("utils/utils");
+// Background Service
+/* var Observable = require("data/observable").Observable;
+var application = require("application");
+import * as utils from "utils/utils"; */
+
 
 import firebase = require("nativescript-plugin-firebase");
 
@@ -16,8 +21,10 @@ import firebase = require("nativescript-plugin-firebase");
 export class SettingsComponent implements OnInit, OnDestroy {
     isAndroid;
     private userEmail;
+    private tapCounter = 0;
 
-    constructor(private _router: Router, private page: Page, private _routerExtensions: RouterExtensions) { 
+    constructor(private _router: Router, private page: Page, private _routerExtensions: RouterExtensions,
+        private _lvlService: LevelService) { 
 
         firebase.getCurrentUser().then((user) => {
             this.userEmail = user.email;
@@ -40,6 +47,9 @@ export class SettingsComponent implements OnInit, OnDestroy {
 
     logOut() {
         BackendService.token = "";
+        BackendService.userName = "";
+        BackendService.email = "";
+
         firebase.logout();
         this._routerExtensions.navigate(["/login"], { clearHistory: true });
     }
@@ -56,5 +66,23 @@ export class SettingsComponent implements OnInit, OnDestroy {
         } else if (url == "flaticon"){
             utilityModule.openUrl("http://flaticon.com");
         }
+    }
+
+    onTap(){
+        /*
+         * BETA TESTING
+         * 
+        
+        if(this.tapCounter > 0) {
+            this._lvlService.practiceXp(1800*20);
+            /* BackgroundServices
+            var services = require("./background-service/service-helper");
+            console.log("ONTAP() NOTIFICATION SERVICE FIRED");
+            services.setupAlarm(utilityModule.ad.getApplicationContext());
+            
+        } else {
+            console.log("ONTAP() " + this.tapCounter);
+            this.tapCounter++;
+        }*/
     }
 }

@@ -1,22 +1,23 @@
 <StackLayout>
     <StackLayout class="heading-container">
-        <ScrollView #scrlView orientation="horizontal">
-            <Label class="piece-heading" text="{{ pieceTitle }}"></Label>
-        </ScrollView>
-        <Label class="piece-text" text="Composer: {{ pieceComposer }}"></Label>
-        <Label class="piece-text" text="Work-Number: {{ pieceWorkNumber }}"></Label>
-        <Label class="piece-text" text="Movements: {{ pieceMovementAmount }}" visibility="{{pieceMovementAmount ? 'visible' : 'collapsed' }}"></Label>
+        <StackLayout class="heading-content primary-color background-image {{ randomImage }}">
+            <Label style="margin-bottom: 1" class="title-regular" text="{{ pieceComposer }}"></Label>
+            <ScrollView orientation="horizontal">
+                <Label class="title-bold hugetitle" textWrap="true" text="{{ pieceTitle }}"></Label>
+            </ScrollView>
+            <Label class="piece-text" text="Work-Number: {{ pieceWorkNumber }}"></Label>
+            <Label class="piece-text" text="Movements: {{ pieceMovementAmount }}" visibility="{{pieceMovementAmount ? 'visible' : 'collapsed' }}"></Label>
+    </StackLayout>
     </StackLayout>
     <GridLayout rows="*, auto">
         <StackLayout row="0" class="ah-main-container container-correction">
             <StackLayout #pieceContainer class="piece-container">            
                 <StackLayout class="movement-container" visibility="{{pieceMovementAmount ? 'visible' : 'collapsed' }}">
-                    <Label class="piece-text text-center" text="Movements on your practice list:"></Label>
                         <ListView [items]="selectedArray" separatorColor="white" (itemTap)="handleItemTap($event)">
-                            <template let-movement="item">
+                            <ng-template let-movement="item">
                                 <GridLayout rows="* auto" columns="*"> 
-                                    <GridLayout rows="auto, auto" columns="*" class="{{ movement.state ? 'list-record-item' : 'list-record-item-add' }}">
-                                        <Label class="piece-heading" text="{{ movement.title }}" row="0" col="0"></Label>
+                                    <GridLayout rows="auto, auto" columns="*" class="{{ movement.state ? 'list-record-item secondary-color-light' : 'list-record-item-add primary-color' }}">
+                                        <Label class="title-bold" text="{{ movement.title }}" row="0" col="0"></Label>
                                         <!-- <Label text="{{ showRemainingMovements ? (movement.state ? 'delete' : 'ADD TO LIST') : (movement.state ? 'CLICK TO RECORD' : 'ADD TO LIST') }}" row="1" col="0"></Label>-->
                                         
                                         <StackLayout *ngIf="showRemainingMovements" row="0" col="0">
@@ -24,7 +25,7 @@
                                         </StackLayout>                           
                                     </GridLayout>
                                 </GridLayout>
-                            </template>
+                            </ng-template>
                         </ListView>
                 </StackLayout>
             </StackLayout>

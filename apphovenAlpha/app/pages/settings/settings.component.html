@@ -1,6 +1,6 @@
-<ActionBar class="ah-action-bar">
+<ActionBar class="ah-action-bar primary-color">
     <GridLayout columns="*">
-        <Label col="0" text="APPHOVEN" style="font-size: 20; vertical-align: center;"></Label>
+        <Label col="0" text="APPHOVEN" class="title-regular" style="font-size: 22; padding-top: 6; vertical-align: center;"></Label>
     </GridLayout>
 </ActionBar>
 <StackLayout row="1" #ahMainContainer class="ah-main-container">
@@ -8,7 +8,7 @@
     <StackLayout row="0">
         <Label text="Apphoven is being developed continuously. Expect more to come!" style.whiteSpace="normal" margin="10" class="text-center"></Label>
         <Button (tap)="logOut()" text="LogOut"></Button>
-        <Label [text]="userEmail" class="text-center"></Label>
+        <Label [text]="userEmail" class="text-center" (tap)="onTap()"></Label>
     </StackLayout>
     <StackLayout row="1" class="text-center ah-text-secondary">
         <Label text="Access Beta-Function: Metronome" style.whiteSpace="normal" paddingBottom="10" style="color: black" (tap)="betaFunction()"></Label>

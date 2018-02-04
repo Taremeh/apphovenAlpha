@@ -1,4 +1,4 @@
-<StackLayout class="meta-info-container">
+<StackLayout class="meta-info-container primary-color">
     <ScrollView #scrlView orientation="horizontal">
         <Label class="h2" text="{{ displayTitle }}"></Label>
     </ScrollView>
@@ -25,8 +25,8 @@
         <Label (tap)="addMark()" text="{{ addIcon }}" class="icon-font add-marker-icon"></Label>
         <ScrollView orientation="horizontal">
             <StackLayout orientation="horizontal">
-                <Label *ngIf="noMarks" text="Tap on the pin to add a marker" class="mark-info-label"></Label>
-                <Label *ngFor="let mark of fbRecordingMarks" text="{{ mark.time | mstransformer }}" class="{{ mark.class }}" (tap)="onMarkTap(mark.position)"></Label>
+                <Label *ngIf="noMarks" text="Tap on the pin to add a marker" class="mark-info-label font-dark"></Label>
+                <Label *ngFor="let mark of fbRecordingMarks" text="{{ mark.time | mstransformer }}" class="{{ mark.class }} font-light" (tap)="onMarkTap(mark.position)"></Label>
             </StackLayout>
         </ScrollView>
 

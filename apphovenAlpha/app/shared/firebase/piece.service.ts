@@ -17,7 +17,7 @@ export class PieceService {
     }
 
 
-    addPiece(pieceId: any, composerId: number, pieceData: any, movementArray: any, pieceMovementArray: any): Promise<Response>{
+    addPiece(pieceId: any, composerId: number, composerName: string, pieceData: any, movementArray: any, pieceMovementArray: any): Promise<Response>{
         let i;
         let sP = pieceData;
         let piecePracticeArray;
@@ -54,22 +54,28 @@ export class PieceService {
                 }
             }
             
-            piecePracticeArray = { pieceId: pieceId, composerId: composerId, pieceTitle: sP.piece_title, 
+            piecePracticeArray = { pieceId: pieceId, composerId: composerId, 
+                composer: composerName,
+                pieceTitle: sP.piece_title, 
                 pieceWorkNumber: sP.piece_work_number, 
                 movementItem: pieceMovementArray, 
                 movementItemAmount: piecePracticeMovementsAmount,
                 dateLastUsed: dateToday,
-                dateAdded: dateToday
+                dateAdded: dateToday,
+                archived: false
             };
 
             console.log(piecePracticeArray.pieceTitle, piecePracticeArray.pieceWorkNumber);
         } else {
             // MOVEMENTS DO NOT EXIST
-            piecePracticeArray = { pieceId: pieceId, composerId: composerId, pieceTitle: sP.piece_title, 
+            piecePracticeArray = { pieceId: pieceId, composerId: composerId, 
+                composer: composerName,
+                pieceTitle: sP.piece_title, 
                 pieceWorkNumber: sP.piece_work_number, 
                 movementItemAmount: piecePracticeMovementsAmount,
                 dateLastUsed: dateToday,
-                dateAdded: dateToday
+                dateAdded: dateToday,
+                archived: false
             };
             console.log(piecePracticeArray.pieceTitle, piecePracticeArray.pieceWorkNumber);
         }
@@ -117,6 +123,32 @@ export class PieceService {
         }).then(() => {
             console.log("Movements of piece -> " + pieceId + " <- updated.");
           });
+    }
+
+    archivePiece(pieceId, type: number) {
+        let pieceDocument = firebasef.firestore()
+        .collection("user")
+        .doc(BackendService.token)
+        .collection("piece")
+        .doc(String(pieceId));
+
+        let dateToday = new Date().getTime();
+
+        if(type == 0){
+            // Add Piece To Archive
+            return pieceDocument.update({
+                archived: true,
+                archivedDate: dateToday 
+            }) 
+        } else if (type == 1) {
+            // Add Piece To Practice List
+            return pieceDocument.update({
+                archived: false,
+                archivedDate: null
+            }) 
+        } else {
+            return false;
+        }
     }
 
     removeSession(sessionId: number) {

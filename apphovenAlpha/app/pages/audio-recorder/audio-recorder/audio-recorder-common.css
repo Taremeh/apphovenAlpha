@@ -1,18 +1,18 @@
 button {
-    margin: 5%;
+    /*margin: 5%;
     padding: 2%;
     font-size: 19;
     font-weight: bold; 
     color: #F9F9F9;
+    border-radius: 5;*/
     background-color: #E53935;
-    border-radius: 5;
 }
 
 .amplitude {
     background-color: #E53935;
 }
 /* test */
-.piece-select-container {
+.recording-select-container {
     visibility: collapse;
     vertical-align: stretch;
     height: 100%;
@@ -28,6 +28,9 @@ button {
 
 .save-button {
     background-color: #757575;
+    width: 100%;
+    height: 60;
+    border-radius: 1;
 }
 
 .top-correction {
@@ -37,4 +40,45 @@ button {
 
 .small-top-correction {
     margin-top: 2;
+}
+
+/*
+ * Audio Meter
+ */
+
+.audiometer-container {
+    padding: 30% 30% 0 30%;
+}
+
+.audiometer-signal, .audiometer-dividder {
+    padding: 20%;
+    width: 200;
+}
+
+.audiometer-signal {
+    /*border-width: 5;*/
+    border-radius: 10;
+    border-color: #EEF12C;
+    padding: 20%;
+    width: 200;
+}
+
+.signal-start-glowing {
+    animation-name: opacity;
+    animation-duration: 0.3;
+}
+@keyframes opacity {
+    from { opacity: 0.5; }
+    to { opacity: 1; }
+}
+
+
+.tag-item-light {
+    margin-right: 8;
+    border-radius: 5;
+    padding: 5 8 4 8;
+}
+
+.tag-activated {
+    background-color: #D04F4F;
 }

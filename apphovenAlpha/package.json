@@ -7,7 +7,7 @@
   "nativescript": {
     "id": "com.apphoven.apphovenAlpha",
     "tns-android": {
-      "version": "3.4.0"
+      "version": "3.4.1"
     }
   },
   "dependencies": {
@@ -23,6 +23,7 @@
     "nativescript-audio": "^3.4.2",
     "nativescript-plugin-firebase": "^5.1.2",
     "nativescript-sound": "^1.0.4",
+    "nativescript-swiss-army-knife": "^3.0.0",
     "nativescript-theme-core": "1.0.4",
     "nativescript-toast": "^1.4.5",
     "reflect-metadata": "~0.1.8",

@@ -1,5 +1,5 @@
 export interface Piece {
-    id: number;
+    id: any;
     title: string;
     composerId: any;
     workNumber: string;

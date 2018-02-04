@@ -1,6 +1,6 @@
-<ActionBar class="ah-action-bar">
+<ActionBar class="ah-action-bar primary-color">
     <GridLayout columns="*">
-        <Label col="0" text="APPHOVEN" style="font-size: 20; vertical-align: center;"></Label>
+        <Label col="0" text="YOUR RECORDINGS" class="title-regular"></Label>
     </GridLayout>
 </ActionBar>
 <StackLayout class="ah-main-container">
@@ -14,7 +14,7 @@
                         <Label row="1" text="No recordings found" class="text-center p-5 m-10"></Label>
                     </GridLayout>
                     <ListView class="list-group clear-background" [items]="fbRecordingArray" separatorColor="transparent" (itemTap)="onRecordingTap($event)">
-                        <template let-recording="item">
+                        <ng-template let-recording="item">
                             <StackLayout class="list-group-item clear-background"> 
                                 <GridLayout rows="auto, auto"columns="*, auto">
                                     <Label row="0" col="0" class="list-group-item-heading" [text]="recording.displayTitle"></Label>
@@ -22,7 +22,7 @@
                                     <Label row="0" col="1" class="icon-font icon-container" [text]="iconSettings" (tap)="showRecordingOptions(recording.fileName)"></Label>                    
                                 </GridLayout>
                             </StackLayout>
-                        </template>
+                        </ng-template>
                     </ListView>
                 </StackLayout>
             </StackLayout>

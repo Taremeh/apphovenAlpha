@@ -5,7 +5,7 @@
 
 .background {
   /* background-image: url("res://bg"); */
-  background-color: #E53935;
+  background-color: #E95D59;
   background-repeat: no-repeat;
   background-size: cover;
   background-position: center;
@@ -25,11 +25,13 @@
   margin-bottom: 80;
 }
 .initial-button {
+  border-radius: 5;
   background-color: white;
   color: #E53935;
   height: 45;
   width: 275;
   vertical-align: center;
+  margin-bottom: 10;
 }
 .initial-button-label {
   horizontal-align: center;

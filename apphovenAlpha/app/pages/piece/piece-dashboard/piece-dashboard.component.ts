@@ -13,7 +13,7 @@ import { AndroidApplication, AndroidActivityBackPressedEventData } from "applica
 import { Router } from "@angular/router";
 import { RouterExtensions } from "nativescript-angular/router";
 import dialogs = require("ui/dialogs");
-
+import { SwissArmyKnife } from "nativescript-swiss-army-knife";
 
 @Component({
     selector: "ah-piece-db",
@@ -37,6 +37,8 @@ export class PieceDashboardComponent implements OnInit, OnDestroy {
     // Icons
     public iconRemove = String.fromCharCode(0xf1f8);
     public iconAdd = String.fromCharCode(0xf067);
+
+    public randomImage;
 
     // Nativescript doesn't allow an easy way to render an object, 
     // which is created while loading the values from firebase. Therefore: Each value gets an own var
@@ -69,6 +71,13 @@ export class PieceDashboardComponent implements OnInit, OnDestroy {
             this.routerParamId['originType'] = Number(params['originType']);
         });
 
+        // Experimenting / REMOVE in next Commit
+        // SwissArmyKnife.setAndroidStatusBarColor("#DB6C6B");
+        // SwissArmyKnife.setAndroidStatusBarTranslucentFlag();
+        // SwissArmyKnife.setAndroidStatusBarColor("deepskyblue");
+        
+        this.randomImageGenerator();
+        
         // Fetch User-Data from Firebase (true, because of first initialization)
         // this.loadFirebaseData(true);
         this.firestoreListen();
@@ -165,6 +174,20 @@ export class PieceDashboardComponent implements OnInit, OnDestroy {
             }
         );
     }*/
+    public randomImageGenerator() {
+        let pieceBoxBgImages = [
+            "bgi1",
+            "bgi2",
+            "bgi3",
+            "bgi1",
+            "bgi2",
+            "bgi3"
+        ];
+        let randomNumber = Math.floor((Math.random() * 5) + 0);        
+        this.randomImage = pieceBoxBgImages[randomNumber];
+        console.log("RANDOM IMAGE: " + this.randomImage);
+    }
+
 
     public firestoreListen(): void {
         if (this.listenerUnsubscribe !== undefined) {
@@ -199,6 +222,8 @@ export class PieceDashboardComponent implements OnInit, OnDestroy {
     }
 
     public handleSnapshot(piece){
+        this.pieceComposer = piece.data().composer;
+
         if(piece.data().movementItem){
             // Movements are available
 
@@ -261,13 +286,15 @@ export class PieceDashboardComponent implements OnInit, OnDestroy {
         this.pieceTitle = piece.data().pieceTitle;
         this.pieceWorkNumber = piece.data().pieceWorkNumber;
 
-        // Get Composer Name
-        this._httpService.getComposerName(piece.data().composerId).subscribe((res) => {
+        // DEPRECATED: Get Composer Name
+        // DELETED IN NEXT COMMIT
+    
+        /* this._httpService.getComposerName(piece.data().composerId).subscribe((res) => {
             this._ngZone.run(() => {
                 this.pieceComposer = res[0].name;      
             });
             console.log("COMPOSER NAME: " + this.pieceComposer); 
-        });
+        });*/
     }
 
     ngOnInit() {

@@ -3,17 +3,11 @@ label, .icon-font {
 }
 
 button {
-    margin: 5%;
-    padding: 2%;
-    font-size: 19;
-    font-weight: bold; 
-    color: #F9F9F9;
-    background-color: #444444;
-    border-radius: 5;
+    background-color: #858585;
 }
 
 .submit-button {
-    margin-top: 10%;
+    /*margin-top: 10%;*/
 }
 
 textfield {
@@ -27,7 +21,7 @@ textfield {
 }
 
 .ah-main-container-s {
-    background-color: #303030;
+    background-color: #555555;
     padding: 20%;
 }
 
@@ -47,13 +41,24 @@ textfield {
     background-color: transparent;
 }
 
+.icon-adjust {
+    padding-left: 5%;
+    padding-top: 10%;
+    /*margin-top: 22%;*/
+}
+
 .icon-font {
     font-family: 'fontawesome';
     font-size: 48;
 }
 
 .icon-bar-container {
-    margin: 5% 10% 0 10%;
+    margin: 5% 10% 5 10%;
+    text-align: center;
+}
+
+.engage-icon {
+    width: auto;
     text-align: center;
 }
 
@@ -82,15 +87,31 @@ textfield {
 }
 
 .regular-list-item {
-    margin: 5;
+    background-color: #444444;
+    padding: 10% 10% 10% 20%;
+    margin: 10 0 10 0;
+    border-radius: 5;
     font-size: 14;
     vertical-align: center;
 }
 
 .multi-list-item {
-    margin: 15;
+    background-color: #444444;
+    padding: 10%;
+    margin: 10 0 10 0;
+    border-radius: 5;
+    /*margin: 15;*/
     font-size: 14;
     vertical-align: center;
+    height: 81;
+}
+
+.text-adjust {
+    margin-left: 4%;
+}
+
+.text-margin-plus {
+    padding-top: 10%;
 }
 
 .button-container {
@@ -107,4 +128,27 @@ textfield {
     width: 220;
     background-color: #444444;
     border-radius: 5;
+    text-transform: uppercase;
+}
+
+.input-field {
+    max-height: 100;
+    color: white;
+}
+
+.icon-button {
+    color: #E9E9E9;
+    text-align: center;
+    margin: 10;
+    font-size: 30;
+}
+
+.icon-button-big{
+    /* background-color: #444444; */
+    color: #E9E9E9;
+    text-align: center;
+    margin: 10%;
+    font-size: 100;
+    /* border-radius: 5; */
+    width: auto;
 }
