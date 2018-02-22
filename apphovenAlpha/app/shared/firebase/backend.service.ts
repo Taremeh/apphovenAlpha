@@ -9,11 +9,20 @@ const toastLoaded = "toastLoaded";
 const practiceTimeBackup = "practiceTimeBackup";
 const practiceTimestampBackup = "practiceTimestampBackup";
 const userName = "userName";
+const lastLogin = "lastLogin";
 
 export class BackendService {
   
   static isLoggedIn(): boolean {
     return !!getString("token"); // If token is null => false, if anything else => true
+  }
+
+  static get lastLogin(): number {
+    return getNumber("lastLogin");
+  }
+
+  static set lastLogin(lastLogin: number) {
+    setNumber("lastLogin", lastLogin);
   }
 
   static get token(): string {

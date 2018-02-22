@@ -39,9 +39,9 @@ export class LevelService {
 
 
                 // 30min -> 100 XP
-                let xpAmount = Math.round(practiceDuration/1800*100);
+                let xpAmount = 500 // Math.round(practiceDuration/1800*100);
                 let xpNew: number = lastUserStatistic.data().xpCurrent + xpAmount;
-                let nextLvl = lastUserStatistic.data().lvl;
+                let currentLvl = lastUserStatistic.data().lvl;
 
                 // Check if LVL-UP
                 if(xpNew >= lastUserStatistic.data().xpMax) {
@@ -58,49 +58,53 @@ export class LevelService {
                     if(xpNew > lastUserStatistic.data().xpMax) {
                         let moreXp = true;
 
-                        for(let i=nextLvl; moreXp; i++) {
-                            if(nextLvl <= 14) {
+                        for(let i=currentLvl; moreXp; i++) {
+                            if(currentLvl <= 14) {
                                 // Beginner-Metrics
                                 if(xpNew > this.xpMaxBeginner[i]){
-                                    nextLvl = nextLvl + 1;
-                                    console.log("Beginner NextLvl: " + nextLvl);
+                                    currentLvl = currentLvl + 1;
+                                    console.log("B-Upcoming LVL: " + currentLvl);
                                     xpNew = xpNew - this.xpMaxBeginner[i];
-                                    console.log("Beginner XP Overflow: " + xpNew);
+                                    console.log("B-XP Overflow: " + xpNew);
                                 } else {
                                     moreXp = false;
                                 }
                             } else {
                                 // Regular-Metrics
-                                if(xpNew > 2*Math.pow(nextLvl,2)){
-                                    nextLvl = nextLvl + 1;
-                                    console.log("Regular NextLvl: " + nextLvl);
-                                    xpNew = xpNew - (2*Math.pow(nextLvl,2));
-                                    console.log("Regular XP Overflow: " + xpNew);
+                                if(xpNew > 2*Math.pow(currentLvl,2)){
+                                    console.log("Rechnung: " + xpNew + " - " + (2*Math.pow(currentLvl, 2)));                                    
+                                    
+                                    xpNew = xpNew - (2*Math.pow(currentLvl,2));
+                                    console.log("R-XP Overflow: " + xpNew);
+
+                                    // Prepare Next Lvl
+                                    currentLvl = currentLvl + 1;
+                                    console.log("R-Upcoming LVL: " + currentLvl);
                                 } else {
                                     moreXp = false;
                                 }
                             }
                         }
                     } else {
-                        nextLvl = nextLvl+1;
+                        currentLvl = currentLvl+1;
                         xpNew = 0;
                     }
 
                     // > Beginner Metrics (LVL < 15) vs Regular Metrics
                     let xpMax;
-                    if(nextLvl < 15) {
-                        xpMax = this.xpMaxBeginner[nextLvl];
+                    if(currentLvl < 15) {
+                        xpMax = this.xpMaxBeginner[currentLvl];
                     } else {
                         // xpMax = 2*LVL^2
-                        xpMax = 2*Math.pow(nextLvl,2);
+                        xpMax = 2*Math.pow(currentLvl,2);
                         console.log("XP MAX: " + xpMax);
                     }
 
                     // Add new LVL-Entry
-                    return userStats.doc(String(nextLvl)).set({
+                    return userStats.doc(String(currentLvl)).set({
                         dateStarted: dateNow,
                         lastTouched: dateNow,
-                        lvl: nextLvl,
+                        lvl: currentLvl,
                         xpCurrent: xpNew,
                         xpMax: xpMax
                     }).then(documentRef => {

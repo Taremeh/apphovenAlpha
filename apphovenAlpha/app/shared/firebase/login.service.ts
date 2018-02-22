@@ -2,7 +2,6 @@ import { Injectable } from "@angular/core";
 import { User } from "./user.model";
 import { BackendService } from "./backend.service";
 import firebase = require("nativescript-plugin-firebase");
-
 const firestorebase = require("nativescript-plugin-firebase/app");
 // import { firestore } from "nativescript-plugin-firebase";
 
@@ -31,6 +30,8 @@ export class LoginService {
       }
     }).then(
         function (result) {
+          let dateNow = Date.now();
+          BackendService.lastLogin = dateNow;
           BackendService.token = result.uid;
           BackendService.email = result.email;
           if(result.name) {
@@ -47,6 +48,8 @@ export class LoginService {
       type: firebase.LoginType.GOOGLE
     }).then(
         function (result) {
+          let dateNow = Date.now();
+          BackendService.lastLogin = dateNow;
           BackendService.token = result.uid;
           BackendService.email = result.email;
           BackendService.userName = result.name;
@@ -62,7 +65,6 @@ export class LoginService {
             if (doc.exists) {
               // LOGIN
               console.log("LOGGING IN GOOGLE USER.");
-              return JSON.stringify(result);
             } else {
               // First Time Login -> Create LVL 1 Entry
               console.log("LOGGING IN NEW GOOGLE USER. CREATING LVL 1 ENTRY");
@@ -79,15 +81,12 @@ export class LoginService {
                  lastTouched: date
               }).then(() => {
                 console.log("FIRST TIME LOGIN SUCCESS (google) - SERVICE");
-                return JSON.stringify(result);
               });
             }
           });
+          return JSON.stringify(result);
         },
-        function (errorMessage) {
-          console.log(errorMessage);
-        }
-    );
+    ).catch(this.handleErrors);
   }
   
   resetPassword(email) {

@@ -81,7 +81,7 @@ export class LoginComponent implements OnInit {
             } else if (err.match(/FirebaseAuthInvalidUserException/)) {
                 alertExt("Invalid User", "Unfortunately, we couln't find this email address.", "Try Again");
             } else {
-                alertExt("Invalid Login", "Unfortunately, we couln't find your account.", "Try Again");
+                alertExt("Invalid Login", "Unfortunately, we couln't find your account.\n" + err, "Try Again");
             }
         });
     }

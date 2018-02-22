@@ -8,7 +8,7 @@ export class AuthGuard implements CanActivate {
   constructor(private router: Router) { }
 
   canActivate() {
-    if (BackendService.isLoggedIn()) {
+    if (BackendService.isLoggedIn() && (BackendService.lastLogin != undefined)) {
       return true;
     }
     else {

@@ -1,6 +1,6 @@
 <StackLayout>
 
-<GridLayout #profileContainer [visibility]="!tutorialTour ? 'visible' : 'collapsed'" rows="auto" columns="auto,*" class="profile-heading primary-color" (tap)="showSettings=!showSettings">
+<GridLayout #profileContainer [visibility]="!tutorialTour ? 'visible' : 'collapsed'" rows="auto" columns="auto,*" class="profile-heading primary-color" (tap)="showSettings=!showSettings" paddingBottom="0">
     <GridLayout row="0" col="0" rows="auto, auto" columns="auto" marginRight="14">
         <Image row="0" col="0" src="res://beethoven_profile" height="60"></Image>
         <Label row="1" col="0" text="LVL {{ userLvl }}" class="text-center title-regular" fontSize="15"></Label>        
@@ -13,6 +13,10 @@
         <Label row="2" col="1" text="{{ xpCurrent }} / {{ xpMax }} XP" class="title-regular" fontSize="15" marginTop="2"></Label>
     </GridLayout>
 </GridLayout>
+<StackLayout class="primary-color" paddingBottom="5" (tap)="showSettings=!showSettings">
+        <Label text="{{ showSettings ? showSettingsUpIcon : showSettingsDownIcon }}" class="icon-font text-center" fontSize="15"></Label>
+</StackLayout>
+
 <StackLayout *ngIf="showSettings" class="hr-dark"></StackLayout>
 <StackLayout *ngIf="showSettings" class="settings-container profile-heading primary-color">
     <Label text="SHOW SETTINGS" class="title-regular text-center" (tap)="navigateTo('/settings')"></Label>
@@ -34,7 +38,7 @@
     <ScrollView orientation="vertical">
     <StackLayout>
 
-    <GridLayout rows="auto, auto, auto" columns="*, *">
+    <GridLayout rows="auto, auto, auto" columns="*, *" paddingBottom="15">
         <StackLayout #pieceListItem row="0" col="0" (tap)="navigateTo('/piece-list')" class="{{ beethovenMsg ? 'home-icon-container-alt m-10' : 'home-icon-container' }}">
             <Image src="res://home_icon_piece_list" class="home-icon" stretch="aspectFill"></Image>
             <Label text="Piece-List" class="text-center"></Label>

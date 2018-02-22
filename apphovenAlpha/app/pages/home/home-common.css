@@ -54,11 +54,3 @@
 .profile-heading {
     padding: 20%;
 }
-
-#userNameInput {
-    margin: 0 0 -1 0;
-    padding: 0;
-    border-width: 5;
-    border-color: transparent;
-    color: white;
-}

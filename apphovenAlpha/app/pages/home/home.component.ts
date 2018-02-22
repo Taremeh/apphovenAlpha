@@ -28,6 +28,8 @@ export class HomeComponent implements OnInit, OnDestroy {
     public actionButtonText: string = "PRACTICE NOW";
     public addPieceIcon = String.fromCharCode(0xf196);
     public pieceListIcon = String.fromCharCode(0xf0ca);
+    public showSettingsDownIcon = String.fromCharCode(0xf078);
+    public showSettingsUpIcon = String.fromCharCode(0xf077);
 
     public routerParamId;
 
