@@ -39,7 +39,7 @@ export class LevelService {
 
 
                 // 30min -> 100 XP
-                let xpAmount = 500 // Math.round(practiceDuration/1800*100);
+                let xpAmount = Math.round(practiceDuration/1800*100);
                 let xpNew: number = lastUserStatistic.data().xpCurrent + xpAmount;
                 let currentLvl = lastUserStatistic.data().lvl;
 
@@ -62,10 +62,11 @@ export class LevelService {
                             if(currentLvl <= 14) {
                                 // Beginner-Metrics
                                 if(xpNew > this.xpMaxBeginner[i]){
-                                    currentLvl = currentLvl + 1;
-                                    console.log("B-Upcoming LVL: " + currentLvl);
                                     xpNew = xpNew - this.xpMaxBeginner[i];
                                     console.log("B-XP Overflow: " + xpNew);
+
+                                    currentLvl = currentLvl + 1;
+                                    console.log("B-Upcoming LVL: " + currentLvl);
                                 } else {
                                     moreXp = false;
                                 }
@@ -106,7 +107,8 @@ export class LevelService {
                         lastTouched: dateNow,
                         lvl: currentLvl,
                         xpCurrent: xpNew,
-                        xpMax: xpMax
+                        xpMax: xpMax,
+                        displayLvlUpNotification: true
                     }).then(documentRef => {
                         console.log(`Added new LVL-Entry`);
                     });

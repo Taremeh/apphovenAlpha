@@ -3,14 +3,26 @@
         <Label col="0" text="APPHOVEN" class="title-regular" style="font-size: 22; padding-top: 6; vertical-align: center;"></Label>
     </GridLayout>
 </ActionBar>
-<StackLayout row="1" #ahMainContainer class="ah-main-container">
-    <GridLayout rows="*, auto">
+<StackLayout #ahMainContainer class="ah-main-container">
+    <GridLayout rows="*,auto,auto">
     <StackLayout row="0">
-        <Label text="Apphoven is being developed continuously. Expect more to come!" style.whiteSpace="normal" margin="10" class="text-center"></Label>
-        <Button (tap)="logOut()" text="LogOut"></Button>
-        <Label [text]="userEmail" class="text-center" (tap)="onTap()"></Label>
+        <Label text="SETTINGS:" class="title-regular" marginBottom="5"></Label>
+        <GridLayout row="0" rows="auto" columns="*,auto">
+            <Label text="Play Sound on Level-Up" textWrap="true" row="0" col="0"></Label>
+            <Switch checked="{{ playLvlUpSetting }}" (checkedChange)="switchChanged($event)" row="0" col="1"></Switch> 
+        </GridLayout>
+        <GridLayout rows="auto" columns="auto,*">
+            <Label row="0" col="0" text="Contact Developer" class="secondary-color contact-dev-button" (tap)="contact()"></Label>
+        </GridLayout>
     </StackLayout>
-    <StackLayout row="1" class="text-center ah-text-secondary">
+
+    <StackLayout row="1" marginBottom="10">
+        <Label text="Logged in as {{ userEmail }}" class="text-center subtitle" (tap)="onTap()" margin="10"></Label>
+        <Button (tap)="logOut()" text="LogOut"></Button>
+        <Label text="Apphoven is being developed continuously. Expect more to come!" style.whiteSpace="normal" margin="10" class="text-center ah-text-secondary"></Label>
+    </StackLayout>
+
+    <StackLayout row="2" class="text-center ah-text-secondary">
         <Label text="Access Beta-Function: Metronome" style.whiteSpace="normal" paddingBottom="10" style="color: black" (tap)="betaFunction()"></Label>
 
         <Label text="Visit the Apphoven Developer-Blog: blog.apphoven.com" class="border-top" style.whiteSpace="normal" (tap)="tapUrl('blog')"></Label>

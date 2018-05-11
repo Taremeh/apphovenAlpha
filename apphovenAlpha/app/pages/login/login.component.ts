@@ -94,7 +94,7 @@ export class LoginComponent implements OnInit {
         }
 
         this.userService.login(this.user)
-        .then((data) => {
+        .then(() => {
             this.isAuthenticating = false;
             if(BackendService.tutorialTour == 1){
                 this._routerExtensions.navigate(["/home/con-first-welcome"], { clearHistory: true });

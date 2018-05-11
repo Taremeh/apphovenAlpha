@@ -12,6 +12,7 @@ import { PracticeSessionComponent } from "./pages/practice-session/practice-sess
 import { AudioRecorderComponent } from "./pages/audio-recorder/audio-recorder/audio-recorder.component";
 import { AudioListComponent } from "./pages/audio-recorder/audio-list/audio-list.component";
 import { AudioAnalyzerComponent } from "./pages/audio-recorder/audio-analyzer/audio-analyzer.component";
+import { ProfileComponent } from "./pages/profile/profile.component";
 
 export const authProviders = [
   AuthGuard
@@ -33,7 +34,8 @@ export const routes = [
   { path: 'audio-recorder', component: AudioRecorderComponent, canActivate: [AuthGuard] },
   { path: 'audio-list', component: AudioListComponent, canActivate: [AuthGuard] },
   { path: 'audio-analyzer/:recordingFileName', component: AudioAnalyzerComponent, canActivate: [AuthGuard] },
-  { path: 'audio-analyzer/:recordingFileName/:optionalParam', component: AudioAnalyzerComponent, canActivate: [AuthGuard] }
+  { path: 'audio-analyzer/:recordingFileName/:optionalParam', component: AudioAnalyzerComponent, canActivate: [AuthGuard] },
+  { path: 'profile', component: ProfileComponent, canActivate: [AuthGuard] },
 ];
 
 // Needed for app.module.ts declaration
@@ -50,5 +52,6 @@ export const navigatableComponents = [
   PracticeSessionComponent,
   AudioRecorderComponent,
   AudioListComponent,
-  AudioAnalyzerComponent
+  AudioAnalyzerComponent,
+  ProfileComponent
 ];

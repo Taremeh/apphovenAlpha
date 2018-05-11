@@ -1,0 +1,68 @@
+.profile-heading {
+    padding: 20%;
+}
+
+.profile-container {
+    margin-bottom: 5;
+}
+
+.profile-item {
+    padding: 5;
+    border-radius: 5;
+    margin-top: 15;
+}
+
+.pick-item {
+    margin-right: 3;
+    padding: 5;
+    border-radius: 5;
+    display: inline;
+}
+
+.pick-item-small {
+    border-radius: 20;
+    display: inline;
+}
+
+.level-badge-container {
+    margin: 5 15 0 15;
+    border-radius: 5;
+}
+
+.title-lvl {
+    color: white;
+    font-family: 'Lato-BlackItalic';
+}
+
+.title-deactivated {
+    color: #cecece
+}
+
+.friend-item {
+    margin: 5 5 0 5;
+    text-align: center; 
+    vertical-align:center; 
+    border-radius: 90;
+    font-family: "Lato-Bold";
+    font-size: 20;
+    color: white;
+}
+
+.friend-initials {
+    font-family: "Lato-Bold";
+    text-transform: uppercase;
+}
+
+.add-friend-icon {
+    font-size: 19;
+    padding: 0 5 0 10;
+    margin-left: 8;
+}
+
+.settings-button {
+    text-align: right; 
+    background-color: rgb(202, 202, 202); 
+    color:white;
+    padding: 2 5 2 5;
+    border-radius: 5;
+}

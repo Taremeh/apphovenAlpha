@@ -1,5 +1,5 @@
 import { Injectable } from "@angular/core";
-import { getString, setString, getNumber, setNumber } from "application-settings";
+import { getString, setString, getNumber, setNumber, setBoolean, getBoolean } from "application-settings";
 
 const tokenKey = "token";
 const email = "email";
@@ -10,6 +10,7 @@ const practiceTimeBackup = "practiceTimeBackup";
 const practiceTimestampBackup = "practiceTimestampBackup";
 const userName = "userName";
 const lastLogin = "lastLogin";
+const playLvlUp = "playLvlUp";
 
 export class BackendService {
   
@@ -93,4 +94,14 @@ export class BackendService {
     return getNumber("practiceTimestampBackup");
   }
 
+  /*
+   *  Level Up Sound
+   */
+  static set playLvlUp(playLvlUp: boolean) {
+    setBoolean("playLvlUp", playLvlUp);
+  }
+
+  static get playLvlUp(): boolean {
+    return getBoolean("playLvlUp");
+  }
 }

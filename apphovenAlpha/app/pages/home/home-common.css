@@ -54,3 +54,20 @@
 .profile-heading {
     padding: 20%;
 }
+
+/* LVL-UP Badge */
+.lvl-up-container {
+    border-radius: 5;
+}
+
+.title-lvl {
+    color: white;
+    font-size: 23;
+    font-family: 'Lato-BlackItalic';
+}
+
+.friend-request-status-info {
+    font-size: 40;
+    color: gray;
+    vertical-align: middle;
+}

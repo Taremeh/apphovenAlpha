@@ -3,3 +3,12 @@
     border-width: 1 0 0 0;
     border-color: #a8a8a8 transparent transparent transparent;
 }
+
+.contact-dev-button {
+    font-family: "Vision-Bold";
+    background-color: gray;
+    border-radius: 5;
+    padding: 3 5 1 5;
+    height: auto;
+    text-transform: uppercase;
+}

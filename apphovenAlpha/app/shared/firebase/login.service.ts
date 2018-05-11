@@ -1,24 +1,26 @@
 import { Injectable } from "@angular/core";
 import { User } from "./user.model";
 import { BackendService } from "./backend.service";
+import { InitService } from "./init.service";
 import firebase = require("nativescript-plugin-firebase");
 const firestorebase = require("nativescript-plugin-firebase/app");
 // import { firestore } from "nativescript-plugin-firebase";
 
 @Injectable()
 export class LoginService {
+  constructor(private _initService: InitService) { }
+
   register(user: User) {
     // Set tutorialTour to true (1)
     BackendService.tutorialTour = 1;
     return firebase.createUser({
       email: user.email,
       password: user.password
-    }).then(
-        function (result) {
-          
-          return JSON.stringify(result);
-        }
-    ).catch(this.handleErrors);
+    }).then((result) => {
+      // Add Email to Firestore-User-Entity
+      this._initService.initUser(result.key, user.email);
+    })
+    .catch(this.handleErrors);
   }
 
   login(user: User) {
@@ -28,65 +30,33 @@ export class LoginService {
         email: user.email,
         password: user.password
       }
-    }).then(
-        function (result) {
-          let dateNow = Date.now();
-          BackendService.lastLogin = dateNow;
-          BackendService.token = result.uid;
-          BackendService.email = result.email;
-          if(result.name) {
-            BackendService.userName = result.name;
-          }
-          console.log("LOGIN SUCCESS (email) - SERVICE");
-          return JSON.stringify(result);
-        },
-    ).catch(this.handleErrors);
+    }).then( (result) => {
+        let dateNow = Date.now();
+        BackendService.lastLogin = dateNow;
+        BackendService.token = result.uid;
+        BackendService.email = result.email;
+        if(result.name) {
+          BackendService.userName = result.name;
+        }
+        return JSON.stringify(result);
+      })
+      .catch(this.handleErrors);
   }
 
   loginGoogle(){
     return firebase.login({
       type: firebase.LoginType.GOOGLE
-    }).then(
-        function (result) {
-          let dateNow = Date.now();
-          BackendService.lastLogin = dateNow;
-          BackendService.token = result.uid;
-          BackendService.email = result.email;
-          BackendService.userName = result.name;
-          let date = Date.now();
+    }).then((result) => {
+        let dateNow = Date.now();
+        BackendService.lastLogin = dateNow;
+        BackendService.token = result.uid;
+        BackendService.email = result.email;
+        BackendService.userName = result.name;
 
-          const lvl1Doc = firestorebase.firestore()
-            .collection("user")
-            .doc(result.uid)
-            .collection("stats")
-            .doc("1");
-        
-          lvl1Doc.get().then(doc => {
-            if (doc.exists) {
-              // LOGIN
-              console.log("LOGGING IN GOOGLE USER.");
-            } else {
-              // First Time Login -> Create LVL 1 Entry
-              console.log("LOGGING IN NEW GOOGLE USER. CREATING LVL 1 ENTRY");
-              const statsCollection = firestorebase.firestore()
-                .collection("user")
-                .doc(result.uid)
-                .collection("stats");
-              
-              statsCollection.doc("1").set({
-                 lvl: 1,
-                 xpCurrent: 0,
-                 xpMax: 50,
-                 dateStarted: date,
-                 lastTouched: date
-              }).then(() => {
-                console.log("FIRST TIME LOGIN SUCCESS (google) - SERVICE");
-              });
-            }
-          });
-          return JSON.stringify(result);
-        },
-    ).catch(this.handleErrors);
+        // Check if First-Time Login => If true, add email to Firestore-User-Entity
+        return this._initService.googleLoginCheck(result.uid, result.email);
+      })
+      .catch(this.handleErrors);
   }
   
   resetPassword(email) {
@@ -106,12 +76,82 @@ export class LoginService {
         // photoURL: ''
     }).then(
         () => {
+          const userProfile = firestorebase.firestore()
+            .collection("user")
+            .doc(BackendService.token);
+
+          return userProfile.update({
+            userName: username
+          }).then(() => {
             BackendService.userName = String(username);
+          });
         },
         (errorMessage) => {
             console.log(errorMessage);
         }
     );
+  }
+
+  updateProfile(propertyName, propertyContent) {
+    const userProfile = firestorebase.firestore()
+            .collection("user")
+            .doc(BackendService.token);
+            /*.collection("userProfile")
+            .doc("userProfileData");*/
+
+    if(propertyName == 'userUrl'){
+      // Blocked Urls
+      let blockedUserUrls = ["","apphoven","admin","beethoven","mozart","liszt","chopin"];
+      
+      // Sanitize userUrl
+      propertyContent = propertyContent.toLowerCase().replace(/[^a-zA-Z0-9]+/g, "");
+
+      return firestorebase.firestore().collection("user")
+        .where("userUrl", "==", propertyContent)
+        .get()
+        .then(querySnapshot => {
+          // console.log("Raw Snapshot: " + JSON.stringify(querySnapshot));
+
+          // Check userUrl lenght > 3 AND Check if username is already taken or blocked
+          if(propertyContent.length < 3 || propertyContent.length > 25){
+            // UserUrl too short or long
+
+            // Throw error
+            throw "user-url too short/long";
+          } else if(querySnapshot.docSnapshots.length > 0 || blockedUserUrls.some(x => x === propertyContent)) {
+            // UserUrl taken
+            // querySnapshot.forEach(doc => { console.log(`RES: ${doc.id} => ${JSON.stringify(doc.data())}`); });
+            
+            // Throw error
+            throw "user-url taken";
+
+          } else { 
+            // UserUrl available
+            console.log("UserUrl available");
+
+            return userProfile.update({
+              userUrl: propertyContent
+            });
+          }
+        });
+    }
+
+    if(propertyName == 'userVideoLink') {
+      // Just save the YouTube-ID
+      propertyContent = propertyContent.substring(propertyContent.length-11);
+    }
+
+    return userProfile.get().then(doc => {
+      if (doc.exists) {
+        return userProfile.update({
+          [propertyName]: propertyContent
+        });
+      } else {
+        return userProfile.set({
+          [propertyName]: propertyContent
+        });
+      }
+    });
   }
 
   handleErrors(error) {

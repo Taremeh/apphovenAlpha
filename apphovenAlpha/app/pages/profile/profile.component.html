@@ -1,0 +1,138 @@
+<StackLayout>
+<StackLayout class="profile-heading primary-color" paddingBottom="0" (swipe)="navigationSwipe($event)">
+    <GridLayout rows="auto, auto, auto" columns="auto,*">
+        <GridLayout row="0" col="0" rows="auto, auto" columns="auto" marginRight="14">
+            <Image row="0" col="0" src="res://beethoven_profile" height="60"></Image>
+            <Label row="1" col="0" text="LVL {{ userLvl }}" class="text-center title-regular" fontSize="15"></Label>        
+        </GridLayout>
+        <GridLayout row="0" col="1" rows="auto, auto, auto" columns="*" marginTop="8">
+            <Label row="0" col="1" text="{{ username }}" (longPress)="updateUserName()" (tap)="showToast('Press long to change Username')" class="title-regular huge-title"></Label>
+            <GridLayout row="1" col="1" rows="auto,auto" columns="auto,auto"  backgroundColor="#FFF0D6" style="border-radius: 50">
+                <StackLayout #xpProgressBar height="20" row="0" col="0" width="{{ xpCurrentDisplayBar / xpMax * 100 }}%" minWidth="80%" backgroundColor="#FFD151" style="border-radius: 50"></StackLayout>s
+            </GridLayout>
+            <Label row="2" col="1" text="{{ xpCurrent }} / {{ xpMax }} XP" class="title-regular" fontSize="15" marginTop="2"></Label>
+        </GridLayout>
+    </GridLayout>
+
+    <StackLayout *ngIf="showPublicProfile" class="profile-container">
+
+        <StackLayout class="primary-color-dark profile-item">
+            <Label class="title-regular subtitle" text="ABOUT YOU:"></Label>
+            <Label style.whiteSpace="normal" text="{{ userProfile.userDescription | slice:0:200 }}{{ userProfile.userDescription.length > 200 ? '. . .' : '' }}" (longPress)="userEdit('userDescription')"></Label>
+        </StackLayout>
+
+        <StackLayout class="primary-color-dark profile-item">
+            <Label class="title-regular subtitle" text="YOURS AWARDS:"></Label>
+            <Label style.whiteSpace="normal" text="{{ userProfile.userAwards != '' ? (userProfile.userAwards | slice:0:150) : 'Press long to add User Awards' }}{{ userProfile.userAwards.length > 150 ? '. . .' : '' }}" (longPress)="userEdit('userAwards')"></Label>
+        </StackLayout>
+
+        <StackLayout class="primary-color-dark profile-item">
+            <Label style.whiteSpace="normal" class="title-regular subtitle" text="USER-VIDEO:   {{ userProfile.userVideoLink != '' ? 'youtube.com/'+userProfile.userVideoLink : 'Press long to add Video' }}" (longPress)="userEdit('userVideoLink')" (tap)="userProfile.userVideoLink!='' ? openUrl('https://youtu.be/'+userProfile.userVideoLink) : showToast('Press long to add Youtube-Video-URL')"></Label>
+        </StackLayout>
+
+        <GridLayout rows="auto" columns="*,*" class="profile-item">
+            <StackLayout row="0" col="0">
+                <Label class="title-regular subtitle" text="PROFILE VISIBILITY"></Label>
+                <GridLayout columns="auto,auto">
+                        <Label col="0" class="{{ !userProfile.profileIsPublic ? 'primary-color-dark' : '' }} pick-item" text="Friends" (tap)="userEdit('profileIsPublic', false)"></Label>
+                        <Label col="1" class="{{ userProfile.profileIsPublic ? 'primary-color-dark' : '' }} pick-item" text="Public" (tap)="userEdit('profileIsPublic', true)"></Label>    
+                    </GridLayout>
+            </StackLayout>
+
+            <StackLayout row="0" col="1">
+                <Label class="subtitle {{ userProfile.profileIsPublic ? 'title-regular' : 'title-regular title-deactivated' }} " text="AVAILABLE TO HIRE?"></Label>
+                <GridLayout columns="auto,auto">
+                    <Label col="0" class="{{ userProfile.profileIsPublic ? (!userProfile.availableForHire ? 'primary-color-dark' : '') : 'title-deactivated' }} pick-item" text="NO" (tap)="userEdit('availableForHire', false)"></Label>
+                    <Label col="1" class="{{ userProfile.profileIsPublic ? (userProfile.availableForHire ? 'primary-color-dark' : '') : 'title-deactivated' }} pick-item" text="YES" (tap)="userEdit('availableForHire', true)"></Label>    
+                </GridLayout>
+            </StackLayout>
+        </GridLayout>
+
+        <StackLayout class="profile-item" (longPress)="userEdit('userUrl')" (tap)="userProfile.userUrl!='YOUR NAME' ? openUrl('https://user.apphoven.com/'+userProfile.userUrl) : showToast('Press long to add Profile-URL')">
+                <Label class="title-regular subtitle" text="USER-URL: "></Label>
+            <Label class="title-regular subtitle">
+                <FormattedString>
+                    <Span text="https://user.apphoven.com/ " fontAttributes="Bold"></Span>
+                    <Span text=" {{ userProfile.userUrl }} " class="pick-item-small primary-color-dark"></Span>
+                </FormattedString>
+            </Label>
+        </StackLayout>
+    </StackLayout>
+
+</StackLayout>
+<StackLayout class="primary-color" paddingBottom="5" (tap)="showPublicProfile=!showPublicProfile" (swipe)="navigationSwipe($event)">
+    <Label *ngIf="!showPublicProfile" class="text-center title-regular subtitle" text="SHOW PUBLIC PROFILE"></Label>
+    <Label text="{{ showPublicProfile ? arrowUpIcon : arrowDownIcon }}" class="icon-font text-center" fontSize="15"></Label>
+</StackLayout>
+
+<StackLayout class="ah-main-container" paddingBottom="0">
+    <GridLayout columns="*,auto" rows="auto">
+        <Label col="0" class="title-regular" text="YOUR FRIENDS"></Label>
+        <Label col="1" class="icon-font add-friend-icon" text="{{ addFriendIcon }}" (tap)="addFriend()"></Label>
+    </GridLayout>
+    <ScrollView #friendsScrollView orientation="horizontal">
+        <StackLayout orientation="horizontal">
+            <StackLayout *ngFor="let friend of friendArray" width="50" height="50" 
+                        backgroundColor="{{ friend.confirmed ? '#E95D59' : 'gray' }}" 
+                        class="friend-item" (tap)="onTapFriend(friend.friendId)" (longPress)="onPressFriend(friend.friendId, friend.friendName)">
+                <Label text="{{ friend.friendName ? friend.friendName.substr(0,2) : '+' }}" class="friend-initials"></Label>
+            </StackLayout>
+        </StackLayout>
+    </ScrollView>
+</StackLayout>
+
+<!-- ACHIEVEMENTS COMING SOON
+<StackLayout class="ah-main-container">
+    <Label class="title-regular" text="YOUR ACHIEVEMENTS"></Label>
+    <ScrollView #achievementScrollView orientation="horizontal">
+    </ScrollView>
+</StackLayout>
+-->
+
+<!-- <StackLayout class="ah-main-container">
+    <Label class="title-regular" text="YOUR LEVEL-HISTORY"></Label>
+    <ScrollView #levelScrollView orientation="horizontal">
+        <StackLayout orientation="horizontal" class="primary-color">
+            <GridLayout columns="55" rows="55" *ngFor="let level of levelArray" class="level-badge-container" (tap)="badgeTap()">
+                <Image width="50" height="50" stretch="aspectFill" col="0" src="res://lvl_badge_90"></Image>
+                <Label col="0" class="text-center title-lvl" text="{{ level.lvl }}" style="text-align: center; vertical-align: center;"></Label>
+            </GridLayout>
+        </StackLayout>
+    </ScrollView>
+</StackLayout>
+-->
+    <StackLayout class="ah-main-container" paddingBottom="0">
+        <Label class="title-regular" text="YOUR LEVEL-HISTORY"></Label>
+        <StackLayout class="{{ showLevel > -1 ? 'primary-color' : '' }}" borderRadius="20">
+
+            <GridLayout columns="*,*,*,*,*,*,*,*,*" rows="auto" class="primary-color" borderRadius="90">
+                <GridLayout col="{{ level.col-1 }}" columns="25" rows="25" margin="3" *ngFor="let level of levelNumbers" (tap)="badgeTap(level.lvl)">
+                    <StackLayout col="0" width="20" height="20" stretch="aspectFill" backgroundColor="{{ level.state ? '#FFD151' : 'gray' }}" borderRadius="90"></StackLayout>
+                    <Label col="0" class="text-center title-lvl" fontSize="10" text="{{ level.lvl }}" style="text-align: center; vertical-align: center;"></Label>
+                </GridLayout>
+            </GridLayout>
+
+            <ScrollView>
+            <StackLayout *ngIf="showLevel > -1" marginTop="10" (swipe)="swipeLevelContainer($event)">
+                <GridLayout columns="auto,*" rows="55">
+                    <GridLayout col="0" columns="50" rows="50" class="level-badge-container" (tap)="badgeTap()">
+                            <Image width="45" height="45" stretch="aspectFill" col="0" src="res://lvl_badge_{{ levelArray[(showLevel/10)-1].lvl }}"></Image>
+                            <Label col="0" class="text-center title-lvl" text="{{ levelArray[(showLevel/10)-1].lvl }}" style="text-align: center; vertical-align: center;"></Label>
+                    </GridLayout>
+                    <Label class="title-regular" fontSize="20" col="1" text="{{ levelArray[(showLevel/10)-1].title }}" style="vertical-align: middle"></Label>
+                </GridLayout>
+                <StackLayout padding="15 20 15 20">
+                    <Label style.whiteSpace="normal" text="{{ levelArray[(showLevel/10)-1].description }}"></Label>
+                    <StackLayout *ngIf="levelArray[(showLevel/10)-1].mediaLink!=''" width="50%" class="primary-color-dark" (tap)="openUrl(levelArray[(showLevel/10)-1].mediaLink)" borderRadius="90" padding="5" margin="12 0 0 0">
+                        <Label class="title-regular subtitle text-center" text="Music-Video available"></Label>
+                    </StackLayout>
+                </StackLayout>
+            </StackLayout>
+            </ScrollView>
+        </StackLayout>
+    </StackLayout>
+
+    <GridLayout class="ah-main-container" rows="*,auto" columns="*,auto" paddingBottom="15">
+        <Label row="1" col="1" class="title-regular subtitle settings-button" text="APP SETTINGS" (tap)="navigateTo('/settings')"></Label>
+    </GridLayout>
+</StackLayout>
