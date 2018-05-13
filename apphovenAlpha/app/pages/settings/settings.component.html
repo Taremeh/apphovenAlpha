@@ -19,11 +19,11 @@
     <StackLayout row="1" marginBottom="10">
         <Label text="Logged in as {{ userEmail }}" class="text-center subtitle" (tap)="onTap()" margin="10"></Label>
         <Button (tap)="logOut()" text="LogOut"></Button>
-        <Label text="Apphoven is being developed continuously. Expect more to come!" style.whiteSpace="normal" margin="10" class="text-center ah-text-secondary"></Label>
+        <Label text="Apphoven is being developed continuously. Expect more to come!" style.whiteSpace="normal" margin="5" class="text-center ah-text-secondary subtitle-info-text"></Label>
     </StackLayout>
 
-    <StackLayout row="2" class="text-center ah-text-secondary">
-        <Label text="Access Beta-Function: Metronome" style.whiteSpace="normal" paddingBottom="10" style="color: black" (tap)="betaFunction()"></Label>
+    <StackLayout row="2" class="text-center ah-text-secondary subtitle-info-text">
+        <Label text="Access Beta-Function: Metronome" style.whiteSpace="normal" paddingBottom="5" style="color: black;" (tap)="betaFunction()"></Label>
 
         <Label text="Visit the Apphoven Developer-Blog: blog.apphoven.com" class="border-top" style.whiteSpace="normal" (tap)="tapUrl('blog')"></Label>
 

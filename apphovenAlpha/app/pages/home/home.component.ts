@@ -154,7 +154,6 @@ export class HomeComponent implements OnInit, OnDestroy {
 
     ngOnInit() {
         console.log("Home: OnInit! Tut: " + BackendService.tutorialTour);
-        console.log("BACKEND SERVICE PLAY LEVEL UP SOUND: " + BackendService.playLvlUp);
         this.isAndroid = !!this.page.android;
 
         // Hide ActionBar
@@ -257,11 +256,13 @@ export class HomeComponent implements OnInit, OnDestroy {
     public handleSnapshotNewsEntry(newsEntry){
         if(newsEntry.data().type == "friendrequest"){
             console.log("NEW FRIEND REQUEST!");
-            this.newsArray.push({
-                type: newsEntry.data().type,
-                friendRequestName: newsEntry.data().friendRequestName || "",
-                friendRequestEmail: newsEntry.data().friendRequestEmail,
-                senderId: newsEntry.data().senderId
+            this._ngZone.run(() => {
+                this.newsArray.push({
+                    type: newsEntry.data().type,
+                    friendRequestName: newsEntry.data().friendRequestName || "",
+                    friendRequestEmail: newsEntry.data().friendRequestEmail,
+                    senderId: newsEntry.data().senderId
+                });
             });
         } else {
             console.log("NO FRIEND REQUESTS");
@@ -416,8 +417,10 @@ export class HomeComponent implements OnInit, OnDestroy {
                     opacity: 0,
                     duration: 400
                 }).then(() => {
+                    // Reset dragNotificationItem to default
                     this.dragNotificationItem.opacity = 1;
                     this.dragNotificationItem.translateX = 0;
+                    // Hide Notification
                     this.displayLvlUpNotification = false;
                     //this.lvlUpNotification.nativeElement.visibility = "collapse";
                 });
@@ -505,11 +508,22 @@ export class HomeComponent implements OnInit, OnDestroy {
                 <View>this.friendRequestNotification.nativeElement.animate({
                     translate: { x: 500, y: 0},
                     duration: 500
+                }).then(() => {
+                    // Reset nativeElement to default position
+                    // Is there a better way to reset than use animate()?
+                    <View>this.friendRequestNotification.nativeElement.animate({
+                        translate: { x: 0, y: 0},
+                        duration: 10
+                    });
                 });
                 <View>this.friendRequestNotification.nativeElement.animate({
                     opacity: 0,
                     duration: 400
                 }).then(() => {
+                    // Reset fRdragNotificationItem to default
+                    this.fRdragNotificationItem.opacity = 1;
+                    this.fRdragNotificationItem.translateX = 0;
+                    this.friendRequestNotification.nativeElement.style.backgroundColor = new Color("#E95D59");
                     // Remove Friend-Request from local newsArray
                     this.newsArray.shift();
                     // Hide Background-UI
@@ -526,11 +540,22 @@ export class HomeComponent implements OnInit, OnDestroy {
                 <View>this.friendRequestNotification.nativeElement.animate({
                     translate: { x: -500, y: 0},
                     duration: 500
+                }).then(() => {
+                    // Reset nativeElement to default position
+                    // Is there a better way to reset than use animate()?
+                    <View>this.friendRequestNotification.nativeElement.animate({
+                        translate: { x: 0, y: 0},
+                        duration: 10
+                    });
                 });
                 <View>this.friendRequestNotification.nativeElement.animate({
                     opacity: 0,
                     duration: 400
                 }).then(() => {
+                    // Reset fRdragNotificationItem to default
+                    this.fRdragNotificationItem.opacity = 1;
+                    this.fRdragNotificationItem.translateX = 0;
+                    this.friendRequestNotification.nativeElement.style.backgroundColor = new Color("#E95D59");
                     // Remove Friend-Request from local newsArray
                     this.newsArray.shift();
                     // Hide Background-UI

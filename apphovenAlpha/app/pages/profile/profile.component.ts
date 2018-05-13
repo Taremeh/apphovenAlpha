@@ -283,7 +283,7 @@ export class ProfileComponent implements OnInit, OnDestroy {
         if (profileEntity.exists) {
             this._ngZone.run(() => {
                 this.userProfile = {
-                    userDescription: profileEntity.data().userDescription || "Press long to add a User Description",
+                    userDescription: profileEntity.data().userDescription || "",
                     userAwards: profileEntity.data().userAwards || "",
                     profileIsPublic: profileEntity.data().profileIsPublic || false,
                     availableForHire: profileEntity.data().availableForHire || false,
@@ -298,7 +298,7 @@ export class ProfileComponent implements OnInit, OnDestroy {
         } else {
             this._ngZone.run(() => {
                 this.userProfile = {
-                    userDescription: "Press long to add a User Description",
+                    userDescription: "",
                     userAwards: "",
                     profileIsPublic: false,
                     availableForHire: false,
@@ -552,7 +552,7 @@ export class ProfileComponent implements OnInit, OnDestroy {
     addFriend () {
         let options = {
             title: "Add Friend", // Placeholder
-            message: "Enter your friends E-Mail or User-ID\n\ref. user.apphoven.com/USER-ID",
+            message: "Enter your friends E-Mail or User-ID:\n\nref. user.apphoven.com/USER-ID",
             defaultText: "",
             inputType: inputType.text,
             okButtonText: "Add",

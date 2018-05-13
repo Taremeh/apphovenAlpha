@@ -12,3 +12,7 @@
     height: auto;
     text-transform: uppercase;
 }
+
+.subtitle-info-text {
+    font-size: 10;
+}

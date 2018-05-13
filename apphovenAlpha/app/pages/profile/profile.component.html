@@ -18,12 +18,12 @@
 
         <StackLayout class="primary-color-dark profile-item">
             <Label class="title-regular subtitle" text="ABOUT YOU:"></Label>
-            <Label style.whiteSpace="normal" text="{{ userProfile.userDescription | slice:0:200 }}{{ userProfile.userDescription.length > 200 ? '. . .' : '' }}" (longPress)="userEdit('userDescription')"></Label>
+            <Label class="text-small" style.whiteSpace="normal" text="{{ userProfile.userDescription != '' ? (userProfile.userDescription | slice:0:200) : 'Press long to add a User Description' }}{{ userProfile.userDescription.length > 200 ? '. . .' : '' }}" (longPress)="userEdit('userDescription')"></Label>
         </StackLayout>
 
         <StackLayout class="primary-color-dark profile-item">
             <Label class="title-regular subtitle" text="YOURS AWARDS:"></Label>
-            <Label style.whiteSpace="normal" text="{{ userProfile.userAwards != '' ? (userProfile.userAwards | slice:0:150) : 'Press long to add User Awards' }}{{ userProfile.userAwards.length > 150 ? '. . .' : '' }}" (longPress)="userEdit('userAwards')"></Label>
+            <Label class="text-small" style.whiteSpace="normal" text="{{ userProfile.userAwards != '' ? (userProfile.userAwards | slice:0:150) : 'Press long to add User Awards' }}{{ userProfile.userAwards.length > 150 ? '. . .' : '' }}" (longPress)="userEdit('userAwards')"></Label>
         </StackLayout>
 
         <StackLayout class="primary-color-dark profile-item">

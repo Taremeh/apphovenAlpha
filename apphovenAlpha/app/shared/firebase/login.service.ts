@@ -101,7 +101,7 @@ export class LoginService {
 
     if(propertyName == 'userUrl'){
       // Blocked Urls
-      let blockedUserUrls = ["","apphoven","admin","beethoven","mozart","liszt","chopin"];
+      let blockedUserUrls = ["","apphoven","app","administrator","admin","ceo","login","register","account","help","user","www","xxx","contact","download","root","super","void","null","request","system","payment","invoice","faq","delete","create","404","beethoven","mozart","liszt","chopin"];
       
       // Sanitize userUrl
       propertyContent = propertyContent.toLowerCase().replace(/[^a-zA-Z0-9]+/g, "");
