@@ -1,0 +1,42 @@
+.start-discussion-button {
+    padding: 15;
+    color: #E95D59;
+    border-color: #E95D59;
+    border-radius: 7;
+    border-width: 2;
+}
+
+.question-container {
+    margin-bottom: 5;
+    padding: 13;
+    background-color: rgb(255, 219, 214);
+}
+
+.question-container-solved {
+    background-color: rgb(221, 253, 221);
+}
+
+.answer-item {
+    margin: 5 0 5 10;
+    padding: 5;
+    background-color: rgb(251, 255, 191);
+}
+
+.answer-item-accepted {
+    margin: 5 0 5 10;
+    padding: 5;
+    background-color: rgb(191, 255, 191);
+}
+
+/* Not the accepted answer, even though question has been responded to */
+.answer-item-regular {
+    background-color: transparent;
+}
+
+.answer-button {
+    padding: 2 5 2 5;
+    color: white;
+    border-radius: 5;
+    background-color: rgb(231, 142, 139);
+    vertical-align: middle;
+}

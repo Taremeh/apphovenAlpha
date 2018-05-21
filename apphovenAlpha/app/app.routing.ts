@@ -13,6 +13,7 @@ import { AudioRecorderComponent } from "./pages/audio-recorder/audio-recorder/au
 import { AudioListComponent } from "./pages/audio-recorder/audio-list/audio-list.component";
 import { AudioAnalyzerComponent } from "./pages/audio-recorder/audio-analyzer/audio-analyzer.component";
 import { ProfileComponent } from "./pages/profile/profile.component";
+import { PieceForumComponent } from "./pages/piece/piece-forum/piece-forum.component";
 
 export const authProviders = [
   AuthGuard
@@ -28,6 +29,7 @@ export const routes = [
   { path: 'addpiece', component: AddPieceComponent, canActivate: [AuthGuard] },
   { path: 'addpiece/registerpiece/:composerId', component: RegisterPieceComponent, canActivate: [AuthGuard] },
   { path: 'piece-db/:pieceId/:originType', component: PieceDashboardComponent, canActivate: [AuthGuard] },
+  { path: 'piece-forum/:pieceId/:movementId', component: PieceForumComponent, canActivate: [AuthGuard] },
   { path: 'piece-list', component: PieceListComponent, canActivate: [AuthGuard] },
   { path: 'piece-recorder', component: PieceRecorderComponent, canActivate: [AuthGuard] },
   { path: 'practice-session', component: PracticeSessionComponent, canActivate: [AuthGuard] },
@@ -47,6 +49,7 @@ export const navigatableComponents = [
   AddPieceComponent,
   RegisterPieceComponent,
   PieceDashboardComponent,
+  PieceForumComponent,
   PieceListComponent,
   PieceRecorderComponent,
   PracticeSessionComponent,

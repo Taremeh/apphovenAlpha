@@ -15,6 +15,8 @@ import { RouterExtensions } from "nativescript-angular/router";
 import dialogs = require("ui/dialogs");
 import { SwissArmyKnife } from "nativescript-swiss-army-knife";
 
+import { PieceForumComponent } from "../piece-forum/piece-forum.component";
+
 @Component({
     selector: "ah-piece-db",
     templateUrl: "pages/piece/piece-dashboard/piece-dashboard.component.html",
@@ -47,6 +49,11 @@ export class PieceDashboardComponent implements OnInit, OnDestroy {
     public pieceWorkNumber: string;
     public pieceMovementAmount: number;
     public pieceComposer: string;
+
+    // Piece-Forum (Nested Component)
+    public componentLoaded: boolean = false;
+    public showPieceForum: boolean = false;
+    public movementId = -1;
 
     // Observables
     private listenerUnsubscribe: () => void;
@@ -83,97 +90,7 @@ export class PieceDashboardComponent implements OnInit, OnDestroy {
         this.firestoreListen();
     }
 
-    /*loadFirebaseData(initialize: boolean){
-        firebase.query(
-            (result) => {
-                if (result) {
 
-                    console.log("Event type: " + result.type);
-                    console.log("Key: " + result.key);
-                    console.log("Value: " + JSON.stringify(result.value));
-
-                    if(result.value.movementItem){
-                        // Movements are available
-
-                        // RESET Arrays
-                        this.pieceMovementArray = [];
-                        this.pieceMovementArrayNotSelected = [];
-                        this.pieceMovementArrayAll = [];
-                        this.selectedArray = [];
-
-                        // Amount of movements
-                        var len = result.value.movementItem.length;
-
-                        for (let i = 0; i < len; i++) {
-                            if (result.value.movementItem[i].state != 0){
-                                // Add only movements to pieceMovementArray, that are being practiced
-                                this.pieceMovementArray.push({
-                                    title: result.value.movementItem[i].title,
-                                    state: result.value.movementItem[i].state,
-                                    id: result.value.movementItem[i].id,
-                                });
-                            }
-
-                            // Add all movements to pieceMovementArrayAll
-                            this.pieceMovementArrayAll.push({
-                                title: result.value.movementItem[i].title,
-                                state: result.value.movementItem[i].state,
-                                id: result.value.movementItem[i].id,
-                            });
-
-                            if(result.value.movementItem[i].lastUsed) {
-                                this.pieceMovementArrayAll[i].lastUsed = result.value.movementItem[i].lastUsed;
-                            }
-                        }
-
-                        if(initialize){    
-                            // Show only movements, that are being practiced (onInit)
-                            this.selectedArray = this.pieceMovementArray;
-                        } else {
-                            // ngZone is needed here to update the Listview in case of:
-                            // First action => Delete Movement
-                            // (If the first action was adding a movement, the listview would 
-                            // refresh even without ngZone) - Why?
-                            this._ngZone.run(() => {
-                                // Show all piece (after adding / removing pieces)
-                                this.selectedArray = this.pieceMovementArrayAll;
-                            })
-                            
-                        }
-                        
-                        // Is this code-line needed? -> Saves pieceMovementAmount 
-                        this.pieceMovementAmount = result.value.movementItem.length;
-                        
-                    } else {
-                        this.pieceMovementAmount = 0;
-                        console.log("No piece movements found");
-                    }
-                    
-                    this.pieceTitle = result.value.pieceTitle;
-                    this.pieceWorkNumber = result.value.pieceWorkNumber;
-
-                    // Get Composer Name
-                    this._httpService.getComposerName(result.value.composerId).subscribe((res) => {
-                        this._ngZone.run(() => {
-                            this.pieceComposer = res[0].name;      
-                        });
-                        console.log("COMPOSER NAME: " + this.pieceComposer); 
-                    });
-
-                } else {
-                    console.log("Error: Piece not found");
-                }
-            },
-            "/user/" + BackendService.token + "/piece/" + this.routerParamId['pieceId'],
-            {
-                singleEvent: true,
-                orderBy: {
-                    type: firebase.QueryOrderByType.CHILD,
-                    value: 'since' // mandatory when type is 'child'
-                }
-            }
-        );
-    }*/
     public randomImageGenerator() {
         let pieceBoxBgImages = [
             "bgi1",
@@ -277,10 +194,16 @@ export class PieceDashboardComponent implements OnInit, OnDestroy {
             
             // Is this code-line needed? -> Saves pieceMovementAmount 
             this.pieceMovementAmount = piece.data().movementItem.length;
+
+            this.componentLoaded = true;
             
         } else {
+            // If piece does not contain movements
             this.pieceMovementAmount = 0;
             console.log("No piece movements found");
+
+            // Show Piece-Forum Component
+            this.showPieceForum = true;
         }
         
         this.pieceTitle = piece.data().pieceTitle;
@@ -307,6 +230,12 @@ export class PieceDashboardComponent implements OnInit, OnDestroy {
             //this._router.navigate(['/addpiece']);
             if(this.routerParamId['originType'] == 1){
                 this._routerExtensions.navigate(["/home"], { clearHistory: true });
+            } else if(this.showPieceForum && this.movementId > -1) {
+                console.log("Hide Forum");
+                this._ngZone.run(() => {
+                    this.showPieceForum = false;
+                });
+                data.cancel = true;
             }
         });
     }
@@ -337,6 +266,9 @@ export class PieceDashboardComponent implements OnInit, OnDestroy {
             this.recordSession(args);
 
             */
+            this.movementId = this.selectedArray[args.index].id;
+            this.showPieceForum = true;
+            console.log("TAPPED MOVEMENT: " + JSON.stringify(this.selectedArray[args.index]));
         } else {
             // Editing-Mode -> Add / Remove movement from list
             if(this.pieceMovementArrayAll[args.index].state == 0){
@@ -378,78 +310,11 @@ export class PieceDashboardComponent implements OnInit, OnDestroy {
                     this._pieceService.updateMovement(Number(this.pieceId), this.pieceMovementArrayAll);
                 //});
             }
-
-            /* if(type == 1) {
-                // TYPE 1 = ADD MOVEMENT to PRACTICE LIST
-                console.log("HANDLE ADD");
-                this.pieceMovementArrayAll[args.index].state = 1;
-                this.pieceMovementArrayAll[args.index].lastUsed = currentDate;
-                this._pieceService.updateMovement(Number(this.pieceId), this.pieceMovementArrayAll);
-
-                // Set lastPieceId & lastMovementId in BackendService DEL
-                /*BackendService.lastPieceId = Number(this.routerParamId['pieceId']);
-                BackendService.lastMovementId = Number(args.index);
-
-                //this.firebaseAction();
-            } else if (type == 2){
-                // TYPE 2 = REMOVE MOVEMENT FROM PRACTICE LIST
-                console.log("HANDLE REMOVE");
-                if(this.pieceMovementArray.length < 2) {
-                    // IF DELETING LAST MOVEMENT -> Inform User, that piece will be deleted | Still in DEV-Mode
-                    dialogs.confirm({
-                        title: "Attention!",
-                        message:  '"' + this.pieceMovementArrayAll[args.index].title + '" is your last remaining movement! Do you want to delete the entire piece from your practicing list?',
-                        okButtonText: "Yes, delete entire piece",
-                        cancelButtonText: "No!",
-                    }).then(function (result) {
-                        if(result){
-                            // REMOVE ENTIRE PIECE & PRACTICE SESSIONS THROUGH pieceService
-                            that._pieceService.removePiece(that.routerParamId['pieceId'], -1).then(function() {
-                                console.log("PIECE DELETED");
-                                that._routerExtensions.navigate(["/piece-list"], { clearHistory: true });
-                            });
-                        }
-                    });
-                } else {
-                    // SURE you want to delete?
-                    dialogs.confirm({
-                        title: "Delete movement from list?",
-                        message: "Do you want to remove this movement from your Practice-List? \n\nYour Practice-Progress (Practice-Sessions) won't be deleted.",
-                        okButtonText: "Yes, remove please",
-                        cancelButtonText: "No!",
-                    }).then(function (result) {
-                        if(result){
-                            that._pieceService.removePiece(that.routerParamId['pieceId'], args.index).then(function() {
-                                // Set BackendService: lastMovementId to none (-1) DEL
-                                /*if(BackendService.lastMovementId == args.index){
-                                    BackendService.lastMovementId = -1;
-                                }
-
-                                that.pieceMovementArrayAll[args.index].state = 0;
-                                that.firebaseAction();
-                            });   
-                        }
-                    });
-                } 
-            }*/
         }
     }
 
     firebaseAction(){
         console.log("MAINTENANCE firebaseAction() fired");
-        /*console.log("ARRAY: "+JSON.stringify(this.pieceMovementArrayAll));
-        let that = this;
-        firebase.update(
-                '/user/'+BackendService.token+'/piece/'+this.routerParamId['pieceId']+'/movementItem',
-                this.pieceMovementArrayAll
-            ).then(
-            function () {
-                // Reload Firebase-Data (false, because show all pieces)
-                that.loadFirebaseData(false);
-            },
-            function (error) {
-                console.log("ERROR: " + error);
-            }); */
     }
 
     public firestoreStopListening(): void {

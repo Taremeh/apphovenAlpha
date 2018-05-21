@@ -1,0 +1,55 @@
+<!-- <Label text="FORUM BETA" class="title-regular"></Label>-->
+<StackLayout>
+    <ScrollView>
+    <StackLayout *ngIf="questionArray.length == 0">
+        <Label textWrap="true" text="Apphoven provides a user forum for each individual piece and movement. You can discuss difficulties with users, who practice and play this piece just like you. You can ask for advice or help if you feel stuck or don't know how to interpret certain passages." marginBottom="20"></Label>
+        <StackLayout class="start-discussion-button">
+            <Label class="text-center title-regular" text="ASK QUESTION" (tap)="prompt('question')"></Label>
+        </StackLayout>
+        <Label class="text-center" text="OR" margin="10 0 10 0"></Label>
+        <StackLayout class="start-discussion-button" style="border-color:rgb(175, 175, 175); color:rgb(175, 175, 175)">
+            <Label class="text-center title-regular" text="GIVE ADVICE" (tap)="prompt('advice')"></Label>
+        </StackLayout>
+    </StackLayout>
+    </ScrollView>
+    
+    <StackLayout *ngIf="questionArray.length != 0">
+
+        <GridLayout columns="*,auto" rows="auto" marginBottom="10">
+            <Label col="0" class="title-regular" text="USER FORUM"></Label>
+            <GridLayout col="1" columns="auto,auto" (tap)="prompt('question')" class="answer-button">
+                <Label col="0" class="title-regular subtitle" text="ASK "></Label>
+                <Label col="1" class="icon-font" text="{{ addQuestionIcon }}"></Label>        
+            </GridLayout>
+        </GridLayout>
+
+        <!-- <TabView selectedIndex="0" tabBackgroundColor="white" selectedColor="#FF0000" (selectedIndexChange)="onIndexChanged($event)" sdkExampleTitle sdkToggleNavButton>
+            <StackLayout *tabItem="{title: 'QUESTIONS'}"> -->
+                <ScrollView orientation="vertical" sdkExampleTitle sdkToggleNavButton><StackLayout>
+                <StackLayout *ngFor="let question of questionArray" class="question-container {{ question.solved ? 'question-container-solved' : '' }}" (longPress)="editQuestion(question)">
+                    <!-- QUESTION ITEM -->
+                    <StackLayout class="question-item">
+                        <Label textWrap="true" text="{{ question.message }}" marginBottom="8"></Label>
+                    </StackLayout>
+                    <!-- ANSWER ARRAY -->
+                    <StackLayout *ngIf="question.answerArray">
+                        <StackLayout *ngFor="let answer of question.answerArray" class="{{ question.solved ? (answer.accepted ? 'answer-item-accepted' : 'answer-item answer-item-regular') : 'answer-item' }}" (longPress)="editAnswer(question, answer)">
+                            <Label textWrap="true" text="{{ answer.answer }}" marginBottom="8"></Label>
+                            <Label style="font-size:10; color:gray; text-align: right" text="{{ answer.date | date:'mediumDate' }} | by {{ answer.userName || 'Beethovens Pupil' }}"></Label>
+                        </StackLayout>
+                    </StackLayout>
+                    <GridLayout rows="auto" columns="*,auto" marginTop="10">
+                        <Label row="0" col="0" style="font-size:10; color:gray;vertical-align: middle;" text="{{ question.dateSubmitted | date:'mediumDate' }} | by {{ question.userName || 'Beethovens Pupil' }}"></Label>
+                        <Label *ngIf="!question.solved" row="0" col="1" class="title-regular subtitle answer-button" text="ANSWER" (tap)="answerQuestion(question)"></Label>
+                    </GridLayout>
+                </StackLayout>
+                </StackLayout></ScrollView>
+            <!-- </StackLayout>
+            <StackLayout *tabItem="{title: 'ADVICES'}">
+                <Image class="m-t-30 m-b-15" src="res://icon" width="80" height="80"></Image>
+                <Label text="NativeScript" textWrap="true" class="h2 m-x-auto" color="blue"></Label>
+            </StackLayout>
+        </TabView>-->
+    </StackLayout>
+
+</StackLayout>

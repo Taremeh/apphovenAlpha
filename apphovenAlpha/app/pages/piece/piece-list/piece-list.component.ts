@@ -313,7 +313,15 @@ export class PieceListComponent implements OnInit, AfterViewInit, OnDestroy {
                 }
             });
         } else {
-            this.showToast("This piece doesn't contain any movements");
+            let pieceId = piece.id;
+            console.log("PIECE ID TAPPED: "+pieceId);
+            this._router.navigate(['/piece-db/'+pieceId+"/0"], {
+                transition: {
+                    name: "slideLeft",
+                    duration: 100,
+                    curve: "easeIn"
+                }
+            });
         }
     }
 

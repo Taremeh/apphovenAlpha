@@ -5,13 +5,22 @@
             <ScrollView orientation="horizontal">
                 <Label class="title-bold hugetitle" textWrap="true" text="{{ pieceTitle }}"></Label>
             </ScrollView>
-            <Label class="piece-text" text="Work-Number: {{ pieceWorkNumber }}"></Label>
-            <Label class="piece-text" text="Movements: {{ pieceMovementAmount }}" visibility="{{pieceMovementAmount ? 'visible' : 'collapsed' }}"></Label>
+            <StackLayout *ngIf="!showPieceForum || movementId == -1">
+                <Label class="piece-text" text="Work-Number: {{ pieceWorkNumber }}"></Label>
+                <Label class="piece-text" text="Movements: {{ pieceMovementAmount }}" visibility="{{pieceMovementAmount ? 'visible' : 'collapsed' }}"></Label>
+            </StackLayout>
+            <StackLayout *ngIf="showPieceForum && movementId != -1">
+                <Label class="piece-text" text="Work-Number: {{ pieceWorkNumber }}"></Label>
+                <Label class="piece-text" text="Movement: {{ pieceMovementArrayAll[movementId].title }}"></Label>
+            </StackLayout>
     </StackLayout>
     </StackLayout>
     <GridLayout rows="*, auto">
         <StackLayout row="0" class="ah-main-container container-correction">
-            <StackLayout #pieceContainer class="piece-container">            
+            <!-- PIECE-FORUM Component -->
+            <ah-piece-forum *ngIf="showPieceForum"></ah-piece-forum>
+            <!-- / PIECE-FORUM Component / -->
+            <StackLayout #pieceContainer class="piece-container" [visibility]="!showPieceForum ? 'visible' : 'collapsed'">            
                 <StackLayout class="movement-container" visibility="{{pieceMovementAmount ? 'visible' : 'collapsed' }}">
                         <ListView [items]="selectedArray" separatorColor="white" (itemTap)="handleItemTap($event)">
                             <ng-template let-movement="item">
@@ -30,6 +39,6 @@
                 </StackLayout>
             </StackLayout>
         </StackLayout>
-        <Button row="1" class="bottom-button" [text]="toggleButtonText" (tap)="toggleRemainingMovements()"></Button>
+        <Button *ngIf="!showPieceForum && componentLoaded" row="1" class="bottom-button" [text]="toggleButtonText" (tap)="toggleRemainingMovements()"></Button>
     </GridLayout>
 </StackLayout>
