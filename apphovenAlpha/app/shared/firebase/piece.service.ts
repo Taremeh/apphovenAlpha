@@ -162,4 +162,227 @@ export class PieceService {
             console.log("Session with ID ->" + sessionId + "<- has been deleted.");
         });       
     }
+
+    /* Piece Forum (Social) */
+    submitPost(userId, pieceId, postType, message, movementId?) {
+        let date = Date.now();
+        let pieceForumCollection = firebasef.firestore()
+            .collection("piece")
+            .doc(pieceId)
+            .collection("forum");
+        
+        return pieceForumCollection.add({
+            date: date,
+            dateSubmitted: date,
+            userId: userId,
+            userName: BackendService.userName,
+            pieceId: pieceId,
+            type: postType,
+            message: message,
+            movementId: movementId,
+            solved: false
+        });
+    }
+
+    answerPost(pieceId, postId, answer) {
+        let date = Date.now();
+
+        let pieceForumQuestionDoc = firebasef.firestore()
+            .collection("piece")
+            .doc(pieceId)
+            .collection("forum")
+            .doc(postId);
+
+        /* MAINTENANCE! 
+         * This can be simplified to one if loop!
+         */
+
+        return pieceForumQuestionDoc.get().then(doc => {
+            if (doc.exists) {
+                console.log(`Document data: ${JSON.stringify(doc.data())}`);
+                /*if(doc.data().answerArray != undefined || doc.data().answerArray != "") {
+                    // Answers to this question already exist
+                    let newAnswerArray: Array<any> = doc.data().answerArray;
+                    newAnswerArray.push({
+                        id: newAnswerArray.length-1,
+                        userId: BackendService.token,
+                        answer: answer
+                    });
+                    // Save answer
+                    return pieceForumQuestionDoc.update({
+                        date: date,
+                        answer: newAnswerArray
+                    });
+                } else {*/
+                    // No answer to this question yet
+                    let date = Date.now();
+                    let newAnswerArray = [];
+
+                    if(doc.data().answerArray){
+                        newAnswerArray = doc.data().answerArray;
+                    }
+                    newAnswerArray.push({
+                        date: date,
+                        id: newAnswerArray.length,
+                        userId: BackendService.token,
+                        userName: BackendService.userName,
+                        answer: answer
+                    });
+
+                    // Save first answer
+                    return pieceForumQuestionDoc.update({
+                        date: date,
+                        answerArray: newAnswerArray
+                    });
+                //}
+            } else {
+                console.log("No such document!");
+                throw "question not found";
+            }
+        });        
+    }
+
+    removeQuestion(pieceId, postId) {
+        let pieceForumQuestionDoc = firebasef.firestore()
+            .collection("piece")
+            .doc(pieceId)
+            .collection("forum")
+            .doc(postId);
+        
+        return pieceForumQuestionDoc.delete();
+
+    }
+
+    reportQuestion(pieceId, postId) {
+        let pieceForumQuestionDoc = firebasef.firestore()
+            .collection("piece")
+            .doc(pieceId)
+            .collection("forum")
+            .doc(postId);
+        
+        return pieceForumQuestionDoc.get().then(doc => {
+            if (doc.exists) {
+                let reportCounter = 1;
+
+                // Check if question has already been reported
+                // If true => set as ground value
+                if(doc.data().reportCounter){
+                    reportCounter = doc.data().reportCounter + 1;
+                }
+
+                return pieceForumQuestionDoc.update({
+                    reportCounter: reportCounter
+                }).then(() => {
+                    // Report to Dev
+                    let date = Date.now();
+                    let supportReportDoc = firebasef.firestore()
+                        .collection("support")
+                        .doc(BackendService.token)
+                        .collection("report")
+                        .doc(pieceId);
+
+                    return supportReportDoc.set({
+                        pieceId: pieceId,
+                        postId: postId,
+                        date: date,
+                        type: "question"
+                    });
+                })
+            }
+        });
+    }
+
+    removeAnswer(pieceId, postId, answerId) {
+        let pieceForumQuestionDoc = firebasef.firestore()
+            .collection("piece")
+            .doc(pieceId)
+            .collection("forum")
+            .doc(postId);
+        
+        return pieceForumQuestionDoc.get().then(doc => {
+            if (doc.exists) {
+                let answerArray = [];
+                answerArray = doc.data().answerArray;
+
+                answerArray.splice(answerId, 1);
+
+                // Update Answer-Array-Index (IDs)
+                for(let i=0;i<answerArray.length;i++) {
+                    answerArray[i].id = i;
+                }
+                
+                return pieceForumQuestionDoc.update({
+                    answerArray: answerArray
+                })
+            }
+        });
+    }
+
+    reportAnswer(pieceId, postId, answerId) {
+        let pieceForumQuestionDoc = firebasef.firestore()
+            .collection("piece")
+            .doc(pieceId)
+            .collection("forum")
+            .doc(postId);
+        
+        return pieceForumQuestionDoc.get().then(doc => {
+            if (doc.exists) {
+                let answerArray = [];
+                answerArray = doc.data().answerArray;
+                if(answerArray[answerId].reported) {
+                    answerArray[answerId].reported = answerArray[answerId].reported + 1;
+                } else {
+                    answerArray[answerId].reported = 1;
+                }
+
+                return pieceForumQuestionDoc.update({
+                    answerArray: answerArray
+                }).then(() => {
+                    // Report to Dev
+                    let date = Date.now();
+                    let supportReportDoc = firebasef.firestore()
+                        .collection("support")
+                        .doc(BackendService.token)
+                        .collection("report")
+                        .doc(pieceId);
+
+                    return supportReportDoc.set({
+                        pieceId: pieceId,
+                        postId: postId,
+                        date: date,
+                        type: "answer",
+                        answerId: answerId
+                    });
+                });
+            }
+        });
+    }
+
+    acceptAnswer(pieceId, postId, answerId) {
+        let pieceForumQuestionDoc = firebasef.firestore()
+            .collection("piece")
+            .doc(pieceId)
+            .collection("forum")
+            .doc(postId);
+
+        return pieceForumQuestionDoc.get().then(doc => {
+            if (doc.exists) {
+                let answerArray = [];
+                answerArray = doc.data().answerArray;
+                answerArray[answerId].accepted = true;
+
+                // Extract solving answer
+                let answer = answerArray[answerId];
+                // Delete answer
+                answerArray.splice(answerId, 1);
+                // Unshift solving answer to i=0 of array
+                answerArray.unshift(answer);
+    
+                return pieceForumQuestionDoc.update({
+                    solved: true,
+                    answerArray: answerArray
+                });
+            }
+        });
+    }
 }
