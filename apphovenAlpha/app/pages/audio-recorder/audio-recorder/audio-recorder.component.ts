@@ -24,7 +24,7 @@ import { Slider } from 'ui/slider';
 import { SegmentedBarItem } from "ui/segmented-bar";
 import { TNSRecorder, TNSPlayer, AudioPlayerOptions, AudioRecorderOptions } from 'nativescript-audio';
 import { RouterExtensions } from "nativescript-angular/router";
-import { android as android } from "application";
+// import { android as android } from "application";
 // UI Plugin
 import { SwissArmyKnife } from "nativescript-swiss-army-knife";
 import * as Toast from "nativescript-toast";
@@ -93,7 +93,6 @@ export class AudioRecorderComponent implements OnInit, OnDestroy {
     @ViewChild("pieceSelectContainerBottom") pieceSelectContainerBottom: ElementRef;
     @ViewChild("recordButton") recordButton: ElementRef;
 
-
     constructor(private _ngZone: NgZone, private _routerExtensions: RouterExtensions, private _page: Page) {
         // Audiometer UI Component 8B3333
         this.signalColor = [false,false,false,false,false,false];
@@ -106,9 +105,15 @@ export class AudioRecorderComponent implements OnInit, OnDestroy {
         //this.set('currentVolume', 1);
         this.audioEntities = [];
         this.meterLine = [];
-        this.audioPath = fs.knownFolders.documents().getFolder("audio");
-        console.log("P1: " + fs.path.normalize(this.audioPath.path));
-        console.log("PATH: "+this.audioPath);
+        
+        // Android Muisc Path => apphoven-recordings
+        let androidMusicPath = android.os.Environment.getExternalStoragePublicDirectory(
+            android.os.Environment.DIRECTORY_MUSIC).toString(); 
+        // creates PATH for folder called apphoven-recordings in /Music (string value)
+        let apphovenRecordingPath = fs.path.join(androidMusicPath, "apphoven-recordings");
+        let audioFolder = fs.Folder.fromPath(apphovenRecordingPath);
+
+        this.audioPath = audioFolder;
 
         // Fetching Firebase Piece-Information
         // this.loadPieceInformation();
@@ -905,17 +910,24 @@ export class AudioRecorderComponent implements OnInit, OnDestroy {
     }*/
 
     deleteRecording(){
-        let audioFolder = this.audioPath // knownFolders.documents().getFolder("audio");
-        let deleteFile = audioFolder.getFile(this.fileName);
+
+        // DELTE FILE FROM DEVICE
+        let deleteFile = this.audioPath.getFile(this.fileName+".m4a");
+
         if (deleteFile) {
+            // >> fs-delete-file-code
             deleteFile.remove()
                 .then(res => {
-                // Success removing the file.
-                //this.resultMessage = "File successfully deleted!";
-                console.log("Sucessfully deleted");
-            }).catch(err => {
-                console.log(err.stack);
-            });
+                    // Success removing the file.
+                    //this.resultMessage = "File successfully deleted!";
+                    console.log("Sucessfully deleted");
+                }).catch(err => {
+                    console.log(err.stack);
+                });
+            // << fs-delete-file-code
+        } else {
+            console.log("Already deleted")
+            //this.resultMessage = "Already deleted file!";
         }
     }
 

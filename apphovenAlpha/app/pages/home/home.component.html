@@ -1,141 +1,143 @@
 <StackLayout>
-<!-- (tap)="showSettings=!showSettings" -->
-<GridLayout #profileContainer [visibility]="!tutorialTour ? 'visible' : 'collapsed'" rows="auto" columns="auto,*" class="profile-heading primary-color" (tap)="navigateTo('/profile', true)" (swipe)="navigationSwipe($event)" paddingBottom="0">
-    <GridLayout row="0" col="0" rows="auto, auto" columns="auto" marginRight="14">
-        <Image row="0" col="0" src="res://beethoven_profile" height="60"></Image>
-        <Label row="1" col="0" text="LVL {{ userLvl }}" class="text-center title-regular" fontSize="15"></Label>        
-    </GridLayout>
-    <GridLayout row="0" col="1" rows="auto, auto, auto" columns="*" marginTop="8">
-        <Label row="0" col="1" text="{{ username }}" (longPress)="updateUserName()" (tap)="showToast('Press long to change Username')" class="title-regular huge-title"></Label>
-        <GridLayout row="1" col="1" rows="auto,auto" columns="auto,auto"  backgroundColor="#FFF0D6" style="border-radius: 50">
-            <StackLayout #xpProgressBar height="20" row="0" col="0" width="{{ xpCurrentDisplayBar / xpMax * 100 }}%" minWidth="80%" backgroundColor="#FFD151" style="border-radius: 50"></StackLayout>s
+    <!-- (tap)="showSettings=!showSettings" -->
+    <GridLayout #profileContainer [visibility]="!tutorialTour ? 'visible' : 'collapsed'" rows="auto" columns="auto,*" class="profile-heading primary-color" (tap)="navigateTo('/profile', true)" (swipe)="navigationSwipe($event)" paddingBottom="0">
+        <GridLayout row="0" col="0" rows="auto, auto" columns="auto" marginRight="14">
+            <Image row="0" col="0" src="res://beethoven_profile" height="60"></Image>
+            <Label row="1" col="0" text="LVL {{ userLvl }}" class="text-center title-regular" fontSize="15"></Label>        
         </GridLayout>
-        <Label row="2" col="1" text="{{ xpCurrent }} / {{ xpMax }} XP" class="title-regular" fontSize="15" marginTop="2"></Label>
+        <GridLayout row="0" col="1" rows="auto, auto, auto" columns="*" marginTop="8">
+            <Label row="0" col="1" text="{{ username }}" (longPress)="updateUserName()" (tap)="showToast('Press long to change Username')" class="title-regular huge-title"></Label>
+            <GridLayout row="1" col="1" rows="auto,auto" columns="auto,auto"  backgroundColor="#FFF0D6" style="border-radius: 50">
+                <StackLayout #xpProgressBar height="20" row="0" col="0" width="{{ xpCurrentDisplayBar / xpMax * 100 }}%" minWidth="80%" backgroundColor="#FFD151" style="border-radius: 50"></StackLayout>s
+            </GridLayout>
+            <Label row="2" col="1" text="{{ xpCurrent }} / {{ xpMax }} XP" class="title-regular" fontSize="15" marginTop="2"></Label>
+        </GridLayout>
     </GridLayout>
-</GridLayout>
-<GridLayout rows="auto" columns="*,auto" class="primary-color" padding="0 6 5 0" (tap)="navigateTo('/profile', true)" (swipe)="navigationSwipe($event)">
-    <GridLayout col="1" columns="auto,auto" backgroundColor="rgb(255, 239, 239)" padding="1 3 1 6" style="border-radius: 90">
-        <Label col="0" text="{{ settingsIcon }} {{ profileIcon }}" class="icon-font" style="text-align: right; color: #E95D59" fontSize="15"></Label>
-        <Label col="1" text="{{ moreIcon }}" class="icon-font" style="text-align: right; transform: rotate(270deg); color: #D04F4F" fontSize="15" marginLeft="5"></Label>
+
+    <GridLayout #beethovenContainer *ngIf="tutorialTour > 0" columns="auto, *" height="160" class="beethoven-container primary-color" (tap)='beethoven("inherit")' (longPress)='beethoven("kill")'>
+        <StackLayout width="100" height="100" col="0" class="m-r-5">
+            <Image src="res://beethoven_profile" stretch="aspectFill"></Image>
+        </StackLayout>
+    
+        <StackLayout col="1">
+            <ScrollView (tap)='beethoven("inherit")' (longPress)='beethoven("kill")'><StackLayout>
+            <Label text="{{ beethovenMsg }}" style.whiteSpace="normal" class="beethoven-msg"></Label>
+            </StackLayout></ScrollView>
+        </StackLayout>
     </GridLayout>
-</GridLayout>
 
-<StackLayout *ngIf="showSettings" class="hr-dark"></StackLayout>
-<StackLayout *ngIf="showSettings" class="settings-container profile-heading primary-color">
-    <Label text="SHOW PROFILE" class="title-regular text-center" (tap)="navigateTo('/profile')"></Label>
-</StackLayout>
-<StackLayout *ngIf="showSettings" class="settings-container profile-heading primary-color">
-    <Label text="SHOW SETTINGS" class="title-regular text-center" (tap)="navigateTo('/settings')"></Label>
-</StackLayout>
-
-<GridLayout #beethovenContainer *ngIf="tutorialTour > 0" columns="auto, *" height="160" class="beethoven-container primary-color" (tap)='beethoven("inherit")' (longPress)='beethoven("kill")'>
-    <StackLayout width="100" height="100" col="0" class="m-r-5">
-        <Image src="res://beethoven_profile" stretch="aspectFill"></Image>
-    </StackLayout>
-
-    <StackLayout col="1">
-        <ScrollView (tap)='beethoven("inherit")' (longPress)='beethoven("kill")'><StackLayout>
-        <Label text="{{ beethovenMsg }}" style.whiteSpace="normal" class="beethoven-msg"></Label>
-        </StackLayout></ScrollView>
-    </StackLayout>
-</GridLayout>
-<StackLayout [visibility]="(displayLvlUpNotification || (newsArray.length>0)) ? 'visible' : 'collapsed'" padding="20%" >
+    <GridLayout [visibility]="!tutorialTour ? 'visible' : 'collapsed'" rows="auto" columns="*,auto" class="primary-color" padding="0 6 5 0" (tap)="navigateTo('/profile', true)" (swipe)="navigationSwipe($event)">
+        <GridLayout col="1" columns="auto,auto" backgroundColor="rgb(255, 239, 239)" padding="1 3 1 6" style="border-radius: 90">
+            <Label col="0" text="{{ settingsIcon }} {{ profileIcon }}" class="icon-font" style="text-align: right; color: #E95D59" fontSize="15"></Label>
+            <Label col="1" text="{{ moreIcon }}" class="icon-font" style="text-align: right; transform: rotate(270deg); color: #D04F4F" fontSize="15" marginLeft="5"></Label>
+        </GridLayout>
+    </GridLayout>
     
-    <Label class="title-regular" text="NEUES"></Label>
-
-    <!-- News Notifications (Friendrequests) -->
-    <GridLayout rows="auto" columns="*" marginBottom="10">
+    <StackLayout *ngIf="showSettings" class="hr-dark"></StackLayout>
+    <StackLayout *ngIf="showSettings" class="settings-container profile-heading primary-color">
+        <Label text="SHOW PROFILE" class="title-regular text-center" (tap)="navigateTo('/profile')"></Label>
+    </StackLayout>
+    <StackLayout *ngIf="showSettings" class="settings-container profile-heading primary-color">
+        <Label text="SHOW SETTINGS" class="title-regular text-center" (tap)="navigateTo('/settings')"></Label>
+    </StackLayout>
     
-    <StackLayout row="0" class="primary-color lvl-up-container" #friendRequestNotification [visibility]="(newsArray.length > 0)? 'visible' : 'collapsed'" (pan)="onFriendRequestPan($event)">
-        <GridLayout *ngIf="newsArray.length > 0" rows="70" columns="auto,*" verticalAlign="center" padding="10%">
-            <StackLayout width="60" height="60" col="0" marginLeft="10" marginRight="10" backgroundColor="#FFD151" borderRadius="90">
-                <!-- <Image src="res://new_friend_bg" stretch="aspectFill"></Image>-->
+    <StackLayout [visibility]="(displayLvlUpNotification || (newsArray.length>0)) ? 'visible' : 'collapsed'" padding="20%" >
+        
+        <Label class="title-regular" text="NEUES"></Label>
+    
+        <!-- News Notifications (Friendrequests) -->
+        <GridLayout rows="auto" columns="*" marginBottom="10">
+        
+        <StackLayout row="0" class="primary-color lvl-up-container" #friendRequestNotification [visibility]="(newsArray.length > 0)? 'visible' : 'collapsed'" (pan)="onFriendRequestPan($event)">
+            <GridLayout *ngIf="newsArray.length > 0" rows="70" columns="auto,*" verticalAlign="center" padding="10%">
+                <StackLayout width="60" height="60" col="0" marginLeft="10" marginRight="10" backgroundColor="#FFD151" borderRadius="90">
+                    <!-- <Image src="res://new_friend_bg" stretch="aspectFill"></Image>-->
+                </StackLayout>
+                <Label col="0" marginLeft="10" marginRight="10" class="text-center icon-font" text="{{ friendIcon }}" style="text-align: center; vertical-align: center; font-size: 40;"></Label>
+                    
+                <StackLayout col="1">
+                    <GridLayout rows="30,40" marginLeft="10">
+                        <Label row="0" class="title-regular" text="{{ (newsArray[0].type=='friendrequest') ? 'New Friend Request:' : 'News' }}" style="vertical-align: bottom;"></Label>
+                        <StackLayout row="1" style="vertical-align: top;">
+                            <Label *ngIf="newsArray[0].friendRequestName != ''" class="title-regular subtitle" text="From: {{ newsArray[0].friendRequestName }}" style.whiteSpace="normal"></Label>
+                            <Label class="title-regular subtitle" text="{{ newsArray[0].friendRequestEmail }}" style="vertical-align: top;" style.whiteSpace="normal"></Label>        
+                        </StackLayout>
+                    </GridLayout>
+                </StackLayout>
+            </GridLayout>
+        </StackLayout>
+    
+        <Label *ngIf="fRNotificationStatus > 0" class="friend-request-status-info icon-font" style="{{ fRNotificationStatus == 1 ? 'text-align: left; color: green' : 'text-align: right; color: gray' }}" text="{{ fRNotificationStatus == 1 ? acceptIcon : (fRNotificationStatus == 2 ? denyIcon : '') }}"></Label>
+        </GridLayout>
+    
+        <GridLayout #lvlUpNotification [visibility]="displayLvlUpNotification ? 'visible' : 'collapsed'" rows="70" columns="auto,*" verticalAlign="center" padding="10%" class="primary-color lvl-up-container" (pan)="onLvlUpNotificationPan($event)">
+            <StackLayout width="60" height="60" col="0" class="m-r-5">
+                <Image src="{{ lvlUpBadgeSrc }}" stretch="aspectFill"></Image>
             </StackLayout>
-            <Label col="0" marginLeft="10" marginRight="10" class="text-center icon-font" text="{{ friendIcon }}" style="text-align: center; vertical-align: center; font-size: 40;"></Label>
+            <Label col="0" class="text-center title-lvl" text="{{ userLvl }}" style="text-align: center; vertical-align: center;"></Label>
                 
             <StackLayout col="1">
-                <GridLayout rows="30,40" marginLeft="10">
-                    <Label row="0" class="title-regular" text="{{ (newsArray[0].type=='friendrequest') ? 'New Friend Request:' : 'News' }}" style="vertical-align: bottom;"></Label>
-                    <StackLayout row="1" style="vertical-align: top;">
-                        <Label *ngIf="newsArray[0].friendRequestName != ''" class="title-regular subtitle" text="From: {{ newsArray[0].friendRequestName }}" style.whiteSpace="normal"></Label>
-                        <Label class="title-regular subtitle" text="{{ newsArray[0].friendRequestEmail }}" style="vertical-align: top;" style.whiteSpace="normal"></Label>        
-                    </StackLayout>
+                <GridLayout rows="35,35" marginLeft="10">
+                    <Label row="0" class="title-regular" text="LEVEL UP" style="vertical-align: bottom;"></Label>
+                    <Label row="1" class="title-regular subtitle" text="Congratulations, you've achieved level {{ userLvl }} !" style="vertical-align: top;" style.whiteSpace="normal"></Label>
                 </GridLayout>
             </StackLayout>
         </GridLayout>
     </StackLayout>
-
-    <Label *ngIf="fRNotificationStatus > 0" class="friend-request-status-info icon-font" style="{{ fRNotificationStatus == 1 ? 'text-align: left; color: green' : 'text-align: right; color: gray' }}" text="{{ fRNotificationStatus == 1 ? acceptIcon : (fRNotificationStatus == 2 ? denyIcon : '') }}"></Label>
-    </GridLayout>
-
-    <GridLayout #lvlUpNotification [visibility]="displayLvlUpNotification ? 'visible' : 'collapsed'" rows="70" columns="auto,*" verticalAlign="center" padding="10%" class="primary-color lvl-up-container" (pan)="onLvlUpNotificationPan($event)">
-        <StackLayout width="60" height="60" col="0" class="m-r-5">
-            <Image src="{{ lvlUpBadgeSrc }}" stretch="aspectFill"></Image>
+    
+    <StackLayout #mainContainer class="ah-main-container-s" style="{{ !tutorialTour ? 'padding-top: 10' : null}}">
+        <ScrollView orientation="vertical">
+        <StackLayout>
+    
+        <GridLayout rows="auto, auto, auto" columns="*, *" paddingBottom="15">
+            <StackLayout #pieceListItem row="0" col="0" (tap)="navigateTo('/piece-list')" class="{{ beethovenMsg ? 'home-icon-container-alt m-10' : 'home-icon-container' }}">
+                <Image src="res://home_icon_piece_list" class="home-icon" stretch="aspectFill"></Image>
+                <Label text="Piece-List" class="text-center"></Label>
+            </StackLayout>
+            <StackLayout #addPieceItem row="0" col="1" (tap)="navigateTo('/addpiece')" class="{{ beethovenMsg ? 'home-icon-container-alt m-10' : 'home-icon-container' }}">
+                <Image src="res://home_icon_add_piece" class="home-icon" stretch="aspectFill"></Image>
+                <Label text="Add Piece" class="text-center"></Label>
+            </StackLayout>
+            <StackLayout row="1" col="0" (tap)="navigateTo('/audio-list')" class="m-8 m-t-10 home-icon-container">
+                <Image src="res://home_icon_vinyl" class="home-icon" stretch="aspectFill"></Image>
+                <Label text="Recording-List" class="text-center"></Label>
+            </StackLayout>
+            <StackLayout row="1" col="1" (tap)="navigateTo('/audio-recorder')" class="m-8 m-t-10 home-icon-container">
+                <Image src="res://home_icon_microphone" class="home-icon" stretch="aspectFill"></Image>
+                <Label text="Record Audio" class="text-center"></Label>
+            </StackLayout>
+            <StackLayout #practiceSessionItem row="2" col="0" (tap)="navigateTo('/practice-session')" class="m-8 m-t-10 m-b-0 home-icon-container-last">
+                <Image src="res://home_icon_calendar" class="home-icon" stretch="aspectFill"></Image>
+                <Label text="Practice Sessions" class="text-center"></Label>
+            </StackLayout>
+        </GridLayout>
+        <!-- <StackLayout>
+            <Button (tap)="navigateTo('/addpiece')" text="add piece"></Button>
+            <Button (tap)="navigateTo('/piece-list')" text="Piece List"></Button>
+            <Label text=" "></Label> 
+            <Button (tap)="navigateTo('/audio-recorder')" text="record audio"></Button>
+            <Button (tap)="navigateTo('/audio-list')" text="list audio"></Button>
+            <Label text=" "></Label> 
+            <Button (tap)="navigateTo('/practice-session')" text="practice sessions"></Button>
+            <Label text=" "></Label> 
+            <Button (tap)="navigateTo('/settings')" text="Settings"></Button>
+            <Button (tap)="navigateTo('/profile')" text="Profile"></Button>
+            <Button (tap)="navigateTo('/metronome')" text="Metronome"></Button>
+        </StackLayout> -->
         </StackLayout>
-        <Label col="0" class="text-center title-lvl" text="{{ userLvl }}" style="text-align: center; vertical-align: center;"></Label>
-            
-        <StackLayout col="1">
-            <GridLayout rows="35,35" marginLeft="10">
-                <Label row="0" class="title-regular" text="LEVEL UP" style="vertical-align: bottom;"></Label>
-                <Label row="1" class="title-regular subtitle" text="Congratulations, you've achieved level {{ userLvl }} !" style="vertical-align: top;" style.whiteSpace="normal"></Label>
-            </GridLayout>
-        </StackLayout>
-    </GridLayout>
-</StackLayout>
-
-<StackLayout #mainContainer class="ah-main-container-s" style="{{ !tutorialTour ? 'padding-top: 10' : null}}">
-    <ScrollView orientation="vertical">
-    <StackLayout>
-
-    <GridLayout rows="auto, auto, auto" columns="*, *" paddingBottom="15">
-        <StackLayout #pieceListItem row="0" col="0" (tap)="navigateTo('/piece-list')" class="{{ beethovenMsg ? 'home-icon-container-alt m-10' : 'home-icon-container' }}">
-            <Image src="res://home_icon_piece_list" class="home-icon" stretch="aspectFill"></Image>
-            <Label text="Piece-List" class="text-center"></Label>
-        </StackLayout>
-        <StackLayout #addPieceItem row="0" col="1" (tap)="navigateTo('/addpiece')" class="{{ beethovenMsg ? 'home-icon-container-alt m-10' : 'home-icon-container' }}">
-            <Image src="res://home_icon_add_piece" class="home-icon" stretch="aspectFill"></Image>
-            <Label text="Add Piece" class="text-center"></Label>
-        </StackLayout>
-        <StackLayout row="1" col="0" (tap)="navigateTo('/audio-list')" class="m-8 m-t-10 home-icon-container">
-            <Image src="res://home_icon_vinyl" class="home-icon" stretch="aspectFill"></Image>
-            <Label text="Recording-List" class="text-center"></Label>
-        </StackLayout>
-        <StackLayout row="1" col="1" (tap)="navigateTo('/audio-recorder')" class="m-8 m-t-10 home-icon-container">
-            <Image src="res://home_icon_microphone" class="home-icon" stretch="aspectFill"></Image>
-            <Label text="Record Audio" class="text-center"></Label>
-        </StackLayout>
-        <StackLayout #practiceSessionItem row="2" col="0" (tap)="navigateTo('/practice-session')" class="m-8 m-t-10 m-b-0 home-icon-container-last">
-            <Image src="res://home_icon_calendar" class="home-icon" stretch="aspectFill"></Image>
-            <Label text="Practice Sessions" class="text-center"></Label>
-        </StackLayout>
-    </GridLayout>
-    <!-- <StackLayout>
-        <Button (tap)="navigateTo('/addpiece')" text="add piece"></Button>
-        <Button (tap)="navigateTo('/piece-list')" text="Piece List"></Button>
-        <Label text=" "></Label> 
-        <Button (tap)="navigateTo('/audio-recorder')" text="record audio"></Button>
-        <Button (tap)="navigateTo('/audio-list')" text="list audio"></Button>
-        <Label text=" "></Label> 
-        <Button (tap)="navigateTo('/practice-session')" text="practice sessions"></Button>
-        <Label text=" "></Label> 
-        <Button (tap)="navigateTo('/settings')" text="Settings"></Button>
-        <Button (tap)="navigateTo('/profile')" text="Profile"></Button>
-        <Button (tap)="navigateTo('/metronome')" text="Metronome"></Button>
-    </StackLayout> -->
+        </ScrollView>
+    
     </StackLayout>
-    </ScrollView>
-
-</StackLayout>
-
-</StackLayout>
-
-<DockLayout stretchLastChild="false">
-    <Button #practiceNowButton (tap)="practiceNow()" dock="bottom" text="PRACTICE NOW" class="practice-button primary-color" ></Button>
-</DockLayout>
-
-<!-- Achievement UI Element
-<DockLayout stretchLastChild="false">
-        <StackLayout dock="bottom" class="achievement">
-            <Label text="LEVEL UP" class="title-regular font-light"></Label>
-        </StackLayout>
-</DockLayout> -->
+    
+    </StackLayout>
+    
+    <DockLayout stretchLastChild="false">
+        <Button #practiceNowButton (tap)="practiceNow()" dock="bottom" text="PRACTICE NOW" class="practice-button primary-color" ></Button>
+    </DockLayout>
+    
+    <!-- Achievement UI Element
+    <DockLayout stretchLastChild="false">
+            <StackLayout dock="bottom" class="achievement">
+                <Label text="LEVEL UP" class="title-regular font-light"></Label>
+            </StackLayout>
+    </DockLayout> -->

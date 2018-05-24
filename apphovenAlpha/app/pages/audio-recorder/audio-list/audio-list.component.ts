@@ -5,7 +5,7 @@ import { firestore } from "nativescript-plugin-firebase";
 const firebase = require("nativescript-plugin-firebase/app");
 import { BackendService, PieceService } from "../../../shared";
 import { Observable as RxObservable } from 'rxjs/Observable';
-import { knownFolders, File } from 'file-system';
+import * as fs from "file-system";
 // import * as fs from 'file-system';
 import * as app from 'application';
 import * as color from 'color';
@@ -61,8 +61,15 @@ export class AudioListComponent implements OnDestroy {
             if(result){
 
                 // DELTE FILE FROM DEVICE
-                let audioFolder = knownFolders.currentApp().getFolder("audio");
-                let deleteFile = audioFolder.getFile(filename);
+                // Android Muisc Path => apphoven-recordings
+                let androidMusicPath = android.os.Environment.getExternalStoragePublicDirectory(
+                    android.os.Environment.DIRECTORY_MUSIC).toString(); 
+                // creates PATH for folder called apphoven-recordings in /Music (string value)
+                let apphovenRecordingPath = fs.path.join(androidMusicPath, "apphoven-recordings");
+                let audioFolder = fs.Folder.fromPath(apphovenRecordingPath);
+                let deleteFile = fs.Folder.fromPath(apphovenRecordingPath).getFile(filename+".m4a");
+
+                console.log("delete: "+deleteFile);
                 if (deleteFile) {
                     // >> fs-delete-file-code
                     deleteFile.remove()

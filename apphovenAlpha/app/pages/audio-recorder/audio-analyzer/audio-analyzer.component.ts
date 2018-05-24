@@ -34,6 +34,7 @@ import { RouterExtensions } from "nativescript-angular/router";
 
 export class AudioAnalyzerComponent implements OnInit, OnDestroy {
 
+    
     private fbRecordingArray: Array<any>;
     private fbRecordingIdArray: Array<any>;
     private noRecordingFound: boolean = false;
@@ -75,13 +76,20 @@ export class AudioAnalyzerComponent implements OnInit, OnDestroy {
     private listenerUnsubscribeMarks: () => void;
 
     constructor(private _pageRoute: PageRoute, private _ngZone: NgZone, private _page: Page, private _msTransform: MillisecondTransformerPipe, private _routerExtensions: RouterExtensions){
+
         this.fbRecordingIdArray = [];
         this.fbRecordingArray = [];
         this.fbRecordingMarks = [];
         this.fbRecordingMarkIds = [];
         this.routerParamId = [];
         this.audioMeterLine = [];
-        this.audioPath = fs.knownFolders.documents().getFolder("audio");;
+
+        // Android Muisc Path => apphoven-recordings
+        let androidMusicPath = android.os.Environment.getExternalStoragePublicDirectory(
+            android.os.Environment.DIRECTORY_MUSIC).toString(); 
+        // creates PATH for folder called apphoven-recordings in /Music (string value)
+        let apphovenRecordingPath = fs.path.join(androidMusicPath, "apphoven-recordings");
+        this.audioPath = apphovenRecordingPath;
 
         // Audio-Plugin
         this.player = new TNSPlayer();
@@ -94,26 +102,35 @@ export class AudioAnalyzerComponent implements OnInit, OnDestroy {
             this.routerParamId['optionalParam'] = params['optionalParam'];
         });
 
-        let audioPathFileInit = fs.path.normalize(this.audioPath.path);
-		this.player.initFromFile({
-			audioFile: `${audioPathFileInit}/${this.routerParamId['recordingFileName']}.${this.platformExtension()}`, // ~ = app directory
-			loop: false,
-			completeCallback: this._trackComplete.bind(this),
-			errorCallback: this._trackError.bind(this)
-		}).then(() => {
+        let audioPathFileInit = this.audioPath;
+        console.log("PATH INFO: " + `${audioPathFileInit}/${this.routerParamId['recordingFileName']}.${this.platformExtension()}`);
 
-			this.player.getAudioTrackDuration().then((duration) => {
-				// iOS: duration is in seconds
-				// Android: duration is in milliseconds
-                this.duration = duration;
-				console.log(`recording duration:`, duration);
-			});
-		}, () => {
-            console.log("ERROR LOADING !!!");
-            console.log("PATH ERROR: " + `${audioPathFileInit}/${this.routerParamId['recordingFileName']}.${this.platformExtension()}`);
+        if(fs.File.exists(`${audioPathFileInit}/${this.routerParamId['recordingFileName']}.${this.platformExtension()}`)){
+            console.log("FILE EXISTS");
+            this.player.initFromFile({
+                audioFile: `${audioPathFileInit}/${this.routerParamId['recordingFileName']}.${this.platformExtension()}`, // ~ = app directory
+                loop: false,
+                completeCallback: this._trackComplete.bind(this),
+                errorCallback: this._trackError.bind(this)
+            }).then(() => {
+
+                this.player.getAudioTrackDuration().then((duration) => {
+                    // iOS: duration is in seconds
+                    // Android: duration is in milliseconds
+                    this.duration = duration;
+                    console.log(`recording duration:`, duration);
+                });
+            }, () => {
+                console.log("ERROR LOADING !!!");
+                console.log("PATH ERROR: " + `${audioPathFileInit}/${this.routerParamId['recordingFileName']}.${this.platformExtension()}`);
+                /*this.noRecordingFound = true;
+                this.notifyFileLoss();*/
+            });
+        } else {
             this.noRecordingFound = true;
+            console.log("FILE DOES NOT EXIST");
             this.notifyFileLoss();
-        });
+        } 
 
         // 1 => Init
         // this.loadPieceInformation(1);
@@ -291,14 +308,15 @@ export class AudioAnalyzerComponent implements OnInit, OnDestroy {
 	}
 
 	private _trackError(args: any) {
+        //console.log("PATH ERROR2: " + `${audioPathFileInit}/${this.routerParamId['recordingFileName']}.${this.platformExtension()}`);
 
-        dialogs.alert({
+        /*dialogs.alert({
             title: "Error: Audio-File not found",
             message: "Apphoven couldn't find the audio file on your device. It must have been deleted externally. Therefore, we're not able to play the recording",
             okButtonText: "Sorry"
         }).then(() => {
             console.log("Dialog closed!");
-        });        
+        });*/
 
 		console.log('reference back to player:', args.player);
 		console.log('the error:', args.error);
@@ -773,6 +791,7 @@ export class AudioAnalyzerComponent implements OnInit, OnDestroy {
     ngOnDestroy(){
         // STOP PLAYER IF IS AUDIO PLAYING
         if(this.player.isAudioPlaying()){
+            console.log("DISPOSED THE AUDIO");
             this.player.dispose();
         }
 
